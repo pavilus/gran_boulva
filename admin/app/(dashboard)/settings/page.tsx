@@ -23,9 +23,23 @@ type CoinEconomy = {
   coinsPerVote: number;
   coinsPerArgument: number;
   transferFee: number;
+  signupBonus: number;
+  dailyClaimBase: number;
+  dailyStreakBonus: number;
+  dailyClaimMax: number;
   supportAmounts: number[];
   boostTiers: BoostTier[];
   coinPacks: CoinPack[];
+};
+
+type RecommendationSettings = {
+  personalizedRatio: number;
+  discoveryRatio: number;
+  perspectiveRatio: number;
+  freshnessDecayHours: number;
+  trendingWeight: number;
+  interestWeight: number;
+  diversityWeight: number;
 };
 
 const emptyPack: CoinPack = {
@@ -47,6 +61,10 @@ const fallbackEconomy: CoinEconomy = {
   coinsPerVote: 0,
   coinsPerArgument: 0,
   transferFee: 10,
+  signupBonus: 5,
+  dailyClaimBase: 2,
+  dailyStreakBonus: 1,
+  dailyClaimMax: 10,
   supportAmounts: [10, 25, 50, 100],
   boostTiers: [
     {
@@ -78,6 +96,16 @@ const fallbackEconomy: CoinEconomy = {
       popular: true,
     },
   ],
+};
+
+const fallbackRecommendations: RecommendationSettings = {
+  personalizedRatio: 70,
+  discoveryRatio: 20,
+  perspectiveRatio: 10,
+  freshnessDecayHours: 48,
+  trendingWeight: 1.2,
+  interestWeight: 2,
+  diversityWeight: 0.35,
 };
 
 function Section({
@@ -167,6 +195,8 @@ const numberValue = (value: string) => {
 
 export default function SettingsPage() {
   const [economy, setEconomy] = useState<CoinEconomy>(fallbackEconomy);
+  const [recommendations, setRecommendations] =
+    useState<RecommendationSettings>(fallbackRecommendations);
   const [supportAmountsText, setSupportAmountsText] = useState("10, 25, 50, 100");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -190,12 +220,23 @@ export default function SettingsPage() {
       .finally(() => {
         if (alive) setLoading(false);
       });
+    fetch("/api/settings/recommendations")
+      .then(async (res) => {
+        if (!res.ok) throw new Error((await res.json()).error ?? "Load failed");
+        return res.json();
+      })
+      .then((data: RecommendationSettings) => {
+        if (alive) setRecommendations(data);
+      })
+      .catch((error) => {
+        if (alive) setMessage(error.message);
+      });
     return () => {
       alive = false;
     };
   }, []);
 
-  const setEconomyNumber = (key: keyof Pick<CoinEconomy, "coinsPerVote" | "coinsPerArgument" | "transferFee">) => (value: string) => {
+  const setEconomyNumber = (key: keyof Pick<CoinEconomy, "coinsPerVote" | "coinsPerArgument" | "transferFee" | "signupBonus" | "dailyClaimBase" | "dailyStreakBonus" | "dailyClaimMax">) => (value: string) => {
     setEconomy((current) => ({ ...current, [key]: numberValue(value) }));
   };
 
@@ -217,6 +258,15 @@ export default function SettingsPage() {
     }));
   };
 
+  const setRecommendationNumber =
+    (key: keyof RecommendationSettings) => (value: string) => {
+      const parsed = Number(value);
+      setRecommendations((current) => ({
+        ...current,
+        [key]: Number.isFinite(parsed) && parsed >= 0 ? parsed : 0,
+      }));
+    };
+
   const save = async () => {
     setSaving(true);
     setMessage("");
@@ -234,9 +284,17 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Save failed");
+      const recRes = await fetch("/api/settings/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(recommendations),
+      });
+      const recData = await recRes.json();
+      if (!recRes.ok) throw new Error(recData.error ?? "Save failed");
       setEconomy(data);
+      setRecommendations(recData);
       setSupportAmountsText(data.supportAmounts.join(", "));
-      setMessage("Paramèt coins yo sove.");
+      setMessage("Paramèt yo sove.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Save failed");
     } finally {
@@ -282,6 +340,90 @@ export default function SettingsPage() {
             onChange={setSupportAmountsText}
             hint="Separe yo ak vigil: 10, 25, 50, 100"
           />
+        </Section>
+
+        <Section title="Rekonpans Coins">
+          <div className="grid gap-4 md:grid-cols-4">
+            <Field
+              label="Bonus Enskripsyon"
+              value={economy.signupBonus}
+              onChange={setEconomyNumber("signupBonus")}
+              type="number"
+              hint="Rekòmande: 5"
+            />
+            <Field
+              label="Claim Chak Jou"
+              value={economy.dailyClaimBase}
+              onChange={setEconomyNumber("dailyClaimBase")}
+              type="number"
+              hint="Montan jou 1"
+            />
+            <Field
+              label="Bonus Streak"
+              value={economy.dailyStreakBonus}
+              onChange={setEconomyNumber("dailyStreakBonus")}
+              type="number"
+              hint="Ajoute pa jou streak"
+            />
+            <Field
+              label="Maks Claim Jou"
+              value={economy.dailyClaimMax}
+              onChange={setEconomyNumber("dailyClaimMax")}
+              type="number"
+              hint="Plafon chak jou"
+            />
+          </div>
+        </Section>
+
+        <Section title="Rekòmandasyon Feed">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Field
+              label="Pèsonalizasyon %"
+              value={recommendations.personalizedRatio}
+              onChange={setRecommendationNumber("personalizedRatio")}
+              type="number"
+              hint="Rekòmande: 70"
+            />
+            <Field
+              label="Dekouvèt %"
+              value={recommendations.discoveryRatio}
+              onChange={setRecommendationNumber("discoveryRatio")}
+              type="number"
+              hint="Rekòmande: 20"
+            />
+            <Field
+              label="Pèspektiv Nouvo %"
+              value={recommendations.perspectiveRatio}
+              onChange={setRecommendationNumber("perspectiveRatio")}
+              type="number"
+              hint="Rekòmande: 10"
+            />
+            <Field
+              label="Freshness Decay"
+              value={recommendations.freshnessDecayHours}
+              onChange={setRecommendationNumber("freshnessDecayHours")}
+              type="number"
+              hint="An èdtan"
+            />
+            <Field
+              label="Pwa Tandans"
+              value={recommendations.trendingWeight}
+              onChange={setRecommendationNumber("trendingWeight")}
+              type="number"
+            />
+            <Field
+              label="Pwa Enterè"
+              value={recommendations.interestWeight}
+              onChange={setRecommendationNumber("interestWeight")}
+              type="number"
+            />
+            <Field
+              label="Pwa Divèsite"
+              value={recommendations.diversityWeight}
+              onChange={setRecommendationNumber("diversityWeight")}
+              type="number"
+            />
+          </div>
         </Section>
 
         <Section title="Pake Coins pou Achte">

@@ -134,7 +134,10 @@ class _MatchupsFeedScreenState extends State<MatchupsFeedScreen> {
                                 final matchup = _matchups[i];
                                 return MatchupCard(
                                   matchup: matchup,
-                                  onTap: () {
+                                  onTap: () async {
+                                    await MatchupService()
+                                        .recordMatchupView(matchup.id);
+                                    if (!context.mounted) return;
                                     final voted = matchup.myVoteOptionId;
                                     final query = voted == null
                                         ? ''

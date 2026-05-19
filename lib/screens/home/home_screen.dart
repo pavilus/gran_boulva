@@ -172,7 +172,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final matchup = _matchups[i];
                                 return MatchupCard(
                                   matchup: matchup,
-                                  onTap: () {
+                                  onTap: () async {
+                                    await _matchupService
+                                        .recordMatchupView(matchup.id);
+                                    if (!context.mounted) return;
                                     final voted = matchup.myVoteOptionId;
                                     final query = voted == null
                                         ? ''

@@ -16,6 +16,7 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final _notificationService = NotificationService();
+  final _argumentService = ArgumentService();
 
   List<NotificationModel> _all = [];
   bool _loading = true;
@@ -113,11 +114,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (table == null || id == null || !mounted) return;
 
     if (table == 'matchups') {
+      await MatchupService().recordNotificationClick(
+        targetType: 'matchup',
+        targetId: id,
+      );
+      if (!mounted) return;
       context.push('/matchup/$id');
     } else if (table == 'predictions') {
+      await MatchupService().recordNotificationClick(
+        targetType: 'prediction',
+        targetId: id,
+      );
+      if (!mounted) return;
       context.push('/prediction/$id');
     } else if (table == 'arguments') {
-      context.push('/matchup/$id');
+      await MatchupService().recordNotificationClick(
+        targetType: 'argument',
+        targetId: id,
+      );
+      final matchupId = await _argumentService.getArgumentMatchupId(id);
+      if (!mounted || matchupId == null) return;
+      context.push('/matchup/$matchupId');
     } else if (table == 'users') {
       context.push('/user/$id');
     } else if (table == 'badges' || table == 'user_badges') {

@@ -119,6 +119,11 @@ class UserService {
       'follower_id': user.id,
       'following_id': targetUserId,
     });
+    await RecommendationService().recordEvent(
+      eventType: 'follow',
+      targetType: 'user',
+      targetId: targetUserId,
+    );
   }
 
   Future<void> unfollow(String targetUserId) async {
@@ -156,17 +161,47 @@ class MatchupService {
 
   Future<List<MatchupModel>> getHomeFeed({String? categoryId}) async {
     try {
-      final res = await supabase.functions.invoke('get-home-feed',
-          queryParameters:
-              categoryId != null ? {'category_id': categoryId} : null);
-      final data = res.data as Map<String, dynamic>;
-      final matchups = (data['matchups'] as List? ?? [])
+      final data = await supabase.rpc('get_recommended_home_feed', params: {
+        'p_category_id': categoryId,
+        'p_limit': 30,
+      });
+      return (data as List? ?? [])
           .map((j) => MatchupModel.fromJson(j))
           .toList();
-      return matchups;
-    } catch (_) {
-      return _fetchMatchupsFallback(categoryId: categoryId);
+    } catch (e) {
+      debugPrint('recommended feed fallback: $e');
+      try {
+        final res = await supabase.functions.invoke('get-home-feed',
+            queryParameters:
+                categoryId != null ? {'category_id': categoryId} : null);
+        final data = res.data as Map<String, dynamic>;
+        final matchups = (data['matchups'] as List? ?? [])
+            .map((j) => MatchupModel.fromJson(j))
+            .toList();
+        return matchups;
+      } catch (_) {
+        return _fetchMatchupsFallback(categoryId: categoryId);
+      }
     }
+  }
+
+  Future<void> recordMatchupView(String matchupId) {
+    return RecommendationService().recordEvent(
+      eventType: 'matchup_view',
+      targetType: 'matchup',
+      targetId: matchupId,
+    );
+  }
+
+  Future<void> recordNotificationClick({
+    required String targetType,
+    required String targetId,
+  }) {
+    return RecommendationService().recordEvent(
+      eventType: 'notification_click',
+      targetType: targetType,
+      targetId: targetId,
+    );
   }
 
   Future<List<TopVoiceModel>> getTopVoices() async {
@@ -232,6 +267,16 @@ class MatchupService {
       xpGained: 3,
       referenceId: matchupId,
     );
+    await RecommendationService().recordEvent(
+      eventType: 'vote',
+      targetType: 'matchup',
+      targetId: matchupId,
+    );
+    await RecommendationService().recordEvent(
+      eventType: 'argument_post',
+      targetType: 'matchup',
+      targetId: matchupId,
+    );
 
     return data is Map ? Map<String, dynamic>.from(data) : {'success': true};
   }
@@ -249,6 +294,11 @@ class MatchupService {
       eventType: 'vote_changed',
       xpGained: 0,
       referenceId: matchupId,
+    );
+    await RecommendationService().recordEvent(
+      eventType: 'vote',
+      targetType: 'matchup',
+      targetId: matchupId,
     );
   }
 
@@ -285,6 +335,11 @@ class MatchupService {
         'item_type': 'matchup',
         'item_id': matchupId,
       }, onConflict: 'user_id,item_type,item_id');
+      await RecommendationService().recordEvent(
+        eventType: 'save',
+        targetType: 'matchup',
+        targetId: matchupId,
+      );
     } else {
       await supabase
           .from('saved_items')
@@ -292,6 +347,26 @@ class MatchupService {
           .eq('user_id', user.id)
           .eq('item_type', 'matchup')
           .eq('item_id', matchupId);
+    }
+  }
+}
+
+class RecommendationService {
+  Future<void> recordEvent({
+    required String eventType,
+    required String targetType,
+    required String targetId,
+    Map<String, dynamic>? metadata,
+  }) async {
+    try {
+      await supabase.rpc('record_behavior_event', params: {
+        'p_event_type': eventType,
+        'p_target_type': targetType,
+        'p_target_id': targetId,
+        'p_metadata': metadata ?? {},
+      });
+    } catch (_) {
+      // Recommendation signals must not block core product actions.
     }
   }
 }
@@ -472,6 +547,11 @@ class ArgumentService {
       'user_id': user.id,
       'reaction_type': 'like',
     }, onConflict: 'argument_id,user_id');
+    await RecommendationService().recordEvent(
+      eventType: 'like',
+      targetType: 'argument',
+      targetId: argumentId,
+    );
     if (ownerUserId != null && ownerUserId != user.id) {
       NotificationService().send(
         toUserId: ownerUserId,
@@ -518,6 +598,11 @@ class ArgumentService {
       xpGained: 2,
       referenceId: argumentId,
     );
+    await RecommendationService().recordEvent(
+      eventType: 'reply',
+      targetType: 'argument',
+      targetId: argumentId,
+    );
     if (ownerUserId != null && ownerUserId != user.id) {
       NotificationService().send(
         toUserId: ownerUserId,
@@ -539,6 +624,15 @@ class ArgumentService {
         .eq('status', 'active')
         .order('created_at');
     return List<Map<String, dynamic>>.from(data);
+  }
+
+  Future<String?> getArgumentMatchupId(String argumentId) async {
+    final data = await supabase
+        .from('arguments')
+        .select('matchup_id')
+        .eq('id', argumentId)
+        .maybeSingle();
+    return data?['matchup_id'] as String?;
   }
 
   Future<void> report(
@@ -611,6 +705,10 @@ class CoinEconomyConfig {
   final int coinsPerVote;
   final int coinsPerArgument;
   final int transferFee;
+  final int signupBonus;
+  final int dailyClaimBase;
+  final int dailyStreakBonus;
+  final int dailyClaimMax;
   final List<int> supportAmounts;
   final List<CoinPackConfig> coinPacks;
   final List<BoostTierConfig> boostTiers;
@@ -619,6 +717,10 @@ class CoinEconomyConfig {
     required this.coinsPerVote,
     required this.coinsPerArgument,
     required this.transferFee,
+    required this.signupBonus,
+    required this.dailyClaimBase,
+    required this.dailyStreakBonus,
+    required this.dailyClaimMax,
     required this.supportAmounts,
     required this.coinPacks,
     required this.boostTiers,
@@ -628,6 +730,10 @@ class CoinEconomyConfig {
     coinsPerVote: 0,
     coinsPerArgument: 0,
     transferFee: 10,
+    signupBonus: 5,
+    dailyClaimBase: 2,
+    dailyStreakBonus: 1,
+    dailyClaimMax: 10,
     supportAmounts: [10, 25, 50, 100],
     coinPacks: [
       CoinPackConfig(
@@ -713,6 +819,14 @@ class CoinEconomyConfig {
       coinsPerArgument: _intFromJson(json['coinsPerArgument']),
       transferFee:
           _intFromJson(json['transferFee'], fallback: fallback.transferFee),
+      signupBonus:
+          _intFromJson(json['signupBonus'], fallback: fallback.signupBonus),
+      dailyClaimBase: _intFromJson(json['dailyClaimBase'],
+          fallback: fallback.dailyClaimBase),
+      dailyStreakBonus: _intFromJson(json['dailyStreakBonus'],
+          fallback: fallback.dailyStreakBonus),
+      dailyClaimMax:
+          _intFromJson(json['dailyClaimMax'], fallback: fallback.dailyClaimMax),
       supportAmounts:
           supportAmounts.isNotEmpty ? supportAmounts : fallback.supportAmounts,
       coinPacks: coinPacks.isNotEmpty ? coinPacks : fallback.coinPacks,
@@ -726,6 +840,35 @@ int _intFromJson(Object? value, {int fallback = 0}) {
   if (value is num) return value.round();
   if (value is String) return int.tryParse(value) ?? fallback;
   return fallback;
+}
+
+class DailyCoinClaimStatus {
+  final bool canClaim;
+  final int todayAmount;
+  final int streakCount;
+  final int nextStreakCount;
+  final int amount;
+  final bool claimed;
+
+  const DailyCoinClaimStatus({
+    required this.canClaim,
+    required this.todayAmount,
+    required this.streakCount,
+    required this.nextStreakCount,
+    this.amount = 0,
+    this.claimed = false,
+  });
+
+  factory DailyCoinClaimStatus.fromJson(Map<String, dynamic> json) {
+    return DailyCoinClaimStatus(
+      canClaim: json['can_claim'] == true,
+      todayAmount: _intFromJson(json['today_amount']),
+      streakCount: _intFromJson(json['streak_count']),
+      nextStreakCount: _intFromJson(json['next_streak_count']),
+      amount: _intFromJson(json['amount']),
+      claimed: json['claimed'] == true,
+    );
+  }
 }
 
 class CoinService {
@@ -744,6 +887,18 @@ class CoinService {
       debugPrint('getEconomyConfig fallback: $e');
     }
     return CoinEconomyConfig.fallback;
+  }
+
+  Future<DailyCoinClaimStatus> getDailyClaimStatus() async {
+    final data = await supabase.rpc('get_daily_coin_claim_status');
+    return DailyCoinClaimStatus.fromJson(
+        Map<String, dynamic>.from(data as Map));
+  }
+
+  Future<DailyCoinClaimStatus> claimDailyReward() async {
+    final data = await supabase.rpc('claim_daily_coin_reward');
+    return DailyCoinClaimStatus.fromJson(
+        Map<String, dynamic>.from(data as Map));
   }
 
   Future<int> getBalance() async {
@@ -768,6 +923,8 @@ class CoinService {
         case 'referral_reward':
         case 'admin_reward':
         case 'refund':
+        case 'signup_bonus':
+        case 'daily_claim':
           balance += transaction.amount;
           break;
         case 'boost_spend':
@@ -875,20 +1032,40 @@ class CoinService {
     String? ownerUserId,
   }) async {
     try {
-      final res = await supabase.functions.invoke('support-argument', body: {
-        'argument_id': argumentId,
-        'amount': amount,
-        'transaction_type': 'argument_support',
-      });
-      final data = res.data;
-      if (data is Map && data['error'] != null) {
-        throw Exception(data['error']);
-      }
-    } catch (_) {
-      await supabase.rpc('support_argument', params: {
+      await supabase.rpc('support_argument_checked', params: {
         'p_argument_id': argumentId,
         'p_amount': amount,
       });
+      await RecommendationService().recordEvent(
+        eventType: 'support',
+        targetType: 'argument',
+        targetId: argumentId,
+        metadata: {'amount': amount},
+      );
+    } catch (e) {
+      if (e.toString().contains('pwòp agiman')) rethrow;
+      try {
+        final res = await supabase.functions.invoke('support-argument', body: {
+          'argument_id': argumentId,
+          'amount': amount,
+          'transaction_type': 'argument_support',
+        });
+        final data = res.data;
+        if (data is Map && data['error'] != null) {
+          throw Exception(data['error']);
+        }
+      } catch (_) {
+        await supabase.rpc('support_argument', params: {
+          'p_argument_id': argumentId,
+          'p_amount': amount,
+        });
+        await RecommendationService().recordEvent(
+          eventType: 'support',
+          targetType: 'argument',
+          targetId: argumentId,
+          metadata: {'amount': amount},
+        );
+      }
     }
     if (ownerUserId != null) {
       final user = await UserService().getProfile();
@@ -1139,6 +1316,11 @@ class PredictionService {
       'selected_option': selectedOption,
       'argument_body': argumentBody,
     });
+    await RecommendationService().recordEvent(
+      eventType: 'prediction_vote',
+      targetType: 'prediction',
+      targetId: predictionId,
+    );
   }
 
   Future<Map<String, dynamic>?> getUserPredictionVote(
@@ -1166,7 +1348,9 @@ class PredictionService {
 class NotificationService {
   Future<List<NotificationModel>> getNotifications(
       {bool unreadOnly = false}) async {
-    var q = supabase.from('notifications').select();
+    final user = await UserService().getProfile();
+    if (user == null) return [];
+    var q = supabase.from('notifications').select().eq('user_id', user.id);
     if (unreadOnly) q = q.eq('is_read', false);
     final data = await q.order('created_at', ascending: false).limit(50);
     return (data as List).map((j) => NotificationModel.fromJson(j)).toList();
@@ -1240,6 +1424,11 @@ class BoostService {
         if (coinCost != null) 'coin_cost': coinCost,
         'transaction_type': useCoins ? 'boost_spend' : 'boost',
       });
+      await RecommendationService().recordEvent(
+        eventType: 'boost',
+        targetType: 'argument',
+        targetId: argumentId,
+      );
       return Map<String, dynamic>.from(res.data as Map);
     } catch (_) {
       final data = await supabase.rpc('boost_argument', params: {
@@ -1249,6 +1438,11 @@ class BoostService {
         'p_use_coins': useCoins,
         'p_coin_cost': coinCost,
       });
+      await RecommendationService().recordEvent(
+        eventType: 'boost',
+        targetType: 'argument',
+        targetId: argumentId,
+      );
       return Map<String, dynamic>.from(data as Map);
     }
   }
