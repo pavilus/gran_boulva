@@ -1,0 +1,60 @@
+name: gran_boulva
+description: Gran Boulva — Haitian social debate, voting, prediction, and influence platform.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Supabase
+  supabase_flutter: ^2.7.0
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Navigation
+  go_router: ^14.3.0
+
+  # UI
+  google_fonts: ^6.2.1
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+  smooth_page_indicator: ^1.2.0+3
+
+  # Utils
+  timeago: ^3.6.1
+  share_plus: ^9.0.0
+  url_launcher: ^6.2.6
+  image_picker: ^1.1.1
+  flutter_dotenv: ^5.1.0
+  intl: ^0.20.2
+
+  # Payments
+  flutter_stripe: ^10.1.1
+
+  # Storage
+  shared_preferences: ^2.2.3
+
+  # HTTP
+  http: ^1.2.1
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - assets/images/
+    - assets/icons/
+    - assets/animations/

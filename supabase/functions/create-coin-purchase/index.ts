@@ -1,0 +1,122 @@
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+type PurchaseBody = {
+  coin_amount?: number;
+  usd_amount?: number;
+  usd_cents?: number;
+};
+
+async function getUser(req: Request, supabaseUrl: string, anonKey: string) {
+  const authorization = req.headers.get("Authorization") ?? "";
+  const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
+    headers: {
+      apikey: anonKey,
+      Authorization: authorization,
+    },
+  });
+
+  if (!res.ok) return null;
+  return await res.json();
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+
+    if (!supabaseUrl || !anonKey || !stripeSecretKey) {
+      return Response.json(
+        { error: "Missing Supabase or Stripe function secrets" },
+        { status: 500, headers: corsHeaders },
+      );
+    }
+
+    const user = await getUser(req, supabaseUrl, anonKey);
+    if (!user?.id) {
+      return Response.json(
+        { error: "Not authenticated" },
+        { status: 401, headers: corsHeaders },
+      );
+    }
+
+    const body = (await req.json()) as PurchaseBody;
+    const coinAmount = Number(body.coin_amount ?? 0);
+    const usdCents = Number(body.usd_cents ?? Math.round((body.usd_amount ?? 0) * 100));
+
+    if (!Number.isInteger(coinAmount) || coinAmount <= 0) {
+      return Response.json(
+        { error: "Invalid coin amount" },
+        { status: 400, headers: corsHeaders },
+      );
+    }
+    if (!Number.isInteger(usdCents) || usdCents < 50) {
+      return Response.json(
+        { error: "Invalid payment amount" },
+        { status: 400, headers: corsHeaders },
+      );
+    }
+
+    const params = new URLSearchParams({
+      amount: usdCents.toString(),
+      currency: "usd",
+      "payment_method_types[]": "card",
+      "metadata[user_id]": user.id,
+      "metadata[coin_amount]": coinAmount.toString(),
+      "metadata[usd_cents]": usdCents.toString(),
+    });
+
+    const stripeRes = await fetch("https://api.stripe.com/v1/payment_intents", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${stripeSecretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params,
+    });
+
+    const paymentIntent = await stripeRes.json();
+    if (!stripeRes.ok) {
+      return Response.json(
+        { error: paymentIntent?.error?.message ?? "Stripe payment failed" },
+        { status: 400, headers: corsHeaders },
+      );
+    }
+
+    if (serviceRoleKey) {
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+      await admin.from("coin_purchases").insert({
+        user_id: user.id,
+        coin_amount: coinAmount,
+        usd_cents: usdCents,
+        stripe_payment_id: paymentIntent.id,
+        status: "pending",
+      });
+    }
+
+    return Response.json(
+      {
+        client_secret: paymentIntent.client_secret,
+        payment_intent_id: paymentIntent.id,
+      },
+      { headers: corsHeaders },
+    );
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500, headers: corsHeaders },
+    );
+  }
+});

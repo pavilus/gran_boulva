@@ -1,0 +1,1407 @@
+import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/models.dart';
+
+final supabase = Supabase.instance.client;
+
+class AuthService {
+  Future<AuthResponse> signIn(String email, String password) =>
+      supabase.auth.signInWithPassword(email: email, password: password);
+
+  Future<AuthResponse> signUp(String email, String password) =>
+      supabase.auth.signUp(email: email, password: password);
+
+  Future<void> signOut() => supabase.auth.signOut();
+
+  Future<void> resetPassword(String email) =>
+      supabase.auth.resetPasswordForEmail(email);
+
+  User? get currentUser => supabase.auth.currentUser;
+  Session? get currentSession => supabase.auth.currentSession;
+}
+
+class UserService {
+  Future<UserModel?> getProfile() async {
+    final uid = supabase.auth.currentUser?.id;
+    if (uid == null) return null;
+    final data = await supabase
+        .from('users')
+        .select()
+        .eq('auth_user_id', uid)
+        .maybeSingle();
+    if (data == null) return null;
+    return UserModel.fromJson(data);
+  }
+
+  Future<UserModel?> getProfileById(String userId) async {
+    final data =
+        await supabase.from('users').select().eq('id', userId).single();
+    return UserModel.fromJson(data);
+  }
+
+  Future<UserModel?> getProfileByUsername(String username) async {
+    final data = await supabase
+        .from('users')
+        .select()
+        .ilike('username', username)
+        .maybeSingle();
+    if (data == null) return null;
+    return UserModel.fromJson(data);
+  }
+
+  Future<void> createProfile({
+    required String authUserId,
+    required String fullName,
+    required String username,
+    required String email,
+    String? referralCode,
+    String language = 'ht',
+  }) async {
+    final myCode = username.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '') +
+        DateTime.now().millisecondsSinceEpoch.toString().substring(7);
+    await supabase.from('users').insert({
+      'auth_user_id': authUserId,
+      'full_name': fullName,
+      'username': username,
+      'email': email,
+      'language': language,
+      'referral_code': myCode,
+      'referred_by_code': referralCode,
+    });
+  }
+
+  Future<bool> isUsernameAvailable(String username) async {
+    final result = await supabase
+        .rpc('is_username_available', params: {'p_username': username});
+    return result == true;
+  }
+
+  Future<void> updateProfile({
+    String? fullName,
+    String? username,
+    String? bio,
+    String? avatarUrl,
+    String? location,
+  }) async {
+    final user = await getProfile();
+    if (user == null) return;
+    final updates = <String, dynamic>{};
+    if (fullName != null) updates['full_name'] = fullName;
+    if (username != null) updates['username'] = username;
+    if (bio != null) updates['bio'] = bio;
+    if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
+    if (location != null) updates['location'] = location;
+    if (updates.isEmpty) return;
+    await supabase.from('users').update(updates).eq('id', user.id);
+  }
+
+  Future<String?> uploadAvatar(List<int> bytes, String userId) async {
+    final path = '$userId/avatar.jpg';
+    await supabase.storage.from('avatars').uploadBinary(
+          path,
+          bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+          fileOptions:
+              const FileOptions(upsert: true, contentType: 'image/jpeg'),
+        );
+    return supabase.storage.from('avatars').getPublicUrl(path);
+  }
+
+  Future<List<TopVoiceModel>> getTopVoices({int limit = 8}) async {
+    final data =
+        await supabase.rpc('get_top_voices', params: {'p_limit': limit});
+    return (data as List).map((j) => TopVoiceModel.fromJson(j)).toList();
+  }
+
+  Future<void> follow(String targetUserId) async {
+    final user = await getProfile();
+    if (user == null) return;
+    await supabase.from('follows').insert({
+      'follower_id': user.id,
+      'following_id': targetUserId,
+    });
+  }
+
+  Future<void> unfollow(String targetUserId) async {
+    final user = await getProfile();
+    if (user == null) return;
+    await supabase
+        .from('follows')
+        .delete()
+        .eq('follower_id', user.id)
+        .eq('following_id', targetUserId);
+  }
+
+  Future<bool> isFollowing(String targetUserId) async {
+    final user = await getProfile();
+    if (user == null) return false;
+    final result = await supabase
+        .from('follows')
+        .select('id')
+        .eq('follower_id', user.id)
+        .eq('following_id', targetUserId)
+        .maybeSingle();
+    return result != null;
+  }
+}
+
+class MatchupService {
+  Future<List<CategoryModel>> getCategories() async {
+    final data = await supabase
+        .from('categories')
+        .select()
+        .eq('is_active', true)
+        .order('sort_order');
+    return (data as List).map((j) => CategoryModel.fromJson(j)).toList();
+  }
+
+  Future<List<MatchupModel>> getHomeFeed({String? categoryId}) async {
+    try {
+      final res = await supabase.functions.invoke('get-home-feed',
+          queryParameters:
+              categoryId != null ? {'category_id': categoryId} : null);
+      final data = res.data as Map<String, dynamic>;
+      final matchups = (data['matchups'] as List? ?? [])
+          .map((j) => MatchupModel.fromJson(j))
+          .toList();
+      return matchups;
+    } catch (_) {
+      return _fetchMatchupsFallback(categoryId: categoryId);
+    }
+  }
+
+  Future<List<TopVoiceModel>> getTopVoices() async {
+    try {
+      final res = await supabase.functions.invoke('get-home-feed');
+      final data = res.data as Map<String, dynamic>;
+      return (data['top_voices'] as List? ?? [])
+          .map((j) => TopVoiceModel.fromJson(j))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<List<MatchupModel>> _fetchMatchupsFallback(
+      {String? categoryId, String sort = 'popular'}) async {
+    var q = supabase
+        .from('matchups')
+        .select('*, category:categories(*), options:matchup_options(*)')
+        .eq('status', 'published');
+
+    if (categoryId != null) q = q.eq('category_id', categoryId);
+
+    final orderCol = sort == 'popular' ? 'engagement_score' : 'published_at';
+    final data = await q.order(orderCol, ascending: false).limit(30);
+    return (data as List).map((j) => MatchupModel.fromJson(j)).toList();
+  }
+
+  Future<List<MatchupModel>> getMatchupsFeed(
+      {String sort = 'popular', String? categoryId}) async {
+    return _fetchMatchupsFallback(sort: sort, categoryId: categoryId);
+  }
+
+  Future<MatchupModel?> getMatchupDetail(String matchupId) async {
+    final data = await supabase
+        .from('matchups')
+        .select('*, category:categories(*), options:matchup_options(*)')
+        .eq('id', matchupId)
+        .single();
+    return MatchupModel.fromJson(data);
+  }
+
+  Future<Map<String, dynamic>> submitVoteAndArgument({
+    required String matchupId,
+    required String optionId,
+    required String argumentBody,
+  }) async {
+    final data =
+        await supabase.rpc('submit_vote_and_argument_with_coins', params: {
+      'p_matchup_id': matchupId,
+      'p_option_id': optionId,
+      'p_argument_body': argumentBody,
+    });
+    await BadgeService().recordEvent(
+      badgeKey: 'top_voter',
+      eventType: 'vote',
+      xpGained: 1,
+      referenceId: matchupId,
+    );
+    await BadgeService().recordEvent(
+      badgeKey: 'debater',
+      eventType: 'argument_posted',
+      xpGained: 3,
+      referenceId: matchupId,
+    );
+
+    return data is Map ? Map<String, dynamic>.from(data) : {'success': true};
+  }
+
+  Future<void> changeVote({
+    required String matchupId,
+    required String newOptionId,
+  }) async {
+    await supabase.rpc('change_vote_with_coins', params: {
+      'p_matchup_id': matchupId,
+      'p_option_id': newOptionId,
+    });
+    await BadgeService().recordEvent(
+      badgeKey: 'top_voter',
+      eventType: 'vote_changed',
+      xpGained: 0,
+      referenceId: matchupId,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getUserVote(String matchupId) async {
+    final user = await UserService().getProfile();
+    if (user == null) return null;
+    final result = await supabase
+        .from('votes')
+        .select()
+        .eq('user_id', user.id)
+        .eq('matchup_id', matchupId)
+        .maybeSingle();
+    return result;
+  }
+
+  Future<bool> hasUserArgued(String matchupId) async {
+    final user = await UserService().getProfile();
+    if (user == null) return false;
+    final result = await supabase
+        .from('arguments')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('matchup_id', matchupId)
+        .maybeSingle();
+    return result != null;
+  }
+
+  Future<void> toggleSave(String matchupId, bool save) async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    if (save) {
+      await supabase.from('saved_items').upsert({
+        'user_id': user.id,
+        'item_type': 'matchup',
+        'item_id': matchupId,
+      }, onConflict: 'user_id,item_type,item_id');
+    } else {
+      await supabase
+          .from('saved_items')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('item_type', 'matchup')
+          .eq('item_id', matchupId);
+    }
+  }
+}
+
+class ArgumentService {
+  static const _argumentSelectWithRelations =
+      '*, user:users!arguments_user_id_fkey(username, avatar_url), option:matchup_options!arguments_option_id_fkey(option_label, option_name)';
+
+  Future<Map<String, dynamic>> getArguments(String matchupId,
+      {String sort = 'popular', int page = 0, bool fetchAll = false}) async {
+    try {
+      final arguments = await _fetchVoterVisibleArguments(
+        matchupId,
+        sort: sort,
+        page: page,
+        fetchAll: fetchAll,
+      ).catchError((e) {
+        debugPrint('getArguments rpc fallback: $e');
+        return _fetchArguments(
+          matchupId,
+          sort: sort,
+          page: page,
+          fetchAll: fetchAll,
+        );
+      });
+      await _mergeCurrentUserArgument(arguments, matchupId);
+      return {'arguments': arguments, 'locked': false};
+    } catch (e) {
+      debugPrint('getArguments error: $e');
+      return {'locked': false, 'arguments': [], 'error': e.toString()};
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchVoterVisibleArguments(
+    String matchupId, {
+    required String sort,
+    required int page,
+    required bool fetchAll,
+  }) async {
+    final data = await supabase.rpc('get_matchup_arguments_for_voter', params: {
+      'p_matchup_id': matchupId,
+      'p_sort': sort,
+      'p_limit': 20,
+      'p_offset': page * 20,
+      'p_fetch_all': fetchAll,
+    });
+    return (data as List? ?? [])
+        .map((row) => Map<String, dynamic>.from(row as Map))
+        .toList();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchArguments(
+    String matchupId, {
+    required String sort,
+    required int page,
+    required bool fetchAll,
+  }) async {
+    final orderCol = sort == 'recent' ? 'created_at' : 'visibility_score';
+    try {
+      final query = supabase
+          .from('arguments')
+          .select(_argumentSelectWithRelations)
+          .eq('matchup_id', matchupId)
+          .eq('status', 'active')
+          .order(orderCol, ascending: false);
+      final data = fetchAll
+          ? await query
+          : await query.range(page * 20, (page + 1) * 20 - 1);
+      return List<Map<String, dynamic>>.from(data as List);
+    } catch (e) {
+      debugPrint('getArguments joined query fallback: $e');
+      final query = supabase
+          .from('arguments')
+          .select()
+          .eq('matchup_id', matchupId)
+          .eq('status', 'active')
+          .order(orderCol, ascending: false);
+      final data = fetchAll
+          ? await query
+          : await query.range(page * 20, (page + 1) * 20 - 1);
+      final arguments = List<Map<String, dynamic>>.from(data as List);
+      await _hydrateArgumentRelations(arguments);
+      return arguments;
+    }
+  }
+
+  Future<void> _mergeCurrentUserArgument(
+    List<Map<String, dynamic>> arguments,
+    String matchupId,
+  ) async {
+    try {
+      final user = await UserService().getProfile();
+      if (user == null || arguments.any((a) => a['user_id'] == user.id)) return;
+
+      final mine = await supabase
+          .from('arguments')
+          .select(_argumentSelectWithRelations)
+          .eq('matchup_id', matchupId)
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .order('created_at', ascending: false);
+      if (mine.isNotEmpty) {
+        arguments.insertAll(
+          0,
+          mine.map((a) => Map<String, dynamic>.from(a as Map)),
+        );
+      }
+    } catch (e) {
+      debugPrint('getArguments current user merge error: $e');
+    }
+  }
+
+  Future<void> _hydrateArgumentRelations(
+      List<Map<String, dynamic>> arguments) async {
+    if (arguments.isEmpty) return;
+
+    await Future.wait([
+      _hydrateArgumentUsers(arguments),
+      _hydrateArgumentOptions(arguments),
+    ]);
+  }
+
+  Future<void> _hydrateArgumentUsers(
+      List<Map<String, dynamic>> arguments) async {
+    try {
+      final userIds = arguments
+          .map((a) => a['user_id'])
+          .whereType<String>()
+          .toSet()
+          .toList();
+      if (userIds.isEmpty) return;
+      final rows = await supabase
+          .from('users')
+          .select('id, username, avatar_url')
+          .inFilter('id', userIds);
+      final usersById = {
+        for (final row in rows as List)
+          row['id'] as String: Map<String, dynamic>.from(row as Map)
+      };
+      for (final argument in arguments) {
+        argument['user'] = usersById[argument['user_id']];
+      }
+    } catch (e) {
+      debugPrint('getArguments user hydration error: $e');
+    }
+  }
+
+  Future<void> _hydrateArgumentOptions(
+      List<Map<String, dynamic>> arguments) async {
+    try {
+      final optionIds = arguments
+          .map((a) => a['option_id'])
+          .whereType<String>()
+          .toSet()
+          .toList();
+      if (optionIds.isEmpty) return;
+      final rows = await supabase
+          .from('matchup_options')
+          .select('id, option_label, option_name')
+          .inFilter('id', optionIds);
+      final optionsById = {
+        for (final row in rows as List)
+          row['id'] as String: Map<String, dynamic>.from(row as Map)
+      };
+      for (final argument in arguments) {
+        argument['option'] = optionsById[argument['option_id']];
+      }
+    } catch (e) {
+      debugPrint('getArguments option hydration error: $e');
+    }
+  }
+
+  Future<void> likeArgument(String argumentId, {String? ownerUserId}) async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    await supabase.from('argument_reactions').upsert({
+      'argument_id': argumentId,
+      'user_id': user.id,
+      'reaction_type': 'like',
+    }, onConflict: 'argument_id,user_id');
+    if (ownerUserId != null && ownerUserId != user.id) {
+      NotificationService().send(
+        toUserId: ownerUserId,
+        type: 'argument_like',
+        title: '@${user.username} renmen agiman ou',
+        relatedTable: 'arguments',
+        relatedId: argumentId,
+      );
+    }
+  }
+
+  Future<void> dislikeArgument(String argumentId) async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    await supabase.from('argument_reactions').upsert({
+      'argument_id': argumentId,
+      'user_id': user.id,
+      'reaction_type': 'dislike',
+    }, onConflict: 'argument_id,user_id');
+  }
+
+  Future<void> removeReaction(String argumentId) async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    await supabase
+        .from('argument_reactions')
+        .delete()
+        .eq('argument_id', argumentId)
+        .eq('user_id', user.id);
+  }
+
+  Future<void> replyToArgument(String argumentId, String body,
+      {String? ownerUserId}) async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    await supabase.from('argument_replies').insert({
+      'argument_id': argumentId,
+      'user_id': user.id,
+      'body': body,
+    });
+    await BadgeService().recordEvent(
+      badgeKey: 'community',
+      eventType: 'helpful_reply',
+      xpGained: 2,
+      referenceId: argumentId,
+    );
+    if (ownerUserId != null && ownerUserId != user.id) {
+      NotificationService().send(
+        toUserId: ownerUserId,
+        type: 'argument_reply',
+        title: '@${user.username} reponn agiman ou',
+        body: body.length > 80 ? '${body.substring(0, 80)}…' : body,
+        relatedTable: 'arguments',
+        relatedId: argumentId,
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getReplies(String argumentId) async {
+    final data = await supabase
+        .from('argument_replies')
+        .select(
+            '*, user:users!argument_replies_user_id_fkey(username, avatar_url)')
+        .eq('argument_id', argumentId)
+        .eq('status', 'active')
+        .order('created_at');
+    return List<Map<String, dynamic>>.from(data);
+  }
+
+  Future<void> report(
+      {required String type,
+      required String id,
+      required String reason}) async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    await supabase.from('reports').insert({
+      'reporter_user_id': user.id,
+      'reported_type': type,
+      'reported_id': id,
+      'reason': reason,
+    });
+  }
+}
+
+class CoinPackConfig {
+  final int coins;
+  final int price;
+  final String label;
+  final String savings;
+  final bool popular;
+
+  const CoinPackConfig({
+    required this.coins,
+    required this.price,
+    required this.label,
+    required this.savings,
+    required this.popular,
+  });
+
+  factory CoinPackConfig.fromJson(Map<String, dynamic> json) {
+    return CoinPackConfig(
+      coins: _intFromJson(json['coins']),
+      price: _intFromJson(json['price']),
+      label: (json['label'] ?? '').toString(),
+      savings: (json['savings'] ?? '').toString(),
+      popular: json['popular'] == true,
+    );
+  }
+}
+
+class BoostTierConfig {
+  final String label;
+  final String tier;
+  final int coins;
+  final String desc;
+
+  const BoostTierConfig({
+    required this.label,
+    required this.tier,
+    required this.coins,
+    required this.desc,
+  });
+
+  String get price => '$coins Coins';
+
+  factory BoostTierConfig.fromJson(Map<String, dynamic> json) {
+    return BoostTierConfig(
+      label: (json['label'] ?? '').toString(),
+      tier: (json['tier'] ?? '').toString(),
+      coins: _intFromJson(json['coins']),
+      desc: (json['desc'] ?? '').toString(),
+    );
+  }
+}
+
+class CoinEconomyConfig {
+  final int coinsPerVote;
+  final int coinsPerArgument;
+  final int transferFee;
+  final List<int> supportAmounts;
+  final List<CoinPackConfig> coinPacks;
+  final List<BoostTierConfig> boostTiers;
+
+  const CoinEconomyConfig({
+    required this.coinsPerVote,
+    required this.coinsPerArgument,
+    required this.transferFee,
+    required this.supportAmounts,
+    required this.coinPacks,
+    required this.boostTiers,
+  });
+
+  static const fallback = CoinEconomyConfig(
+    coinsPerVote: 0,
+    coinsPerArgument: 0,
+    transferFee: 10,
+    supportAmounts: [10, 25, 50, 100],
+    coinPacks: [
+      CoinPackConfig(
+        coins: 1000,
+        price: 999,
+        label: '\$9.99',
+        savings: '',
+        popular: false,
+      ),
+      CoinPackConfig(
+        coins: 2500,
+        price: 1999,
+        label: '\$19.99',
+        savings: 'Ekonomize 20%',
+        popular: true,
+      ),
+      CoinPackConfig(
+        coins: 5000,
+        price: 3499,
+        label: '\$34.99',
+        savings: 'Ekonomize 25%',
+        popular: false,
+      ),
+      CoinPackConfig(
+        coins: 10000,
+        price: 6499,
+        label: '\$64.99',
+        savings: 'Ekonomize 30%',
+        popular: false,
+      ),
+      CoinPackConfig(
+        coins: 25000,
+        price: 14999,
+        label: '\$149.99',
+        savings: 'Ekonomize 40%',
+        popular: false,
+      ),
+    ],
+    boostTiers: [
+      BoostTierConfig(
+        label: '24 Èdtan',
+        tier: '24h',
+        coins: 150,
+        desc: 'Vizibilite × 2 pandan 24 èdtan',
+      ),
+      BoostTierConfig(
+        label: '4 Jou',
+        tier: '4d',
+        coins: 350,
+        desc: 'Vizibilite × 5 pandan 4 jou',
+      ),
+      BoostTierConfig(
+        label: '1 Semèn',
+        tier: '1w',
+        coins: 550,
+        desc: 'Vizibilite × 10 pandan 1 semèn',
+      ),
+    ],
+  );
+
+  factory CoinEconomyConfig.fromJson(Map<String, dynamic> json) {
+    final supportAmounts = (json['supportAmounts'] as List? ?? [])
+        .map(_intFromJson)
+        .where((value) => value > 0)
+        .toList();
+    final coinPacks = (json['coinPacks'] as List? ?? [])
+        .whereType<Map>()
+        .map((item) => CoinPackConfig.fromJson(
+              Map<String, dynamic>.from(item),
+            ))
+        .where((pack) => pack.coins > 0 && pack.price > 0)
+        .toList();
+    final boostTiers = (json['boostTiers'] as List? ?? [])
+        .whereType<Map>()
+        .map((item) => BoostTierConfig.fromJson(
+              Map<String, dynamic>.from(item),
+            ))
+        .where((tier) => tier.tier.isNotEmpty && tier.coins > 0)
+        .toList();
+
+    return CoinEconomyConfig(
+      coinsPerVote: _intFromJson(json['coinsPerVote']),
+      coinsPerArgument: _intFromJson(json['coinsPerArgument']),
+      transferFee:
+          _intFromJson(json['transferFee'], fallback: fallback.transferFee),
+      supportAmounts:
+          supportAmounts.isNotEmpty ? supportAmounts : fallback.supportAmounts,
+      coinPacks: coinPacks.isNotEmpty ? coinPacks : fallback.coinPacks,
+      boostTiers: boostTiers.isNotEmpty ? boostTiers : fallback.boostTiers,
+    );
+  }
+}
+
+int _intFromJson(Object? value, {int fallback = 0}) {
+  if (value is int) return value;
+  if (value is num) return value.round();
+  if (value is String) return int.tryParse(value) ?? fallback;
+  return fallback;
+}
+
+class CoinService {
+  Future<CoinEconomyConfig> getEconomyConfig() async {
+    try {
+      final data = await supabase
+          .from('app_settings')
+          .select('value')
+          .eq('key', 'coin_economy')
+          .maybeSingle();
+      final value = data?['value'];
+      if (value is Map) {
+        return CoinEconomyConfig.fromJson(Map<String, dynamic>.from(value));
+      }
+    } catch (e) {
+      debugPrint('getEconomyConfig fallback: $e');
+    }
+    return CoinEconomyConfig.fallback;
+  }
+
+  Future<int> getBalance() async {
+    final user = await UserService().getProfile();
+    if (user == null) return 0;
+    if (user.coinBalance > 0) return user.coinBalance;
+
+    final transactions = await getTransactions(limit: 200);
+    return balanceFromTransactions(transactions);
+  }
+
+  int balanceFromTransactions(List<CoinTransactionModel> transactions) {
+    var balance = 0;
+    for (final transaction in transactions) {
+      final status = transaction.status.toLowerCase();
+      if (status != 'completed' && status != 'succeeded' && status != 'paid') {
+        continue;
+      }
+
+      switch (transaction.transactionType) {
+        case 'purchase':
+        case 'referral_reward':
+        case 'admin_reward':
+        case 'refund':
+          balance += transaction.amount;
+          break;
+        case 'boost_spend':
+        case 'argument_support':
+        case 'vote_spend':
+        case 'vote_change_spend':
+        case 'argument_post_spend':
+          balance -= transaction.amount + transaction.fee;
+          break;
+        case 'transfer':
+          balance -= transaction.fee;
+          break;
+      }
+    }
+    return balance < 0 ? 0 : balance;
+  }
+
+  Future<List<CoinTransactionModel>> getTransactions({int limit = 20}) async {
+    final user = await UserService().getProfile();
+    if (user == null) return [];
+    final data = await supabase
+        .from('coin_transactions')
+        .select()
+        .or('from_user_id.eq.${user.id},to_user_id.eq.${user.id}')
+        .order('created_at', ascending: false)
+        .limit(limit);
+    return (data as List).map((j) => CoinTransactionModel.fromJson(j)).toList();
+  }
+
+  Future<Map<String, dynamic>> createPurchase({
+    required int coinAmount,
+    required int usdCents,
+  }) async {
+    try {
+      final res =
+          await supabase.functions.invoke('create-coin-purchase', body: {
+        'coin_amount': coinAmount,
+        'usd_amount': usdCents / 100,
+        'usd_cents': usdCents,
+      });
+      final data = _mapFromResponse(res.data);
+      final error = data['error'] ?? data['message'];
+      if (error != null && data['client_secret'] == null) {
+        throw Exception(error);
+      }
+      if (_clientSecretFrom(data) == null) {
+        throw Exception('Missing Stripe client secret');
+      }
+      return data;
+    } catch (e) {
+      debugPrint('createPurchase edge function error: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> confirmCoinPurchase({
+    required String clientSecret,
+  }) async {
+    final res = await supabase.functions.invoke('confirm-coin-purchase', body: {
+      'client_secret': clientSecret,
+    });
+    final data = _mapFromResponse(res.data);
+    final error = data['error'] ?? data['message'];
+    if (error != null) throw Exception(error);
+    return data;
+  }
+
+  Map<String, dynamic> _mapFromResponse(Object? data) {
+    if (data is Map) return Map<String, dynamic>.from(data);
+    if (data is List && data.isNotEmpty && data.first is Map) {
+      return Map<String, dynamic>.from(data.first as Map);
+    }
+    return {'data': data};
+  }
+
+  String? _clientSecretFrom(Map<String, dynamic> data) {
+    final direct = data['client_secret'] ?? data['clientSecret'];
+    if (direct != null && direct.toString().isNotEmpty) {
+      return direct.toString();
+    }
+
+    final paymentIntent = data['payment_intent'] ?? data['paymentIntent'];
+    if (paymentIntent is Map) {
+      final nested =
+          paymentIntent['client_secret'] ?? paymentIntent['clientSecret'];
+      if (nested != null && nested.toString().isNotEmpty) {
+        return nested.toString();
+      }
+    }
+
+    final nestedData = data['data'];
+    if (nestedData is Map) {
+      final nested = nestedData['client_secret'] ?? nestedData['clientSecret'];
+      if (nested != null && nested.toString().isNotEmpty) {
+        return nested.toString();
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> supportArgument({
+    required String argumentId,
+    required int amount,
+    String? ownerUserId,
+  }) async {
+    try {
+      final res = await supabase.functions.invoke('support-argument', body: {
+        'argument_id': argumentId,
+        'amount': amount,
+        'transaction_type': 'argument_support',
+      });
+      final data = res.data;
+      if (data is Map && data['error'] != null) {
+        throw Exception(data['error']);
+      }
+    } catch (_) {
+      await supabase.rpc('support_argument', params: {
+        'p_argument_id': argumentId,
+        'p_amount': amount,
+      });
+    }
+    if (ownerUserId != null) {
+      final user = await UserService().getProfile();
+      if (user != null && ownerUserId != user.id) {
+        NotificationService().send(
+          toUserId: ownerUserId,
+          type: 'argument_support',
+          title: '@${user.username} sipòte agiman ou ak $amount coins',
+          relatedTable: 'arguments',
+          relatedId: argumentId,
+        );
+      }
+    }
+  }
+
+  Future<void> transferCoins({
+    required String receiverUserId,
+    required int amount,
+  }) async {
+    final economy = await getEconomyConfig();
+    try {
+      final res = await supabase.functions.invoke('transfer-coins', body: {
+        'receiver_user_id': receiverUserId,
+        'amount': amount,
+        'fee': economy.transferFee,
+        'transaction_type': 'transfer',
+      });
+      final data = res.data;
+      if (data is Map && data['error'] != null) {
+        throw Exception(data['error']);
+      }
+    } catch (_) {
+      await supabase.rpc('transfer_coins', params: {
+        'p_receiver_user_id': receiverUserId,
+        'p_amount': amount,
+      });
+    }
+  }
+}
+
+class BadgeService {
+  static const List<Map<String, dynamic>> _fallbackBadges = [
+    {
+      'id': 'top_voter',
+      'key': 'top_voter',
+      'name_ht': 'Top Votè',
+      'name_en': 'Top Voter',
+      'description_ht': 'Vote sou matchups pou monte nivo ou.',
+      'description_en': 'Vote on matchups to level up.',
+      'icon_asset': 'assets/images/Topvotè.png',
+      'color_hex': '#A855F7',
+      'sort_order': 1,
+    },
+    {
+      'id': 'hot_streak',
+      'key': 'hot_streak',
+      'name_ht': 'Tankou Dife',
+      'name_en': 'Hot Streak',
+      'description_ht': 'Kenbe aktivite ou vivan chak jou.',
+      'description_en': 'Keep your participation streak alive.',
+      'icon_asset': 'assets/images/TankouDife.png',
+      'color_hex': '#F97316',
+      'sort_order': 2,
+    },
+    {
+      'id': 'debater',
+      'key': 'debater',
+      'name_ht': 'Gran Debatè',
+      'name_en': 'Debater',
+      'description_ht': 'Ekri agiman ki fè diskisyon an pi rich.',
+      'description_en': 'Post arguments that strengthen the debate.',
+      'icon_asset': 'assets/images/Grandebatè.png',
+      'color_hex': '#3B82F6',
+      'sort_order': 3,
+    },
+    {
+      'id': 'consistent',
+      'key': 'consistent',
+      'name_ht': 'Konsistan',
+      'name_en': 'Consistent',
+      'description_ht': 'Patisipe regilyèman semèn apre semèn.',
+      'description_en': 'Participate reliably week after week.',
+      'icon_asset': 'assets/images/konsistan .png',
+      'color_hex': '#22C55E',
+      'sort_order': 4,
+    },
+    {
+      'id': 'community',
+      'key': 'community',
+      'name_ht': 'Kominote',
+      'name_en': 'Community',
+      'description_ht': 'Sipòte lòt moun epi fè kominote a grandi.',
+      'description_en': 'Support others and help the community grow.',
+      'icon_asset': 'assets/images/kominotè.png',
+      'color_hex': '#D90C82',
+      'sort_order': 5,
+    },
+  ];
+
+  static const List<int> _levelThresholds = [
+    5,
+    15,
+    35,
+    70,
+    120,
+    200,
+    320,
+    500,
+    750,
+    1100,
+  ];
+
+  List<BadgeProgressModel> fallbackProgress() {
+    final badges = _fallbackBadges.map(BadgeModel.fromJson).toList();
+    return badges.map((badge) {
+      final levels = _fallbackLevels(badge.id);
+      return BadgeProgressModel(
+        badge: badge,
+        nextLevel: levels.first,
+      );
+    }).toList();
+  }
+
+  Future<List<BadgeProgressModel>> getUserBadges({String? userId}) async {
+    try {
+      final currentUser =
+          userId == null ? await UserService().getProfile() : null;
+      final targetUserId = userId ?? currentUser?.id;
+      final badgeRows = await supabase
+          .from('badges')
+          .select()
+          .eq('is_active', true)
+          .order('sort_order');
+      final badges = (badgeRows as List)
+          .map((j) => BadgeModel.fromJson(Map<String, dynamic>.from(j as Map)))
+          .toList();
+      if (badges.isEmpty) return fallbackProgress();
+
+      final levelRows = await supabase
+          .from('badge_levels')
+          .select()
+          .order('level', ascending: true);
+      final levels = (levelRows as List)
+          .map((j) =>
+              BadgeLevelModel.fromJson(Map<String, dynamic>.from(j as Map)))
+          .toList();
+
+      List<UserBadgeModel> userBadges = [];
+      if (targetUserId != null) {
+        final progressRows = await supabase
+            .from('user_badges')
+            .select()
+            .eq('user_id', targetUserId);
+        userBadges = (progressRows as List)
+            .map((j) =>
+                UserBadgeModel.fromJson(Map<String, dynamic>.from(j as Map)))
+            .toList();
+      }
+
+      return badges.map((badge) {
+        final badgeLevels =
+            levels.where((level) => level.badgeId == badge.id).toList();
+        final progress = userBadges
+            .where((userBadge) => userBadge.badgeId == badge.id)
+            .firstOrNull;
+        final currentLevel = badgeLevels
+            .where((level) => level.level == (progress?.currentLevel ?? 0))
+            .firstOrNull;
+        final nextLevel = badgeLevels
+            .where((level) => level.level > (progress?.currentLevel ?? 0))
+            .firstOrNull;
+        return BadgeProgressModel(
+          badge: badge,
+          progress: progress,
+          currentLevel: currentLevel,
+          nextLevel: nextLevel,
+        );
+      }).toList();
+    } catch (_) {
+      return fallbackProgress();
+    }
+  }
+
+  Future<void> recordEvent({
+    required String badgeKey,
+    required String eventType,
+    required int xpGained,
+    String? referenceId,
+  }) async {
+    try {
+      await supabase.rpc('record_badge_event', params: {
+        'p_badge_key': badgeKey,
+        'p_event_type': eventType,
+        'p_xp_gained': xpGained,
+        'p_reference_id': referenceId,
+      });
+    } catch (_) {
+      // Badge progress is nice-to-have and should not block core actions.
+    }
+  }
+
+  List<BadgeLevelModel> _fallbackLevels(String badgeId) {
+    return _levelThresholds.indexed.map((entry) {
+      final level = entry.$1 + 1;
+      final requiredXp = entry.$2;
+      return BadgeLevelModel(
+        id: '$badgeId-$level',
+        badgeId: badgeId,
+        level: level,
+        requiredXp: requiredXp,
+        titleHt: 'Nivo $level',
+        titleEn: 'Level $level',
+        influenceReward: level * 5,
+      );
+    }).toList();
+  }
+}
+
+class PredictionService {
+  Future<List<PredictionModel>> getPredictions() async {
+    final data = await supabase
+        .from('predictions')
+        .select('*, category:categories(*)')
+        .inFilter('status', ['active', 'open', 'closed', 'resolved']).order(
+            'deadline_at');
+    return (data as List).map((j) => PredictionModel.fromJson(j)).toList();
+  }
+
+  Future<PredictionModel?> getPredictionDetail(String id) async {
+    final data = await supabase
+        .from('predictions')
+        .select('*, category:categories(*)')
+        .eq('id', id)
+        .single();
+    return PredictionModel.fromJson(data);
+  }
+
+  Future<void> submitPrediction({
+    required String predictionId,
+    required String selectedOption,
+    String? argumentBody,
+  }) async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    await supabase.from('prediction_votes').insert({
+      'prediction_id': predictionId,
+      'user_id': user.id,
+      'selected_option': selectedOption,
+      'argument_body': argumentBody,
+    });
+  }
+
+  Future<Map<String, dynamic>?> getUserPredictionVote(
+      String predictionId) async {
+    final user = await UserService().getProfile();
+    if (user == null) return null;
+    return supabase
+        .from('prediction_votes')
+        .select()
+        .eq('prediction_id', predictionId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+  }
+
+  Future<List<Map<String, dynamic>>> getPredictionVotes(
+      String predictionId) async {
+    final data = await supabase
+        .from('prediction_votes')
+        .select('selected_option')
+        .eq('prediction_id', predictionId);
+    return List<Map<String, dynamic>>.from(data);
+  }
+}
+
+class NotificationService {
+  Future<List<NotificationModel>> getNotifications(
+      {bool unreadOnly = false}) async {
+    var q = supabase.from('notifications').select();
+    if (unreadOnly) q = q.eq('is_read', false);
+    final data = await q.order('created_at', ascending: false).limit(50);
+    return (data as List).map((j) => NotificationModel.fromJson(j)).toList();
+  }
+
+  Future<int> getUnreadCount() async {
+    final user = await UserService().getProfile();
+    if (user == null) return 0;
+    final data = await supabase
+        .from('notifications')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+    return (data as List).length;
+  }
+
+  Future<void> markAllRead() async {
+    final user = await UserService().getProfile();
+    if (user == null) return;
+    await supabase
+        .from('notifications')
+        .update({'is_read': true})
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+  }
+
+  Future<void> markRead(String notificationId) async {
+    await supabase
+        .from('notifications')
+        .update({'is_read': true}).eq('id', notificationId);
+  }
+
+  Future<void> send({
+    required String toUserId,
+    required String type,
+    required String title,
+    String? body,
+    String? relatedTable,
+    String? relatedId,
+  }) async {
+    try {
+      await supabase.from('notifications').insert({
+        'user_id': toUserId,
+        'type': type,
+        'title': title,
+        if (body != null) 'body': body,
+        if (relatedTable != null) 'related_table': relatedTable,
+        if (relatedId != null) 'related_id': relatedId,
+        'is_read': false,
+      });
+    } catch (e) {
+      debugPrint('sendNotification error: $e');
+    }
+  }
+}
+
+class BoostService {
+  Future<Map<String, dynamic>> createBoost({
+    required String argumentId,
+    required String tier,
+    bool useFreCredit = false,
+    bool useCoins = false,
+    int? coinCost,
+  }) async {
+    try {
+      final res = await supabase.functions.invoke('boost-argument', body: {
+        'argument_id': argumentId,
+        'tier': tier,
+        'use_free_credit': useFreCredit,
+        'use_coins': useCoins,
+        if (coinCost != null) 'coin_cost': coinCost,
+        'transaction_type': useCoins ? 'boost_spend' : 'boost',
+      });
+      return Map<String, dynamic>.from(res.data as Map);
+    } catch (_) {
+      final data = await supabase.rpc('boost_argument', params: {
+        'p_argument_id': argumentId,
+        'p_tier': tier,
+        'p_use_free_credit': useFreCredit,
+        'p_use_coins': useCoins,
+        'p_coin_cost': coinCost,
+      });
+      return Map<String, dynamic>.from(data as Map);
+    }
+  }
+}
+
+class AdminService {
+  Future<List<AiDraftModel>> getPendingDrafts() async {
+    final data = await supabase
+        .from('ai_generated_drafts')
+        .select()
+        .eq('status', 'pending')
+        .order('created_at', ascending: false);
+    return (data as List).map((j) => AiDraftModel.fromJson(j)).toList();
+  }
+
+  Future<void> approveDraft(String draftId,
+      {Map<String, dynamic>? edits, String? scheduleAt}) async {
+    await supabase.functions.invoke('approve-ai-draft', body: {
+      'draft_id': draftId,
+      'action': 'approve',
+      if (edits != null) 'edits': edits,
+      if (scheduleAt != null) 'schedule_at': scheduleAt,
+    });
+  }
+
+  Future<void> rejectDraft(String draftId, {String? notes}) async {
+    await supabase.functions.invoke('approve-ai-draft', body: {
+      'draft_id': draftId,
+      'action': 'reject',
+      if (notes != null) 'notes': notes,
+    });
+  }
+
+  Future<List<MatchupModel>> getAllMatchups() async {
+    final data = await supabase
+        .from('matchups')
+        .select('*, category:categories(*), options:matchup_options(*)')
+        .order('created_at', ascending: false);
+    return (data as List).map((j) => MatchupModel.fromJson(j)).toList();
+  }
+
+  Future<void> createMatchup({
+    required String categoryId,
+    required String titleHt,
+    required String optionA,
+    required String optionB,
+    String? titleEn,
+    String? descriptionHt,
+    bool publish = false,
+  }) async {
+    final user = await UserService().getProfile();
+    final matchup = await supabase
+        .from('matchups')
+        .insert({
+          'category_id': categoryId,
+          'title_ht': titleHt,
+          'title_en': titleEn,
+          'description_ht': descriptionHt,
+          'status': publish ? 'published' : 'draft',
+          'source_type': 'admin',
+          'created_by_admin': user?.id,
+          if (publish) 'published_at': DateTime.now().toIso8601String(),
+        })
+        .select()
+        .single();
+
+    await supabase.from('matchup_options').insert([
+      {
+        'matchup_id': matchup['id'],
+        'option_label': 'A',
+        'option_name': optionA
+      },
+      {
+        'matchup_id': matchup['id'],
+        'option_label': 'B',
+        'option_name': optionB
+      },
+    ]);
+  }
+
+  Future<void> publishMatchup(String matchupId) async {
+    await supabase.from('matchups').update({
+      'status': 'published',
+      'published_at': DateTime.now().toIso8601String(),
+    }).eq('id', matchupId);
+  }
+
+  Future<void> unpublishMatchup(String matchupId) async {
+    await supabase
+        .from('matchups')
+        .update({'status': 'draft'}).eq('id', matchupId);
+  }
+
+  Future<List<Map<String, dynamic>>> getPendingReports() async {
+    final data = await supabase
+        .from('reports')
+        .select()
+        .eq('status', 'pending')
+        .order('created_at', ascending: false);
+    return List<Map<String, dynamic>>.from(data);
+  }
+
+  Future<List<UserModel>> getUsers({int limit = 50}) async {
+    final data = await supabase
+        .from('users')
+        .select()
+        .order('created_at', ascending: false)
+        .limit(limit);
+    return (data as List).map((j) => UserModel.fromJson(j)).toList();
+  }
+
+  Future<void> runTrendScan() async {
+    await supabase.functions.invoke('run-trend-scan');
+  }
+
+  Future<void> createPrediction({
+    required String categoryId,
+    required String titleHt,
+    required String optionA,
+    required String optionB,
+    required DateTime deadline,
+    String? descriptionHt,
+  }) async {
+    final user = await UserService().getProfile();
+    await supabase.from('predictions').insert({
+      'category_id': categoryId,
+      'title_ht': titleHt,
+      'option_a': optionA,
+      'option_b': optionB,
+      'description_ht': descriptionHt,
+      'deadline_at': deadline.toIso8601String(),
+      'status': 'active',
+      'source_type': 'admin',
+      'created_by_admin': user?.id,
+    });
+  }
+
+  Future<List<PredictionModel>> getAllPredictions() async {
+    final data = await supabase
+        .from('predictions')
+        .select('*, category:categories(*)')
+        .order('created_at', ascending: false);
+    return (data as List).map((j) => PredictionModel.fromJson(j)).toList();
+  }
+
+  Future<List<CategoryModel>> getCategories() async {
+    final data = await supabase.from('categories').select().order('sort_order');
+    return (data as List).map((j) => CategoryModel.fromJson(j)).toList();
+  }
+
+  Future<void> addCategory(String nameHt, String nameEn, String icon) async {
+    await supabase
+        .from('categories')
+        .insert({'name_ht': nameHt, 'name_en': nameEn, 'icon': icon});
+  }
+}

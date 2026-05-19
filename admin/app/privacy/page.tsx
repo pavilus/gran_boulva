@@ -1,0 +1,117 @@
+import LegalPage from "@/components/LegalPage";
+
+export const metadata = { title: "Privacy Policy — Gran Boulva" };
+
+export default function PrivacyPage() {
+  return (
+    <LegalPage
+      title="Privacy Policy"
+      subtitle="Règleman sou vi prive / Privacy Policy"
+      effectiveDate="May 17, 2026"
+      sections={[
+        {
+          title: "Information We Collect / Enfòmasyon Nou Kolekte",
+          content: [
+            "Account information: first name, last name, username, email address, and password (hashed — never stored in plain text).",
+            "Profile information: bio, avatar image, and language preference (Haitian Creole or English).",
+            "Activity data: votes, arguments, replies, reactions, predictions, saves, and follows.",
+            "Financial data: coin purchase history and transaction records. Payment card details are processed exclusively by Stripe — Gran Boulva never sees or stores card numbers.",
+            "Technical data: IP address, device type, operating system version, and app version.",
+            "User-generated content: the text of arguments, replies, and prediction statements you submit.",
+          ],
+        },
+        {
+          title: "How We Use Your Information / Kijan Nou Itilize Enfòmasyon Ou",
+          content: [
+            "To provide, operate, and improve the Gran Boulva platform.",
+            "To process coin purchases, transfers, and argument boosts.",
+            "To send in-app notifications about platform activity (votes, replies, mentions).",
+            "To enforce our Terms of Service and Acceptable Use Policy.",
+            "To detect fraud, abuse, and maintain platform security.",
+            "To generate aggregate, anonymized analytics about platform usage.",
+            "To comply with applicable law and legal obligations.",
+          ],
+        },
+        {
+          title: "Information We Share / Enfòmasyon Nou Pataje",
+          content: `We do not sell your personal information. We share data only with the following service providers who operate on our behalf:
+
+• Supabase (database & authentication) — data is stored on Amazon Web Services servers in the us-east-1 (N. Virginia) region. Supabase acts as a data processor under a Data Processing Agreement.
+
+• Stripe (payment processing) — we share transaction data necessary to process coin purchases. Stripe is PCI-DSS Level 1 certified.
+
+• OpenAI (AI content generation) — we use OpenAI's API to generate matchup drafts via the Scout feature. No personal user data (names, emails, UGC) is sent to OpenAI.
+
+We may disclose information if required by law, court order, or to protect the rights and safety of Gran Boulva and its users.`,
+        },
+        {
+          title: "Data Retention / Konsèvasyon Done",
+          content: `We retain your personal data for as long as your account is active. If you delete your account, we will delete your personal information within 90 days, except where retention is required by law (for example, payment transaction records required for financial compliance may be retained for up to 7 years).
+
+User-generated content you posted (arguments, replies) may remain visible in anonymized or deleted form after account deletion, depending on platform context.`,
+        },
+        {
+          title: "Your Rights / Dwa Ou",
+          content: [
+            "Access: request a copy of the personal data we hold about you.",
+            "Correction: request that we correct inaccurate or incomplete data.",
+            "Deletion: request deletion of your account and associated personal data.",
+            "Portability: request your data in a portable, machine-readable format.",
+            "Objection: object to certain types of processing (e.g., profiling).",
+            "Restriction: request that we restrict processing of your data in certain circumstances.",
+            "To exercise any right, contact us at: privacy@granboulva.com. We will respond within 30 days.",
+          ],
+        },
+        {
+          title: "Children's Privacy / Vi Prive Timoun",
+          content: `Gran Boulva is not directed to children under the age of 13. We do not knowingly collect personal information from children under 13. If you are located in the European Union, you must be at least 16 years old, or have verifiable parental consent, to use Gran Boulva.
+
+If we become aware that we have inadvertently collected information from a child under the applicable age, we will delete it promptly. Contact us at privacy@granboulva.com if you believe we have such data.`,
+        },
+        {
+          title: "International Data Transfers / Transfè Done Entènasyonal",
+          content: `Gran Boulva is operated from the United States. Data is stored on Supabase/AWS servers in the United States (us-east-1). By creating an account, you consent to the transfer of your personal information to the United States, which may have different data protection laws than your country of residence.
+
+For EU/EEA users, transfers are covered by standard contractual clauses (SCCs) as provided by Supabase's data processing agreement.`,
+        },
+        {
+          title: "CCPA — California Residents",
+          content: `If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA):
+
+• Right to Know: request disclosure of the categories and specific pieces of personal information we have collected, the sources, the business purposes, and the third parties we share it with.
+• Right to Delete: request deletion of your personal information (subject to certain exceptions).
+• Right to Opt-Out of Sale: Gran Boulva does not sell personal information. You do not need to opt out.
+• Right to Non-Discrimination: we will not discriminate against you for exercising your CCPA rights.
+
+To submit a request, email privacy@granboulva.com with "CCPA Request" in the subject line.`,
+        },
+        {
+          title: "GDPR — EU / EEA Users",
+          content: `Our legal bases for processing personal data under the General Data Protection Regulation (GDPR) are:
+
+• Contract performance: processing necessary to provide the Gran Boulva service you signed up for.
+• Legitimate interests: security monitoring, fraud prevention, and improving the platform.
+• Consent: marketing communications (you may withdraw consent at any time).
+
+Our Data Protection contact is: privacy@granboulva.com. You also have the right to lodge a complaint with your local supervisory authority.`,
+        },
+        {
+          title: "Security / Sekirite",
+          content: `We implement industry-standard security measures including:
+• All data transmitted over HTTPS / TLS encryption.
+• Passwords hashed using bcrypt via Supabase Auth — never stored in plain text.
+• Row-level security (RLS) policies on all database tables.
+• Access to production systems is restricted to authorized personnel only.
+
+No system is 100% secure. In the event of a data breach affecting your rights, we will notify you as required by applicable law.`,
+        },
+        {
+          title: "Changes to This Policy / Chanjman nan Règleman Sa",
+          content: `We may update this Privacy Policy from time to time. We will notify you of material changes by sending an in-app notification or email at least 14 days before the changes take effect. Continued use of Gran Boulva after that date constitutes acceptance of the updated policy.
+
+Contact: privacy@granboulva.com`,
+        },
+      ]}
+    />
+  );
+}
