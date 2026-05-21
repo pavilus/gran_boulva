@@ -157,9 +157,18 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   Future<void> _shareMatchup() async {
     final matchup = _matchup;
     if (matchup == null) return;
-    await Share.share(
-      'Vwa ou konte sou Gran Boulva: ${matchup.titleHt}\nhttps://granboulva.com/matchup/${matchup.id}',
-    );
+    final text =
+        'Vwa ou konte sou Gran Boulva: ${matchup.titleHt}\nhttps://granboulva.com/matchup/${matchup.id}';
+    try {
+      // Provide a non-zero origin so iOS share sheet anchors correctly
+      final box = context.findRenderObject() as RenderBox?;
+      final origin = box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : const Rect.fromLTWH(0, 0, 1, 1);
+      await Share.share(text, sharePositionOrigin: origin);
+    } catch (_) {
+      await Share.share(text);
+    }
   }
 
   Future<void> _toggleSavedMatchup() async {

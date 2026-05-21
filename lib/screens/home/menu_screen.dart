@@ -62,6 +62,28 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
+  // ── Tier helpers ───────────────────────────────────────────────
+  String _tierLabel(UserModel? p) {
+    final s = p?.influenceScore ?? 0;
+    if (s >= 70) return 'Elit';
+    if (s >= 35) return 'Konfime';
+    if (s >= 15) return 'Monte';
+    return 'Debutant';
+  }
+
+  String _tierEmoji(UserModel? p) {
+    final s = p?.influenceScore ?? 0;
+    if (s >= 70) return '⚡';
+    if (s >= 35) return '✅';
+    if (s >= 15) return '🌱';
+    return '👤';
+  }
+
+  bool get _isAdmin =>
+      _profile?.role == 'admin' || _profile?.role == 'moderator';
+  bool get _isVerified => _profile?.verificationStatus == 'verified';
+
+  // ── Build ──────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,13 +97,21 @@ class _MenuScreenState extends State<MenuScreen> {
               backgroundColor: AppColors.card,
               onRefresh: _load,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 48),
                 children: [
                   _buildProfileCard(),
                   const SizedBox(height: 16),
                   _buildStatsRow(),
                   const SizedBox(height: 24),
-                  _buildMenuSection(),
+                  _buildSection('Kont Mwen', _accountItems()),
+                  const SizedBox(height: 16),
+                  _buildSection('Kominotè', _communityItems()),
+                  const SizedBox(height: 16),
+                  _buildSection('Finansman', _financeItems()),
+                  const SizedBox(height: 16),
+                  _buildSection('Preferans', _preferencesItems()),
+                  const SizedBox(height: 16),
+                  _buildSection('Sipò', _supportItems()),
                 ],
               ),
             ),
@@ -108,7 +138,6 @@ class _MenuScreenState extends State<MenuScreen> {
     final p = _profile;
     final username = p?.username ?? 'Itilizatè';
     final fullName = p?.fullName ?? '';
-    const level = 12;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -125,7 +154,6 @@ class _MenuScreenState extends State<MenuScreen> {
         ],
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        // Avatar with glow ring
         GestureDetector(
           onTap: () => context.go('/profile'),
           child: Stack(children: [
@@ -196,9 +224,9 @@ class _MenuScreenState extends State<MenuScreen> {
                 gradient: AppColors.primaryGradient,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                '👑 Nivo $level • Enfliyansè',
-                style: TextStyle(
+              child: Text(
+                '${_tierEmoji(p)} ${_tierLabel(p)} • ${p?.influenceScore ?? 0} pwen',
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -258,124 +286,186 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
-  Widget _buildMenuSection() {
+  // ── Section builder ────────────────────────────────────────────
+  Widget _buildSection(String title, List<_MenuItemData> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Menu',
-          style: TextStyle(
+      Padding(
+        padding: const EdgeInsets.only(left: 4, bottom: 10),
+        child: Text(
+          title.toUpperCase(),
+          style: const TextStyle(
               color: AppColors.textMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-              fontFamily: 'Poppins')),
-      const SizedBox(height: 10),
-      Container(
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.4,
+              fontFamily: 'Poppins'),
         ),
-        child: Column(children: [
-          _MenuItem(
-            emoji: '👤',
-            color: AppColors.purpleLight,
-            title: 'Pwofil mwen',
-            subtitle: 'View and edit your profile',
-            onTap: () => context.go('/profile'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '📈',
-            color: AppColors.pink,
-            title: 'Estatistik',
-            subtitle: 'Gade pèfòmans ou',
-            onTap: () => context.push('/my-statistics'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '💰',
-            color: AppColors.success,
-            title: 'Boulva Coins',
-            subtitle: 'Balans, acha ak tranzaksyon',
-            onTap: () => context.push('/coins'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '🏅',
-            color: AppColors.warning,
-            title: 'Badj mwen',
-            subtitle: 'Dekouvri ak kolekte badj',
-            onTap: () => context.push('/badges'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '🔔',
-            color: AppColors.purpleLight,
-            title: 'Notifikasyon',
-            subtitle: 'Jere notifikasyon ou yo',
-            badge: _unreadNotifs > 0 ? '$_unreadNotifs' : null,
-            onTap: () => context.go('/notifications'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '👥',
-            color: const Color(0xFF3B82F6),
-            title: 'Abòneman',
-            subtitle: 'Moun w ap swiv ak abònen yo',
-            onTap: () => context.push('/subscriptions'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '🔖',
-            color: AppColors.error,
-            title: 'Sovgad',
-            subtitle: 'Matchups ak pòs sove yo',
-            onTap: () => context.push('/saved'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '⚙️',
-            color: AppColors.textMuted,
-            title: 'Anviwònman',
-            subtitle: 'Preferans kont ak sekirite',
-            onTap: () => context.push('/settings'),
-          ),
-        ]),
       ),
-      const SizedBox(height: 16),
       Container(
         decoration: BoxDecoration(
           color: AppColors.card,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.border),
         ),
-        child: Column(children: [
-          _MenuItem(
-            emoji: '❓',
-            color: const Color(0xFF14B8A6),
-            title: 'Èd ak Sipò',
-            subtitle: 'FAQ, kontak ak sipò',
-            onTap: () => context.push('/help'),
-          ),
-          _divider(),
-          _MenuItem(
-            emoji: '🚪',
-            color: AppColors.error,
-            title: 'Dekonekte',
-            subtitle: 'Soti nan kont ou',
-            titleColor: AppColors.error,
-            onTap: () => _confirmSignOut(),
-          ),
-        ]),
+        child: Column(
+          children: List.generate(items.length, (i) {
+            final item = items[i];
+            return Column(children: [
+              _MenuItem(data: item),
+              if (i < items.length - 1)
+                const Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColors.borderDim,
+                  indent: 60,
+                ),
+            ]);
+          }),
+        ),
       ),
     ]);
   }
 
-  Widget _divider() => const Divider(
-        height: 1,
-        thickness: 1,
-        color: AppColors.borderDim,
-        indent: 60,
-      );
+  // ── Section item lists ─────────────────────────────────────────
+  List<_MenuItemData> _accountItems() => [
+        _MenuItemData(
+          imagePath: 'assets/images/profile_filled.png',
+          color: AppColors.purpleLight,
+          title: 'Pwofil mwen',
+          subtitle: 'Gade ak modifye pwofil ou',
+          onTap: () => context.go('/profile'),
+        ),
+        _MenuItemData(
+          imagePath: 'assets/images/influencer.png',
+          color: const Color(0xFFF59E0B),
+          title: 'Espas Kreyatè',
+          subtitle: 'Revni, nivo ak estatistik kreyatè',
+          onTap: () => context.push('/creator-dashboard'),
+        ),
+        _MenuItemData(
+          imagePath: 'assets/images/level.png',
+          color: AppColors.pink,
+          title: 'Estatistik',
+          subtitle: 'Pèfòmans ak done ou yo',
+          onTap: () => context.push('/my-statistics'),
+        ),
+        _MenuItemData(
+          imagePath: 'assets/images/clock.png',
+          color: const Color(0xFF3B82F6),
+          title: 'Aktivite Resan',
+          subtitle: 'Tout aksyon ou fè dènyèman',
+          onTap: () => context.push('/recent-activity'),
+        ),
+        _MenuItemData(
+          imagePath: 'assets/images/file.png',
+          color: AppColors.error,
+          title: 'Sovgad',
+          subtitle: 'Matchups ak pòs ou sove yo',
+          onTap: () => context.push('/saved'),
+        ),
+      ];
+
+  List<_MenuItemData> _communityItems() => [
+        _MenuItemData(
+          imagePath: 'assets/images/community.png',
+          color: const Color(0xFF3B82F6),
+          title: 'Abòneman',
+          subtitle: 'Moun w ap swiv ak abònen ou yo',
+          onTap: () => context.push('/subscriptions'),
+        ),
+        _MenuItemData(
+          imagePath: 'assets/images/topvotè.png',
+          color: const Color(0xFFF59E0B),
+          title: 'Tòp Vwa',
+          subtitle: 'Kreyatè ki pi enfliyans yo',
+          onTap: () => context.push('/top-voices'),
+        ),
+        _MenuItemData(
+          imagePath: 'assets/images/follower.png',
+          color: AppColors.success,
+          title: 'Envite Zanmi',
+          subtitle: 'Pataje kòd referans ou',
+          onTap: () => context.push('/invite'),
+        ),
+      ];
+
+  List<_MenuItemData> _financeItems() => [
+        _MenuItemData(
+          imagePath: 'assets/images/coin.png',
+          color: AppColors.success,
+          title: 'Boulva Coins',
+          subtitle: 'Balans, acha ak tranzaksyon',
+          onTap: () => context.push('/coins'),
+        ),
+        _MenuItemData(
+          imagePath: 'assets/images/badjmwen.png',
+          color: AppColors.warning,
+          title: 'Badj mwen',
+          subtitle: 'Dekouvri ak kolekte badj ou yo',
+          onTap: () => context.push('/badges'),
+        ),
+      ];
+
+  List<_MenuItemData> _preferencesItems() {
+    final items = <_MenuItemData>[
+      _MenuItemData(
+        imagePath: 'assets/images/notification_filled.png',
+        color: AppColors.purpleLight,
+        title: 'Notifikasyon',
+        subtitle: 'Jere ak vè notifikasyon ou yo',
+        badge: _unreadNotifs > 0 ? '$_unreadNotifs' : null,
+        onTap: () => context.go('/notifications'),
+      ),
+      _MenuItemData(
+        imagePath: 'assets/images/icon_front/Sekirite.png',
+        color: AppColors.textMuted,
+        title: 'Anviwònman',
+        subtitle: 'Preferans kont ak sekirite',
+        onTap: () => context.push('/settings'),
+      ),
+    ];
+
+    if (!_isVerified) {
+      items.add(_MenuItemData(
+        imagePath: 'assets/images/verified.png',
+        color: const Color(0xFF14B8A6),
+        title: 'Mande Verifikasyon',
+        subtitle: 'Aplike pou badge verifikasyon',
+        onTap: () => context.push('/verification-request'),
+      ));
+    }
+
+    if (_isAdmin) {
+      items.add(_MenuItemData(
+        imagePath: 'assets/images/backend.png',
+        color: AppColors.error,
+        title: 'Admin',
+        subtitle: 'Tableau de bò administrasyon',
+        onTap: () => context.push('/admin'),
+      ));
+    }
+
+    return items;
+  }
+
+  List<_MenuItemData> _supportItems() => [
+        _MenuItemData(
+          imagePath: 'assets/images/Kijan.png',
+          color: const Color(0xFF14B8A6),
+          title: 'Èd ak Sipò',
+          subtitle: 'FAQ, kontak ak asistans',
+          onTap: () => context.push('/help'),
+        ),
+        _MenuItemData(
+          icon: Icons.logout_rounded,
+          color: AppColors.error,
+          title: 'Dekonekte',
+          subtitle: 'Soti nan kont ou an sekirite',
+          titleColor: AppColors.error,
+          onTap: _confirmSignOut,
+        ),
+      ];
 
   void _confirmSignOut() {
     showDialog(
@@ -417,10 +507,10 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 }
 
-// ── Menu Item ──────────────────────────────────────────────────────────────────
-
-class _MenuItem extends StatelessWidget {
-  final String emoji;
+// ── Data class ────────────────────────────────────────────────────────────────
+class _MenuItemData {
+  final String? imagePath;  // custom PNG asset
+  final IconData? icon;     // fallback Material icon
   final Color color;
   final String title;
   final String subtitle;
@@ -428,8 +518,9 @@ class _MenuItem extends StatelessWidget {
   final String? badge;
   final Color? titleColor;
 
-  const _MenuItem({
-    required this.emoji,
+  const _MenuItemData({
+    this.imagePath,
+    this.icon,
     required this.color,
     required this.title,
     required this.subtitle,
@@ -437,45 +528,58 @@ class _MenuItem extends StatelessWidget {
     this.badge,
     this.titleColor,
   });
+}
+
+// ── Menu Item widget ──────────────────────────────────────────────────────────
+class _MenuItem extends StatelessWidget {
+  final _MenuItemData data;
+  const _MenuItem({required this.data});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: data.onTap,
       borderRadius: BorderRadius.circular(20),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(children: [
+          // Icon box — custom image or Material icon
           Container(
-            width: 36,
-            height: 36,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              color: data.color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(11),
             ),
-            child: Center(
-              child: Text(emoji, style: const TextStyle(fontSize: 18)),
-            ),
+            padding: const EdgeInsets.all(7),
+            child: data.imagePath != null
+                ? Image.asset(
+                    data.imagePath!,
+                    fit: BoxFit.contain,
+                    color: data.color,
+                    colorBlendMode: BlendMode.srcIn,
+                  )
+                : Icon(data.icon, color: data.color, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title,
+              Text(data.title,
                   style: TextStyle(
-                      color: titleColor ?? AppColors.textPrimary,
+                      color: data.titleColor ?? AppColors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Poppins')),
               const SizedBox(height: 2),
-              Text(subtitle,
+              Text(data.subtitle,
                   style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 12,
                       fontFamily: 'Poppins')),
             ]),
           ),
-          if (badge != null)
+          if (data.badge != null)
             Container(
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -483,7 +587,7 @@ class _MenuItem extends StatelessWidget {
                 color: AppColors.error,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(badge!,
+              child: Text(data.badge!,
                   style: const TextStyle(
                       color: Colors.white,
                       fontSize: 11,
