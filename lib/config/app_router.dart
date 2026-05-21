@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../screens/splash/splash_screen.dart';
+import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/create_account_screen.dart';
 import '../screens/auth/forgot_password_screen.dart';
@@ -12,7 +13,13 @@ import '../screens/matchups/matchup_detail_screen.dart';
 import '../screens/predictions/predictions_feed_screen.dart';
 import '../screens/predictions/prediction_detail_screen.dart';
 import '../screens/profile/profile_screen.dart';
+import '../screens/profile/my_statistics_screen.dart';
 import '../screens/profile/public_profile_screen.dart';
+import '../screens/profile/recent_activity_screen.dart';
+import '../screens/profile/saved_matchups_screen.dart';
+import '../screens/profile/settings_screen.dart';
+import '../screens/profile/subscriptions_screen.dart';
+import '../screens/profile/top_voices_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/boost/boost_selection_screen.dart';
 import '../screens/boost/payment_screen.dart';
@@ -25,6 +32,8 @@ import '../screens/profile/personal_info_screen.dart';
 import '../screens/profile/security_screen.dart';
 import '../screens/profile/notification_settings_screen.dart';
 import '../screens/profile/help_screen.dart';
+import '../screens/profile/verification_request_screen.dart';
+import '../screens/profile/creator_dashboard_screen.dart';
 import 'app_colors.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -37,10 +46,29 @@ GoRouter createRouter() {
     redirect: (context, state) {
       final session = Supabase.instance.client.auth.currentSession;
       final isAuth = session != null;
+      final uri = state.uri;
+      if (uri.scheme == 'granboulva' && uri.host == 'auth-callback') {
+        if (isAuth) return '/home';
+        final errorCode = uri.queryParameters['error_code'] ??
+            uri.fragment
+                .split('&')
+                .map((part) => part.split('='))
+                .firstWhere(
+                  (pair) => pair.length == 2 && pair.first == 'error_code',
+                  orElse: () => const ['', ''],
+                )
+                .last;
+        return Uri(
+          path: '/login',
+          queryParameters: errorCode.isEmpty ? null : {'auth_error': errorCode},
+        ).toString();
+      }
+
       final loc = state.matchedLocation;
 
       final publicRoutes = [
         '/splash',
+        '/onboarding',
         '/login',
         '/create-account',
         '/forgot-password'
@@ -48,11 +76,26 @@ GoRouter createRouter() {
       final isPublic = publicRoutes.any((r) => loc.startsWith(r));
 
       if (isAuth && isPublic && loc != '/splash') return '/home';
+      if (!isAuth && !isPublic) return '/login';
       return null;
+    },
+    onException: (context, state, router) {
+      final uri = state.uri;
+      if (uri.scheme == 'granboulva' && uri.host == 'auth-callback') {
+        router.go('/login?auth_error=invalid_link');
+        return;
+      }
+      router.go('/login');
     },
     routes: [
       GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
-      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      GoRoute(
+          path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+      GoRoute(
+        path: '/login',
+        builder: (_, s) =>
+            LoginScreen(authError: s.uri.queryParameters['auth_error']),
+      ),
       GoRoute(
           path: '/create-account',
           builder: (_, s) =>
@@ -117,15 +160,33 @@ GoRouter createRouter() {
       GoRoute(path: '/invite', builder: (_, __) => const InviteFriendsScreen()),
       GoRoute(path: '/badges', builder: (_, __) => const BadgesScreen()),
       GoRoute(path: '/coins', builder: (_, __) => const CoinStoreScreen()),
+      GoRoute(path: '/saved', builder: (_, __) => const SavedMatchupsScreen()),
+      GoRoute(
+          path: '/recent-activity',
+          builder: (_, __) => const RecentActivityScreen()),
+      GoRoute(
+          path: '/my-statistics',
+          builder: (_, __) => const MyStatisticsScreen()),
+      GoRoute(path: '/top-voices', builder: (_, __) => const TopVoicesScreen()),
+      GoRoute(
+          path: '/subscriptions',
+          builder: (_, __) => const SubscriptionsScreen()),
+      GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/admin', builder: (_, __) => const AdminDashboardScreen()),
       GoRoute(
           path: '/personal-info',
           builder: (_, __) => const PersonalInfoScreen()),
       GoRoute(path: '/security', builder: (_, __) => const SecurityScreen()),
       GoRoute(
+          path: '/verification-request',
+          builder: (_, __) => const VerificationRequestScreen()),
+      GoRoute(
           path: '/notification-settings',
           builder: (_, __) => const NotificationSettingsScreen()),
       GoRoute(path: '/help', builder: (_, __) => const HelpScreen()),
+      GoRoute(
+          path: '/creator-dashboard',
+          builder: (_, __) => const CreatorDashboardScreen()),
     ],
   );
 }
@@ -185,32 +246,32 @@ class _BottomNav extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _NavItem(
-                iconActive: Icons.home,
-                iconInactive: Icons.home_outlined,
+                activeAsset: 'assets/images/home_filled.png',
+                inactiveAsset: 'assets/images/home_unfilled.png',
                 label: 'Akèy',
                 index: 0,
                 current: currentIndex,
                 onTap: onTap,
               ),
               _NavItem(
-                iconActive: Icons.bolt,
-                iconInactive: Icons.bolt_outlined,
-                label: 'Aktivite',
+                activeAsset: 'assets/images/notification_filled.png',
+                inactiveAsset: 'assets/images/notification_unifilled.png',
+                label: 'Notifikasyon',
                 index: 1,
                 current: currentIndex,
                 onTap: onTap,
               ),
               _NavItem(
-                iconActive: Icons.person,
-                iconInactive: Icons.person_outline,
+                activeAsset: 'assets/images/profile_filled.png',
+                inactiveAsset: 'assets/images/profile_unfilled.png',
                 label: 'Pwofil',
                 index: 2,
                 current: currentIndex,
                 onTap: onTap,
               ),
               _NavItem(
-                iconActive: Icons.apps_rounded,
-                iconInactive: Icons.apps_rounded,
+                activeAsset: 'assets/images/menu_filled.png',
+                inactiveAsset: 'assets/images/menu_unfilled.png',
                 label: 'Meni',
                 index: 3,
                 current: currentIndex,
@@ -225,16 +286,16 @@ class _BottomNav extends StatelessWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  final IconData iconActive;
-  final IconData iconInactive;
+  final String activeAsset;
+  final String inactiveAsset;
   final String label;
   final int index;
   final int current;
   final ValueChanged<int> onTap;
 
   const _NavItem({
-    required this.iconActive,
-    required this.iconInactive,
+    required this.activeAsset,
+    required this.inactiveAsset,
     required this.label,
     required this.index,
     required this.current,
@@ -247,6 +308,7 @@ class _NavItem extends StatelessWidget {
     const activeColor = Color(0xFFA855F7);
     const inactiveColor = Color(0xFF4A4A6A);
     final color = isActive ? activeColor : inactiveColor;
+    final asset = isActive ? activeAsset : inactiveAsset;
 
     return GestureDetector(
       onTap: () => onTap(index),
@@ -259,8 +321,12 @@ class _NavItem extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(isActive ? iconActive : iconInactive,
-                    color: color, size: 24),
+                Image.asset(
+                  asset,
+                  width: 29,
+                  height: 29,
+                  fit: BoxFit.contain,
+                ),
               ],
             ),
             const SizedBox(height: 2),

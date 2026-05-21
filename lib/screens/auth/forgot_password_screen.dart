@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/app_colors.dart';
+import '../../config/auth_redirects.dart';
 import '../../widgets/common/app_back_button.dart';
 import '../../widgets/common/grad_button.dart';
 
@@ -32,6 +33,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       await Supabase.instance.client.auth.resetPasswordForEmail(
         _emailCtrl.text.trim(),
+        redirectTo: AuthRedirects.authCallback,
       );
       if (mounted) setState(() => _sent = true);
     } on AuthException catch (e) {

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
 import '../../widgets/common/grad_button.dart';
+import '../../widgets/common/user_avatar.dart';
+import '../../widgets/common/verification_badge.dart';
 
 const _matchupPageBg = AppColors.bg0;
 const _matchupDeepPurple = Color(0xFF4F158F);
@@ -78,6 +81,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   bool _argumentsLoading = false;
   String? _argumentsError;
   int _coinBalance = 0;
+  bool _isSaved = false;
 
   final _scrollController = ScrollController();
 
@@ -116,6 +120,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       if (!mounted) return;
       setState(() {
         _matchup = matchup;
+        _isSaved = matchup?.isSaved ?? false;
         _loading = false;
       });
       if (!_isLocked) {
@@ -145,6 +150,47 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       debugPrint('_init user state error: $e');
       if (widget.initialVoteOptionId != null) {
         await _loadArguments();
+      }
+    }
+  }
+
+  Future<void> _shareMatchup() async {
+    final matchup = _matchup;
+    if (matchup == null) return;
+    await Share.share(
+      'Vwa ou konte sou Gran Boulva: ${matchup.titleHt}\nhttps://granboulva.com/matchup/${matchup.id}',
+    );
+  }
+
+  Future<void> _toggleSavedMatchup() async {
+    final matchup = _matchup;
+    if (matchup == null) return;
+    final next = !_isSaved;
+    setState(() => _isSaved = next);
+    try {
+      await _matchupService.toggleSave(matchup.id, next);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            next ? 'Matchup la sovgad.' : 'Matchup la retire nan Sovgad.',
+            style: const TextStyle(fontFamily: 'Poppins'),
+          ),
+          backgroundColor: AppColors.card,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaved = !next);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sovgad echwe: ${e.toString()}',
+                style: const TextStyle(fontFamily: 'Poppins')),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     }
   }
@@ -212,6 +258,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
         _isLocked = false;
         _submitting = false;
       });
+      await _loadCoinBalance();
       await _init();
     } catch (e) {
       if (mounted) {
@@ -253,6 +300,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
         _hasChangedVote = true;
         _submitting = false;
       });
+      await _loadCoinBalance();
       await _init();
     } catch (e) {
       if (mounted) {
@@ -337,6 +385,14 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   }
 
   void _openSupportSheet(ArgumentModel arg) {
+    if (arg.userId == _myInternalUserId) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Ou pa ka sipòte pwòp agiman ou.',
+            style: TextStyle(fontFamily: 'Poppins')),
+        backgroundColor: AppColors.warning,
+      ));
+      return;
+    }
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.bg1,
@@ -345,9 +401,11 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       builder: (_) => _SupportBottomSheet(
         argument: arg,
         coinService: _coinService,
+        currentUserId: _myInternalUserId,
         onSupported: () async {
           Navigator.pop(context);
           await _loadArguments();
+          await _loadCoinBalance();
         },
       ),
     );
@@ -378,7 +436,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
         backgroundColor: _matchupPageBg,
         appBar: AppBar(
           backgroundColor: _matchupPageBg,
-          leading: AppBackButton.matchupStyle(
+          leading: AppBackButton(
             onTap: () => Navigator.of(context).maybePop(),
           ),
         ),
@@ -402,7 +460,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       toolbarHeight: 76,
       backgroundColor: _matchupPageBg,
       surfaceTintColor: Colors.transparent,
-      leading: AppBackButton.matchupStyle(
+      leading: AppBackButton(
         onTap: () => Navigator.of(context).maybePop(),
       ),
       title: Image.asset(
@@ -496,12 +554,14 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
             children: [
               _HeaderCircleAction(
                 icon: Icons.share_outlined,
-                onTap: () {},
+                onTap: _shareMatchup,
               ),
               const SizedBox(width: 8),
               _HeaderCircleAction(
-                icon: Icons.bookmark_border_rounded,
-                onTap: () {},
+                icon: _isSaved
+                    ? Icons.bookmark_rounded
+                    : Icons.bookmark_border_rounded,
+                onTap: _toggleSavedMatchup,
               ),
             ],
           ),
@@ -1570,10 +1630,43 @@ class _ArgumentCardState extends State<_ArgumentCard> {
     }
   }
 
+  void _openUserProfile() {
+    if (widget.argument.username.isEmpty) return;
+    context.push('/user/${widget.argument.username}');
+  }
+
+  Future<void> _reportArgument() async {
+    try {
+      await widget.service.report(
+        type: 'argument',
+        id: widget.argument.id,
+        reason: 'reported_from_argument_menu',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Rapò a voye. Mèsi dèske w ede kenbe kominote a pwòp.',
+              style: TextStyle(fontFamily: 'Poppins')),
+          backgroundColor: AppColors.card,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Rapò a echwe: ${e.toString()}',
+              style: const TextStyle(fontFamily: 'Poppins')),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final arg = widget.argument;
-    final isVerified = (arg.user?['influence_score'] as int? ?? 0) > 500;
     final isOwnCard = arg.userId == widget.currentUserId;
     final borderColor = arg.optionLabel == 'A'
         ? AppColors.purple.withValues(alpha: 0.5)
@@ -1592,39 +1685,37 @@ class _ArgumentCardState extends State<_ArgumentCard> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // Header
         Row(children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: AppColors.purpleDim,
-            backgroundImage: arg.userAvatar != null
-                ? CachedNetworkImageProvider(arg.userAvatar!)
-                : null,
-            child: arg.userAvatar == null
-                ? Text(
-                    arg.username.isNotEmpty
-                        ? arg.username[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Poppins'))
-                : null,
+          GestureDetector(
+            onTap: _openUserProfile,
+            child: UserAvatar(
+              radius: 18,
+              avatarUrl: arg.userAvatar,
+              gender: arg.userGender,
+              backgroundColor: AppColors.purpleDim,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
-                Text('@${arg.username}',
-                    style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins')),
-                if (isVerified) ...[
+                GestureDetector(
+                  onTap: _openUserProfile,
+                  child: Text('@${arg.username}',
+                      style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins')),
+                ),
+                if (arg.userVerificationStatus == 'approved') ...[
                   const SizedBox(width: 4),
-                  const Icon(Icons.verified_rounded,
-                      color: AppColors.purpleLight, size: 13),
+                  VerificationBadge(
+                    type: arg.userVerificationType,
+                    status: arg.userVerificationStatus,
+                    badgeStyle: arg.userVerificationBadgeStyle,
+                    size: 13,
+                  ),
                 ],
               ]),
               Text(timeago.format(arg.createdAt, locale: 'en_short'),
@@ -1682,7 +1773,7 @@ class _ArgumentCardState extends State<_ArgumentCard> {
           ],
           const SizedBox(width: 4),
           GestureDetector(
-            onTap: () {},
+            onTap: _reportArgument,
             child: const Icon(Icons.more_horiz,
                 color: AppColors.textMuted, size: 18),
           ),
@@ -1763,24 +1854,26 @@ class _ArgumentCardState extends State<_ArgumentCard> {
             ),
           ],
           const Spacer(),
-          GestureDetector(
-            onTap: widget.onSupport,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppColors.pink.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
-                border:
-                    Border.all(color: AppColors.pink.withValues(alpha: 0.3)),
+          if (!isOwnCard)
+            GestureDetector(
+              onTap: widget.onSupport,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.pink.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  border:
+                      Border.all(color: AppColors.pink.withValues(alpha: 0.3)),
+                ),
+                child: const Text('Sipòte',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Poppins')),
               ),
-              child: const Text('Sipòte',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Poppins')),
             ),
-          ),
           if (isOwnCard) ...[
             const SizedBox(width: 8),
             GestureDetector(
@@ -1840,11 +1933,13 @@ class _SupportBottomSheet extends StatefulWidget {
   final ArgumentModel argument;
   final CoinService coinService;
   final VoidCallback onSupported;
+  final String? currentUserId;
 
   const _SupportBottomSheet({
     required this.argument,
     required this.coinService,
     required this.onSupported,
+    this.currentUserId,
   });
 
   @override
@@ -1880,6 +1975,14 @@ class _SupportBottomSheetState extends State<_SupportBottomSheet> {
   }
 
   Future<void> _support() async {
+    if (widget.argument.userId == widget.currentUserId) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Ou pa ka sipòte pwòp agiman ou.',
+            style: TextStyle(fontFamily: 'Poppins')),
+        backgroundColor: AppColors.warning,
+      ));
+      return;
+    }
     if (_balance < _selected) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Balans coins ou pa sifi.',
@@ -1999,7 +2102,7 @@ class _SupportBottomSheetState extends State<_SupportBottomSheet> {
             label: 'Sipòte ak $_selected coins',
             onTap: _loading ? null : _support,
             loading: _loading,
-            icon: Icons.local_fire_department_rounded,
+            iconAsset: 'assets/images/fire.png',
           ),
           const SizedBox(height: 10),
           GestureDetector(
@@ -2816,31 +2919,37 @@ class _RepliesViewSheetState extends State<_RepliesViewSheet> {
                         final username =
                             user?['username'] as String? ?? 'Itilizatè';
                         final avatar = user?['avatar_url'] as String?;
+                        final gender = user?['gender'] as String?;
+                        final verificationType =
+                            user?['verification_type'] as String?;
+                        final verificationStatus =
+                            user?['verification_status'] as String?;
+                        final verificationBadgeStyle =
+                            user?['verification_badge_style'] as String?;
                         final body = r['body'] as String? ?? '';
                         final createdAt = r['created_at'] != null
                             ? DateTime.tryParse(r['created_at'] as String)
                             : null;
+                        void openReplyUser() {
+                          if (username.isEmpty || username == 'Itilizatè') {
+                            return;
+                          }
+                          context.push('/user/$username');
+                        }
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: AppColors.purpleDim,
-                                  backgroundImage: avatar != null
-                                      ? CachedNetworkImageProvider(avatar)
-                                      : null,
-                                  child: avatar == null
-                                      ? Text(
-                                          username.isNotEmpty
-                                              ? username[0].toUpperCase()
-                                              : '?',
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontFamily: 'Poppins'))
-                                      : null,
+                                GestureDetector(
+                                  onTap: openReplyUser,
+                                  child: UserAvatar(
+                                    radius: 16,
+                                    avatarUrl: avatar,
+                                    gender: gender,
+                                    backgroundColor: AppColors.purpleDim,
+                                  ),
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(
@@ -2849,12 +2958,27 @@ class _RepliesViewSheetState extends State<_RepliesViewSheet> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Row(children: [
-                                          Text('@$username',
-                                              style: const TextStyle(
-                                                  color: AppColors.textPrimary,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontFamily: 'Poppins')),
+                                          GestureDetector(
+                                            onTap: openReplyUser,
+                                            child: Text('@$username',
+                                                style: const TextStyle(
+                                                    color:
+                                                        AppColors.textPrimary,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontFamily: 'Poppins')),
+                                          ),
+                                          if (verificationStatus ==
+                                              'approved') ...[
+                                            const SizedBox(width: 4),
+                                            VerificationBadge(
+                                              type: verificationType,
+                                              status: verificationStatus,
+                                              badgeStyle:
+                                                  verificationBadgeStyle,
+                                              size: 12,
+                                            ),
+                                          ],
                                           if (createdAt != null) ...[
                                             const SizedBox(width: 6),
                                             Text(

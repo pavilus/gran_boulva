@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
+import '../../widgets/common/user_avatar.dart';
+import '../../widgets/common/verification_badge.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -59,16 +60,6 @@ class _MenuScreenState extends State<MenuScreen> {
         ));
       }
     }
-  }
-
-  void _comingSoon(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('$feature ap vini byento! 🚀',
-          style: const TextStyle(fontFamily: 'Poppins')),
-      backgroundColor: AppColors.purpleDim,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ));
   }
 
   @override
@@ -138,54 +129,48 @@ class _MenuScreenState extends State<MenuScreen> {
         GestureDetector(
           onTap: () => context.go('/profile'),
           child: Stack(children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: AppColors.primaryGradient,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.purple.withValues(alpha: 0.5),
-                  blurRadius: 16,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(2.5),
-              child: ClipOval(
-                child: p?.avatarUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: p!.avatarUrl!,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) => _defaultAvatar(username),
-                      )
-                    : _defaultAvatar(username),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 2,
-            right: 2,
-            child: Container(
-              width: 18,
-              height: 18,
+            Container(
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
-                color: AppColors.success,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.bg0, width: 2),
+                gradient: AppColors.primaryGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.purple.withValues(alpha: 0.5),
+                    blurRadius: 16,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(2.5),
+                child: ClipOval(
+                  child: UserAvatar.fromUser(p, radius: 33.5),
+                ),
               ),
             ),
-          ),
-        ]),
+            Positioned(
+              bottom: 2,
+              right: 2,
+              child: Container(
+                width: 18,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: AppColors.success,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.bg0, width: 2),
+                ),
+              ),
+            ),
+          ]),
         ),
         const SizedBox(width: 16),
         Expanded(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
-              'Bonjour, $fullName! 👋',
+              'Hello, $fullName! 👋',
               style: const TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
@@ -202,8 +187,7 @@ class _MenuScreenState extends State<MenuScreen> {
                       fontSize: 13,
                       fontFamily: 'Poppins')),
               const SizedBox(width: 4),
-              const Icon(Icons.verified_rounded,
-                  color: AppColors.purpleLight, size: 14),
+              if (p != null) VerificationBadge.user(p, size: 14),
             ]),
             const SizedBox(height: 6),
             Container(
@@ -224,21 +208,6 @@ class _MenuScreenState extends State<MenuScreen> {
           ]),
         ),
       ]),
-    );
-  }
-
-  Widget _defaultAvatar(String username) {
-    return Container(
-      color: AppColors.purpleDim,
-      alignment: Alignment.center,
-      child: Text(
-        username.isNotEmpty ? username[0].toUpperCase() : '?',
-        style: const TextStyle(
-            color: Colors.white,
-            fontSize: 26,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Poppins'),
-      ),
     );
   }
 
@@ -319,7 +288,7 @@ class _MenuScreenState extends State<MenuScreen> {
             color: AppColors.pink,
             title: 'Estatistik',
             subtitle: 'Gade pèfòmans ou',
-            onTap: () => _comingSoon('Estatistik'),
+            onTap: () => context.push('/my-statistics'),
           ),
           _divider(),
           _MenuItem(
@@ -352,15 +321,15 @@ class _MenuScreenState extends State<MenuScreen> {
             color: const Color(0xFF3B82F6),
             title: 'Abòneman',
             subtitle: 'Moun w ap swiv ak abònen yo',
-            onTap: () => _comingSoon('Abòneman'),
+            onTap: () => context.push('/subscriptions'),
           ),
           _divider(),
           _MenuItem(
             emoji: '🔖',
             color: AppColors.error,
-            title: 'Sove',
+            title: 'Sovgad',
             subtitle: 'Matchups ak pòs sove yo',
-            onTap: () => _comingSoon('Sove'),
+            onTap: () => context.push('/saved'),
           ),
           _divider(),
           _MenuItem(
@@ -368,7 +337,7 @@ class _MenuScreenState extends State<MenuScreen> {
             color: AppColors.textMuted,
             title: 'Anviwònman',
             subtitle: 'Preferans kont ak sekirite',
-            onTap: () => _comingSoon('Anviwònman'),
+            onTap: () => context.push('/settings'),
           ),
         ]),
       ),
@@ -385,7 +354,7 @@ class _MenuScreenState extends State<MenuScreen> {
             color: const Color(0xFF14B8A6),
             title: 'Èd ak Sipò',
             subtitle: 'FAQ, kontak ak sipò',
-            onTap: () => _comingSoon('Sipò'),
+            onTap: () => context.push('/help'),
           ),
           _divider(),
           _MenuItem(
@@ -411,7 +380,7 @@ class _MenuScreenState extends State<MenuScreen> {
   void _confirmSignOut() {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.bg1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Dekonekte?',
@@ -433,7 +402,7 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               _signOut();
             },
             child: const Text('Wi, dekonekte',

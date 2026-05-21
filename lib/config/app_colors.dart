@@ -17,6 +17,7 @@ class AppColors {
   // Brand
   static const Color purple = Color(0xFF4F158F);
   static const Color purpleLight = Color(0xFF7B3FBE);
+  static const Color primary = purpleLight;
   static const Color purpleDim = Color(0xFF2A1440);
   static const Color pink = Color(0xFFD90C82);
   static const Color pinkLight = Color(0xFFFF4DAE);

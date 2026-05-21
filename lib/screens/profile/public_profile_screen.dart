@@ -6,6 +6,8 @@ import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
+import '../../widgets/common/user_avatar.dart';
+import '../../widgets/common/verification_badge.dart';
 
 class PublicProfileScreen extends StatefulWidget {
   final String username;
@@ -17,6 +19,7 @@ class PublicProfileScreen extends StatefulWidget {
 
 class _PublicProfileScreenState extends State<PublicProfileScreen> {
   UserModel? _profile;
+  bool _isOwnProfile = false;
   bool _loading = true;
   bool _isFollowing = false;
   bool _followLoading = false;
@@ -33,11 +36,15 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
     try {
       final profile = await UserService().getProfileByUsername(widget.username);
       if (profile != null) {
-        final following = await UserService().isFollowing(profile.id);
+        final currentUser = await UserService().getProfile();
+        final isOwnProfile = currentUser?.id == profile.id;
+        final following =
+            isOwnProfile ? false : await UserService().isFollowing(profile.id);
         final args = await _loadRecentArguments(profile.id);
         if (mounted) {
           setState(() {
             _profile = profile;
+            _isOwnProfile = isOwnProfile;
             _isFollowing = following;
             _recentArguments = args;
             _loading = false;
@@ -56,7 +63,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
       final data = await supabase
           .from('arguments')
           .select(
-              'id, body, like_count, created_at, matchup:matchups(title_ht)')
+              'id, matchup_id, body, like_count, created_at, matchup:matchups(title_ht)')
           .eq('user_id', userId)
           .eq('status', 'active')
           .order('created_at', ascending: false)
@@ -68,15 +75,29 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   }
 
   Future<void> _toggleFollow() async {
-    if (_profile == null || _followLoading) return;
+    if (_profile == null || _isOwnProfile || _followLoading) return;
     setState(() => _followLoading = true);
     try {
       if (_isFollowing) {
         await UserService().unfollow(_profile!.id);
-        if (mounted) setState(() => _isFollowing = false);
+        if (mounted) {
+          setState(() {
+            _isFollowing = false;
+            _profile = _profile?.copyWith(
+              followersCount: (_profile!.followersCount - 1).clamp(0, 1 << 31),
+            );
+          });
+        }
       } else {
         await UserService().follow(_profile!.id);
-        if (mounted) setState(() => _isFollowing = true);
+        if (mounted) {
+          setState(() {
+            _isFollowing = true;
+            _profile = _profile?.copyWith(
+              followersCount: _profile!.followersCount + 1,
+            );
+          });
+        }
       }
     } catch (_) {
       if (mounted) {
@@ -129,7 +150,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
               color: AppColors.warning,
               onTap: () {
                 Navigator.pop(context);
-                _showComingSoon();
+                _showSnack('Fonksyon bloke a poko disponib sou aparèy sa a.');
               },
             ),
             const SizedBox(height: 8),
@@ -137,9 +158,9 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
               icon: Icons.flag_rounded,
               label: 'Rapòte pwofil sa',
               color: AppColors.error,
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                _showComingSoon();
+                await _reportProfile();
               },
             ),
           ],
@@ -179,16 +200,35 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
     );
   }
 
-  void _showComingSoon() {
+  void _showSnack(String message, {Color backgroundColor = AppColors.card}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Byento disponib...',
-            style: TextStyle(fontFamily: 'Poppins')),
-        backgroundColor: AppColors.card,
+        content: Text(message, style: const TextStyle(fontFamily: 'Poppins')),
+        backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
+  }
+
+  Future<void> _reportProfile() async {
+    final profile = _profile;
+    if (profile == null) return;
+    try {
+      await ArgumentService().report(
+        type: 'user',
+        id: profile.id,
+        reason: 'reported_from_public_profile',
+      );
+      if (mounted) {
+        _showSnack('Rapò a voye. Ekip la ap verifye pwofil la.');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnack('Rapò a echwe: ${e.toString()}',
+            backgroundColor: AppColors.error);
+      }
+    }
   }
 
   @override
@@ -295,30 +335,28 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
                 backgroundColor: AppColors.bg1,
                 backgroundImage: p.avatarUrl != null
                     ? CachedNetworkImageProvider(p.avatarUrl!)
-                    : null,
-                child: p.avatarUrl == null
-                    ? Text(
-                        p.fullName.isNotEmpty
-                            ? p.fullName[0].toUpperCase()
-                            : 'U',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Poppins'),
-                      )
-                    : null,
+                    : UserAvatar.defaultImageProvider(p.gender),
               ),
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            p.fullName,
-            style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Poppins'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  p.fullName,
+                  style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Poppins'),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 6),
+              VerificationBadge.user(p, size: 18),
+            ],
           ),
           const SizedBox(height: 2),
           Text(
@@ -331,13 +369,15 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
           if (p.bio != null && p.bio!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
-              p.bio!,
+              p.bio!.length <= 120
+                  ? p.bio!
+                  : '${p.bio!.substring(0, 117).trimRight()}...',
               style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   fontFamily: 'Poppins'),
               textAlign: TextAlign.center,
-              maxLines: 3,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -368,50 +408,50 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // Follow button
-          GestureDetector(
-            onTap: _followLoading ? null : _toggleFollow,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 46,
-              decoration: BoxDecoration(
-                gradient: _isFollowing ? null : AppColors.primaryGradient,
-                color: _isFollowing ? AppColors.cardLight : null,
-                borderRadius: BorderRadius.circular(14),
-                border: _isFollowing
-                    ? Border.all(color: AppColors.border, width: 1)
-                    : null,
-                boxShadow: _isFollowing
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: AppColors.purple.withValues(alpha: 0.35),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+          if (!_isOwnProfile)
+            GestureDetector(
+              onTap: _followLoading ? null : _toggleFollow,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 46,
+                decoration: BoxDecoration(
+                  gradient: _isFollowing ? null : AppColors.primaryGradient,
+                  color: _isFollowing ? AppColors.cardLight : null,
+                  borderRadius: BorderRadius.circular(14),
+                  border: _isFollowing
+                      ? Border.all(color: AppColors.border, width: 1)
+                      : null,
+                  boxShadow: _isFollowing
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: AppColors.purple.withValues(alpha: 0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                ),
+                child: Center(
+                  child: _followLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                      : Text(
+                          _isFollowing ? 'Swivan ✓' : 'Swiv',
+                          style: TextStyle(
+                            color: _isFollowing
+                                ? AppColors.textSecondary
+                                : Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins',
+                          ),
                         ),
-                      ],
-              ),
-              child: Center(
-                child: _followLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2))
-                    : Text(
-                        _isFollowing ? 'Swivan ✓' : 'Swiv',
-                        style: TextStyle(
-                          color: _isFollowing
-                              ? AppColors.textSecondary
-                              : Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -427,6 +467,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
       },
       {'icon': '🏆', 'value': _fmt(p.victoryCount), 'label': 'Viktwa'},
       {'icon': '⭐', 'value': _fmt(p.followersCount), 'label': 'Abònen'},
+      {'icon': '👥', 'value': _fmt(p.followingCount), 'label': 'Ap swiv'},
     ];
 
     return Container(

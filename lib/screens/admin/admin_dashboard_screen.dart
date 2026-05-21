@@ -7,6 +7,8 @@ import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
 import '../../widgets/common/grad_button.dart';
+import '../../widgets/common/user_avatar.dart';
+import '../../widgets/common/verification_badge.dart';
 
 // ignore_for_file: unused_import
 
@@ -46,19 +48,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   List<CategoryModel> _categories = [];
   bool _categoriesLoading = true;
 
+  // Tab 6 – Verifikasyon
+  List<VerificationRequestModel> _verificationRequests = [];
+  bool _verificationLoading = true;
+
   final _tabs = const [
     'Drafts',
     'Matchups',
     'Prediksyon',
     'Rapò',
     'Itilizatè',
-    'Kategori'
+    'Kategori',
+    'Verifikasyon',
   ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_onTabChanged);
     _checkAdmin();
     _loadDrafts();
@@ -99,6 +106,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
         break;
       case 5:
         _loadCategories();
+        break;
+      case 6:
+        _loadVerificationRequests();
         break;
     }
   }
@@ -193,6 +203,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     }
   }
 
+  Future<void> _loadVerificationRequests() async {
+    setState(() => _verificationLoading = true);
+    try {
+      final data = await AdminService().getVerificationRequests();
+      if (mounted) {
+        setState(() {
+          _verificationRequests = data;
+          _verificationLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _verificationLoading = false);
+    }
+  }
+
   Future<void> _approveDraft(String id) async {
     try {
       await AdminService().approveDraft(id);
@@ -252,6 +277,69 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     }
   }
 
+  Future<void> _approveVerification(VerificationRequestModel request) async {
+    try {
+      await AdminService().approveVerificationRequest(request);
+      await _loadVerificationRequests();
+      _showSnack('Verifikasyon apwouve ✓', AppColors.success);
+    } catch (_) {
+      _showSnack('Pa kapab apwouve demann nan', AppColors.error);
+    }
+  }
+
+  Future<void> _rejectVerification(VerificationRequestModel request) async {
+    final reason = await _askText(
+      title: 'Rejte verifikasyon',
+      hint: 'Rezon pou itilizatè a',
+    );
+    if (reason == null) return;
+    try {
+      await AdminService().rejectVerificationRequest(request, reason: reason);
+      await _loadVerificationRequests();
+      _showSnack('Demann verifikasyon rejte', AppColors.warning);
+    } catch (_) {
+      _showSnack('Pa kapab rejte demann nan', AppColors.error);
+    }
+  }
+
+  Future<String?> _askText(
+      {required String title, required String hint}) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: Text(title,
+            style: const TextStyle(
+                color: AppColors.textPrimary, fontFamily: 'Poppins')),
+        content: TextField(
+          controller: controller,
+          maxLines: 3,
+          autofocus: true,
+          style: const TextStyle(
+              color: AppColors.textPrimary, fontFamily: 'Poppins'),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: AppColors.textMuted),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Anile'),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(controller.text.trim()),
+            child: const Text('Kontinye'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return result;
+  }
+
   void _showSnack(String msg, Color color) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -267,7 +355,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 6,
+      length: 7,
       child: Scaffold(
         backgroundColor: AppColors.bg0,
         appBar: AppBar(
@@ -311,6 +399,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             _buildReportsTab(),
             _buildUsersTab(),
             _buildCategoriesTab(),
+            _buildVerificationsTab(),
           ],
         ),
       ),
@@ -709,21 +798,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           ),
           child: Row(
             children: [
-              CircleAvatar(
+              UserAvatar.fromUser(
+                u,
                 radius: 20,
                 backgroundColor: AppColors.purpleDim,
-                backgroundImage:
-                    u.avatarUrl != null ? NetworkImage(u.avatarUrl!) : null,
-                child: u.avatarUrl == null
-                    ? Text(
-                        u.username.isNotEmpty
-                            ? u.username[0].toUpperCase()
-                            : '?',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Poppins'))
-                    : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -738,6 +816,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Poppins')),
+                        const SizedBox(width: 5),
+                        VerificationBadge.user(u, size: 14),
                         if (isAdmin) ...[
                           const SizedBox(width: 6),
                           Container(
@@ -780,6 +860,195 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           ),
         );
       },
+    );
+  }
+
+  // ─── TAB 6: Verifikasyon ────────────────────────────────────────────────
+
+  Widget _buildVerificationsTab() {
+    if (_verificationLoading) {
+      return const Center(
+          child: CircularProgressIndicator(color: AppColors.purpleLight));
+    }
+    if (_verificationRequests.isEmpty) {
+      return _emptyState('Pa gen demann verifikasyon', '✓');
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadVerificationRequests,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: _verificationRequests.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (_, i) {
+          final request = _verificationRequests[i];
+          final user = request.user;
+          final canReview =
+              request.status == 'pending' || request.status == 'under_review';
+          return Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                  color: AppColors.border.withValues(alpha: 0.55), width: 1),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    UserAvatar.fromUser(
+                      user,
+                      radius: 20,
+                      backgroundColor: AppColors.purpleDim,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  user == null
+                                      ? 'Itilizatè'
+                                      : '@${user.username}',
+                                  style: const TextStyle(
+                                      color: AppColors.textPrimary,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Poppins'),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              VerificationBadge(
+                                type: request.verificationType,
+                                status: 'approved',
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                          Text(
+                            request.typeLabel,
+                            style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 12,
+                                fontFamily: 'Poppins'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _statusPill(request.status),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                if (request.displayName?.isNotEmpty == true)
+                  _adminMeta('Non piblik', request.displayName!),
+                if (request.legalName?.isNotEmpty == true)
+                  _adminMeta('Non legal', request.legalName!),
+                if (request.organizationName?.isNotEmpty == true)
+                  _adminMeta('Òganizasyon', request.organizationName!),
+                if (request.website?.isNotEmpty == true)
+                  _adminMeta('Sit', request.website!),
+                if (request.organizationEmail?.isNotEmpty == true)
+                  _adminMeta('Imèl', request.organizationEmail!),
+                if (request.socialLinks?.isNotEmpty == true)
+                  _adminMeta('Lyen', request.socialLinks!),
+                if (request.proofNotes?.isNotEmpty == true)
+                  _adminMeta('Prèv', request.proofNotes!),
+                if (request.rejectionReason?.isNotEmpty == true)
+                  _adminMeta('Rezon rejè', request.rejectionReason!),
+                if (canReview) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _rejectVerification(request),
+                          icon: const Icon(Icons.close_rounded, size: 18),
+                          label: const Text('Rejte'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.error,
+                            side: const BorderSide(color: AppColors.error),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _approveVerification(request),
+                          icon: const Icon(Icons.check_rounded, size: 18),
+                          label: const Text('Apwouve'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.success,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _adminMeta(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: RichText(
+        text: TextSpan(
+          style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 12,
+              height: 1.35,
+              fontFamily: 'Poppins'),
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: const TextStyle(
+                  color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+            ),
+            TextSpan(text: value),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _statusPill(String status) {
+    final color = switch (status) {
+      'approved' => AppColors.success,
+      'rejected' => AppColors.error,
+      'under_review' => AppColors.warning,
+      _ => AppColors.textMuted,
+    };
+    final label = switch (status) {
+      'approved' => 'Apwouve',
+      'rejected' => 'Rejte',
+      'under_review' => 'Revizyon',
+      _ => 'Annatant',
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+            color: color,
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            fontFamily: 'Poppins'),
+      ),
     );
   }
 

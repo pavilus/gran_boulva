@@ -8,6 +8,10 @@ class UserModel {
   final String email;
   final String? avatarUrl;
   final String? bio;
+  final String? gender;
+  final DateTime? dateOfBirth;
+  final String? country;
+  final String? phoneNumber;
   final String language;
   final String referralCode;
   final int influenceScore;
@@ -23,6 +27,9 @@ class UserModel {
   final int totalCoinsTransferred;
   final int totalBoostsUsed;
   final String role;
+  final String? verificationType;
+  final String? verificationBadgeStyle;
+  final String verificationStatus;
   final DateTime createdAt;
 
   const UserModel({
@@ -33,6 +40,10 @@ class UserModel {
     required this.email,
     this.avatarUrl,
     this.bio,
+    this.gender,
+    this.dateOfBirth,
+    this.country,
+    this.phoneNumber,
     required this.language,
     required this.referralCode,
     required this.influenceScore,
@@ -48,6 +59,9 @@ class UserModel {
     this.totalCoinsTransferred = 0,
     this.totalBoostsUsed = 0,
     required this.role,
+    this.verificationType,
+    this.verificationBadgeStyle,
+    this.verificationStatus = 'none',
     required this.createdAt,
   });
 
@@ -59,6 +73,12 @@ class UserModel {
         email: j['email'],
         avatarUrl: j['avatar_url'],
         bio: j['bio'],
+        gender: j['gender'],
+        dateOfBirth: j['date_of_birth'] == null
+            ? null
+            : DateTime.tryParse(j['date_of_birth']),
+        country: j['country'],
+        phoneNumber: j['phone_number'],
         language: j['language'] ?? 'ht',
         referralCode: j['referral_code'] ?? '',
         influenceScore: j['influence_score'] ?? 0,
@@ -74,10 +94,163 @@ class UserModel {
         totalCoinsTransferred: j['total_coins_transferred'] ?? 0,
         totalBoostsUsed: j['total_boosts_used'] ?? 0,
         role: j['role'] ?? 'user',
+        verificationType: j['verification_type'],
+        verificationBadgeStyle: j['verification_badge_style'],
+        verificationStatus: j['verification_status'] ?? 'none',
         createdAt: DateTime.parse(j['created_at']),
       );
 
   bool get isAdmin => role == 'admin' || role == 'moderator';
+  bool get isVerified =>
+      verificationStatus == 'approved' && verificationType != null;
+
+  UserModel copyWith({
+    String? id,
+    String? authUserId,
+    String? fullName,
+    String? username,
+    String? email,
+    String? avatarUrl,
+    String? bio,
+    String? gender,
+    DateTime? dateOfBirth,
+    String? country,
+    String? phoneNumber,
+    String? language,
+    String? referralCode,
+    int? influenceScore,
+    int? participationCount,
+    int? victoryCount,
+    int? followersCount,
+    int? followingCount,
+    int? freeBoostCredits,
+    int? coinBalance,
+    int? totalSupportGiven,
+    int? totalSupportReceived,
+    int? totalCoinsSpent,
+    int? totalCoinsTransferred,
+    int? totalBoostsUsed,
+    String? role,
+    String? verificationType,
+    String? verificationBadgeStyle,
+    String? verificationStatus,
+    DateTime? createdAt,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      authUserId: authUserId ?? this.authUserId,
+      fullName: fullName ?? this.fullName,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      bio: bio ?? this.bio,
+      gender: gender ?? this.gender,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      country: country ?? this.country,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      language: language ?? this.language,
+      referralCode: referralCode ?? this.referralCode,
+      influenceScore: influenceScore ?? this.influenceScore,
+      participationCount: participationCount ?? this.participationCount,
+      victoryCount: victoryCount ?? this.victoryCount,
+      followersCount: followersCount ?? this.followersCount,
+      followingCount: followingCount ?? this.followingCount,
+      freeBoostCredits: freeBoostCredits ?? this.freeBoostCredits,
+      coinBalance: coinBalance ?? this.coinBalance,
+      totalSupportGiven: totalSupportGiven ?? this.totalSupportGiven,
+      totalSupportReceived: totalSupportReceived ?? this.totalSupportReceived,
+      totalCoinsSpent: totalCoinsSpent ?? this.totalCoinsSpent,
+      totalCoinsTransferred:
+          totalCoinsTransferred ?? this.totalCoinsTransferred,
+      totalBoostsUsed: totalBoostsUsed ?? this.totalBoostsUsed,
+      role: role ?? this.role,
+      verificationType: verificationType ?? this.verificationType,
+      verificationBadgeStyle:
+          verificationBadgeStyle ?? this.verificationBadgeStyle,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+}
+
+class VerificationRequestModel {
+  final String id;
+  final String userId;
+  final String verificationType;
+  final String status;
+  final String? displayName;
+  final String? legalName;
+  final String? organizationName;
+  final String? website;
+  final String? organizationEmail;
+  final String? socialLinks;
+  final String? proofNotes;
+  final String? adminNotes;
+  final String? rejectionReason;
+  final DateTime submittedAt;
+  final DateTime? reviewedAt;
+  final UserModel? user;
+
+  const VerificationRequestModel({
+    required this.id,
+    required this.userId,
+    required this.verificationType,
+    required this.status,
+    this.displayName,
+    this.legalName,
+    this.organizationName,
+    this.website,
+    this.organizationEmail,
+    this.socialLinks,
+    this.proofNotes,
+    this.adminNotes,
+    this.rejectionReason,
+    required this.submittedAt,
+    this.reviewedAt,
+    this.user,
+  });
+
+  factory VerificationRequestModel.fromJson(Map<String, dynamic> j) {
+    final userJson = j['user'];
+    return VerificationRequestModel(
+      id: j['id'],
+      userId: j['user_id'],
+      verificationType: j['verification_type'],
+      status: j['status'] ?? 'pending',
+      displayName: j['display_name'],
+      legalName: j['legal_name'],
+      organizationName: j['organization_name'],
+      website: j['website'],
+      organizationEmail: j['organization_email'],
+      socialLinks: j['social_links'],
+      proofNotes: j['proof_notes'],
+      adminNotes: j['admin_notes'],
+      rejectionReason: j['rejection_reason'],
+      submittedAt: DateTime.parse(j['submitted_at'] ?? j['created_at']),
+      reviewedAt:
+          j['reviewed_at'] == null ? null : DateTime.tryParse(j['reviewed_at']),
+      user: userJson is Map<String, dynamic>
+          ? UserModel.fromJson(userJson)
+          : userJson is Map
+              ? UserModel.fromJson(Map<String, dynamic>.from(userJson))
+              : null,
+    );
+  }
+
+  String get typeLabel {
+    switch (verificationType) {
+      case 'public_figure':
+        return 'Pèsonalite piblik';
+      case 'organization':
+        return 'Òganizasyon';
+      case 'trusted_creator':
+        return 'Kreyatè serye';
+      case 'admin':
+        return 'Ekip Gran Boulva';
+      default:
+        return 'Verifye';
+    }
+  }
 }
 
 class CategoryModel {
@@ -296,6 +469,10 @@ class ArgumentModel {
 
   String get username => user?['username'] ?? 'Itilizatè';
   String? get userAvatar => user?['avatar_url'];
+  String? get userGender => user?['gender'];
+  String? get userVerificationType => user?['verification_type'];
+  String? get userVerificationBadgeStyle => user?['verification_badge_style'];
+  String get userVerificationStatus => user?['verification_status'] ?? 'none';
   String get optionLabel => option?['option_label'] ?? '';
   String get optionName => option?['option_name'] ?? '';
 
@@ -644,6 +821,182 @@ class AiDraftModel {
         createdAt: DateTime.parse(j['created_at']),
       );
 }
+
+// ─── Creator Revenue System ────────────────────────────────
+
+class CreatorProfileModel {
+  final String userId;
+  final int creatorTier;       // 0=User, 1=Rising, 2=Verified, 3=Elite, 4=Icon
+  final int creatorScore;      // 0-100
+  final int trustScore;        // 0-100
+  final bool isMonetizationEnabled;
+  final bool monetizationSuspended;
+  final double revenueShareRate; // e.g. 0.70
+  final int totalEarnedCoins;
+  final int pendingPayoutCoins;
+  final int totalPaidOutCoins;
+  final DateTime? scoreUpdatedAt;
+  final DateTime? tierUpdatedAt;
+
+  const CreatorProfileModel({
+    required this.userId,
+    required this.creatorTier,
+    required this.creatorScore,
+    required this.trustScore,
+    required this.isMonetizationEnabled,
+    required this.monetizationSuspended,
+    required this.revenueShareRate,
+    required this.totalEarnedCoins,
+    required this.pendingPayoutCoins,
+    required this.totalPaidOutCoins,
+    this.scoreUpdatedAt,
+    this.tierUpdatedAt,
+  });
+
+  factory CreatorProfileModel.fromJson(Map<String, dynamic> j) =>
+      CreatorProfileModel(
+        userId: j['user_id'],
+        creatorTier: j['creator_tier'] ?? 0,
+        creatorScore: j['creator_score'] ?? 0,
+        trustScore: j['trust_score'] ?? 0,
+        isMonetizationEnabled: j['is_monetization_enabled'] ?? false,
+        monetizationSuspended: j['monetization_suspended'] ?? false,
+        revenueShareRate:
+            double.tryParse(j['revenue_share_rate']?.toString() ?? '0') ?? 0.0,
+        totalEarnedCoins: j['total_earned_coins'] ?? 0,
+        pendingPayoutCoins: j['pending_payout_coins'] ?? 0,
+        totalPaidOutCoins: j['total_paid_out_coins'] ?? 0,
+        scoreUpdatedAt: j['score_updated_at'] == null
+            ? null
+            : DateTime.tryParse(j['score_updated_at']),
+        tierUpdatedAt: j['tier_updated_at'] == null
+            ? null
+            : DateTime.tryParse(j['tier_updated_at']),
+      );
+
+  String get tierLabel {
+    switch (creatorTier) {
+      case 1: return 'Kreyatè Monte';
+      case 2: return 'Kreyatè Verifye';
+      case 3: return 'Kreyatè Elit';
+      case 4: return 'Ikòn Kiltirèl';
+      default: return 'Itilizatè';
+    }
+  }
+
+  String get tierLabelEn {
+    switch (creatorTier) {
+      case 1: return 'Rising Creator';
+      case 2: return 'Verified Creator';
+      case 3: return 'Elite Creator';
+      case 4: return 'Cultural Icon';
+      default: return 'User';
+    }
+  }
+
+  int get revenueSharePercent => (revenueShareRate * 100).round();
+}
+
+class CreatorDashboardModel {
+  final int creatorTier;
+  final int creatorScore;
+  final int trustScore;
+  final bool isMonetizationEnabled;
+  final double revenueShareRate;
+  final int totalEarnedCoins;
+  final int pendingPayoutCoins;
+  final int totalPaidOutCoins;
+  final int revenueLast7d;
+  final int revenueLast30d;
+  final int uniqueSupporters30d;
+  final int followersCount;
+  final int participationCount;
+  final int victoryCount;
+  final int totalSupportReceived;
+  final int influenceScore;
+
+  const CreatorDashboardModel({
+    required this.creatorTier,
+    required this.creatorScore,
+    required this.trustScore,
+    required this.isMonetizationEnabled,
+    required this.revenueShareRate,
+    required this.totalEarnedCoins,
+    required this.pendingPayoutCoins,
+    required this.totalPaidOutCoins,
+    required this.revenueLast7d,
+    required this.revenueLast30d,
+    required this.uniqueSupporters30d,
+    required this.followersCount,
+    required this.participationCount,
+    required this.victoryCount,
+    required this.totalSupportReceived,
+    required this.influenceScore,
+  });
+
+  factory CreatorDashboardModel.fromJson(Map<String, dynamic> j) =>
+      CreatorDashboardModel(
+        creatorTier: j['creator_tier'] ?? 0,
+        creatorScore: j['creator_score'] ?? 0,
+        trustScore: j['trust_score'] ?? 0,
+        isMonetizationEnabled: j['is_monetization_enabled'] ?? false,
+        revenueShareRate:
+            double.tryParse(j['revenue_share_rate']?.toString() ?? '0') ?? 0.0,
+        totalEarnedCoins: j['total_earned_coins'] ?? 0,
+        pendingPayoutCoins: j['pending_payout_coins'] ?? 0,
+        totalPaidOutCoins: j['total_paid_out_coins'] ?? 0,
+        revenueLast7d: j['revenue_last_7d'] ?? 0,
+        revenueLast30d: j['revenue_last_30d'] ?? 0,
+        uniqueSupporters30d: j['unique_supporters_30d'] ?? 0,
+        followersCount: j['followers_count'] ?? 0,
+        participationCount: j['participation_count'] ?? 0,
+        victoryCount: j['victory_count'] ?? 0,
+        totalSupportReceived: j['total_support_received'] ?? 0,
+        influenceScore: j['influence_score'] ?? 0,
+      );
+
+  int get revenueSharePercent => (revenueShareRate * 100).round();
+}
+
+class CreatorRevenueEventModel {
+  final String id;
+  final String creatorUserId;
+  final String? sourceUserId;
+  final String eventType;
+  final int grossCoins;
+  final double creatorShareRate;
+  final int creatorCoins;
+  final int platformCoins;
+  final DateTime createdAt;
+
+  const CreatorRevenueEventModel({
+    required this.id,
+    required this.creatorUserId,
+    this.sourceUserId,
+    required this.eventType,
+    required this.grossCoins,
+    required this.creatorShareRate,
+    required this.creatorCoins,
+    required this.platformCoins,
+    required this.createdAt,
+  });
+
+  factory CreatorRevenueEventModel.fromJson(Map<String, dynamic> j) =>
+      CreatorRevenueEventModel(
+        id: j['id'],
+        creatorUserId: j['creator_user_id'],
+        sourceUserId: j['source_user_id'],
+        eventType: j['event_type'] ?? '',
+        grossCoins: j['gross_coins'] ?? 0,
+        creatorShareRate:
+            double.tryParse(j['creator_share_rate']?.toString() ?? '0') ?? 0.0,
+        creatorCoins: j['creator_coins'] ?? 0,
+        platformCoins: j['platform_coins'] ?? 0,
+        createdAt: DateTime.parse(j['created_at']),
+      );
+}
+
+// ─── End Creator Revenue System ────────────────────────────
 
 class TopVoiceModel {
   final String id;

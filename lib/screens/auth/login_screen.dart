@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/app_colors.dart';
+import '../../config/auth_redirects.dart';
 import '../../widgets/common/grad_button.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final String? authError;
+
+  const LoginScreen({super.key, this.authError});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -18,6 +21,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _obscurePassword = true;
   bool _loading = false;
+  bool _resendingVerification = false;
+  bool _showResendVerification = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.authError != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _showError(_mapAuthCallbackError(widget.authError!));
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -37,11 +53,55 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       if (mounted) context.go('/home');
     } on AuthException catch (e) {
-      if (mounted) _showError(_mapAuthError(e.message));
+      if (mounted) {
+        final needsVerification =
+            e.message.toLowerCase().contains('email not confirmed');
+        setState(() => _showResendVerification = needsVerification);
+        _showError(_mapAuthError(e.message));
+      }
     } catch (_) {
       if (mounted) _showError('Yon erè te fèt. Tanpri eseye ankò.');
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _resendVerificationEmail() async {
+    final email = _emailCtrl.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
+      _showError('Antre imèl ou avan ou mande nouvo lyen an.');
+      return;
+    }
+
+    setState(() => _resendingVerification = true);
+    try {
+      await Supabase.instance.client.auth.resend(
+        type: OtpType.signup,
+        email: email,
+        emailRedirectTo: AuthRedirects.authCallback,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Nou voye yon nouvo lyen verifikasyon bay $email. Tcheke spam tou.',
+            style: const TextStyle(fontFamily: 'Poppins'),
+          ),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+    } on AuthException catch (e) {
+      if (mounted) _showError(_mapAuthError(e.message));
+    } catch (_) {
+      if (mounted) {
+        _showError('Nou pa ka voye lyen an kounye a. Eseye ankò.');
+      }
+    } finally {
+      if (mounted) setState(() => _resendingVerification = false);
     }
   }
 
@@ -58,6 +118,14 @@ class _LoginScreenState extends State<LoginScreen> {
       return 'Twòp eseye. Tanpri tann yon ti moman.';
     }
     return 'Koneksyon echwe. Tanpri eseye ankò.';
+  }
+
+  String _mapAuthCallbackError(String errorCode) {
+    if (errorCode == 'otp_expired') {
+      setState(() => _showResendVerification = true);
+      return 'Lyen verifikasyon an ekspire. Antre imèl ou epi mande yon nouvo lyen.';
+    }
+    return 'Lyen verifikasyon an pa valid ankò. Mande yon nouvo lyen.';
   }
 
   void _showError(String message) {
@@ -162,6 +230,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 12),
+                  if (_showResendVerification) ...[
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: _resendingVerification
+                            ? null
+                            : _resendVerificationEmail,
+                        child: Text(
+                          _resendingVerification
+                              ? 'Ap voye...'
+                              : 'Voye lyen verifikasyon ankò',
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.purpleLight,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
 
                   // Forgot password
                   Align(

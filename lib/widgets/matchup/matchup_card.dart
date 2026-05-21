@@ -200,10 +200,10 @@ class _PopularBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: const Color(0xFF4A1A7A), width: 1),
       ),
-      child: const Row(mainAxisSize: MainAxisSize.min, children: [
-        Text('🔥', style: TextStyle(fontSize: 10)),
-        SizedBox(width: 3),
-        Text('Popilè',
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Image.asset('assets/images/fire.png', width: 13, height: 13, fit: BoxFit.contain),
+        const SizedBox(width: 3),
+        const Text('Popilè',
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 11,
@@ -375,9 +375,9 @@ class _VsSide extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('${percent.toStringAsFixed(0)}%',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Colors.white,
-                        fontSize: 15,
+                        fontSize: compact ? 9 : 11,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Poppins')),
                 if (!micro) ...[

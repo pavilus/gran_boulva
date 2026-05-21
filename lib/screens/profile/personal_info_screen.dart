@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../config/app_colors.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
@@ -55,6 +56,10 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     final username = _usernameCtrl.text.trim();
     if (name.isEmpty || username.isEmpty) {
       _showSnack('Non ak non itilizatè obligatwa.', error: true);
+      return;
+    }
+    if (_bioCtrl.text.trim().length > 120) {
+      _showSnack('About dwe gen 120 karaktè oswa mwens.', error: true);
       return;
     }
     setState(() => _saving = true);
@@ -153,11 +158,12 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildField(
-                  label: 'Bio',
+                  label: 'About',
                   controller: _bioCtrl,
                   hint: 'Di yon bagay sou ou...',
                   icon: Icons.edit_note_rounded,
-                  maxLines: 3,
+                  maxLines: 2,
+                  maxLength: 120,
                 ),
                 const SizedBox(height: 12),
                 _buildField(
@@ -200,6 +206,7 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
     required String hint,
     required IconData icon,
     int maxLines = 1,
+    int? maxLength,
     String? prefix,
   }) {
     return Column(
@@ -244,6 +251,10 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                 child: TextField(
                   controller: controller,
                   maxLines: maxLines,
+                  maxLength: maxLength,
+                  inputFormatters: maxLength == null
+                      ? null
+                      : [LengthLimitingTextInputFormatter(maxLength)],
                   style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 14,
@@ -255,6 +266,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
                         fontSize: 14,
                         fontFamily: 'Poppins'),
                     border: InputBorder.none,
+                    counterStyle: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontFamily: 'Poppins',
+                    ),
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
                   ),

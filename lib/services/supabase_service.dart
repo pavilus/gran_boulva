@@ -55,6 +55,10 @@ class UserService {
     required String username,
     required String email,
     String? referralCode,
+    String? gender,
+    DateTime? dateOfBirth,
+    String? country,
+    String? phoneNumber,
     String language = 'ht',
   }) async {
     final myCode = username.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '') +
@@ -64,6 +68,10 @@ class UserService {
       'full_name': fullName,
       'username': username,
       'email': email,
+      'gender': gender,
+      'date_of_birth': dateOfBirth?.toIso8601String().split('T').first,
+      'country': country,
+      'phone_number': phoneNumber,
       'language': language,
       'referral_code': myCode,
       'referred_by_code': referralCode,
@@ -82,6 +90,10 @@ class UserService {
     String? bio,
     String? avatarUrl,
     String? location,
+    String? gender,
+    DateTime? dateOfBirth,
+    String? country,
+    String? phoneNumber,
   }) async {
     final user = await getProfile();
     if (user == null) return;
@@ -91,6 +103,12 @@ class UserService {
     if (bio != null) updates['bio'] = bio;
     if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
     if (location != null) updates['location'] = location;
+    if (gender != null) updates['gender'] = gender;
+    if (dateOfBirth != null) {
+      updates['date_of_birth'] = dateOfBirth.toIso8601String().split('T').first;
+    }
+    if (country != null) updates['country'] = country;
+    if (phoneNumber != null) updates['phone_number'] = phoneNumber;
     if (updates.isEmpty) return;
     await supabase.from('users').update(updates).eq('id', user.id);
   }
@@ -113,11 +131,8 @@ class UserService {
   }
 
   Future<void> follow(String targetUserId) async {
-    final user = await getProfile();
-    if (user == null) return;
-    await supabase.from('follows').insert({
-      'follower_id': user.id,
-      'following_id': targetUserId,
+    await supabase.rpc('follow_user', params: {
+      'p_following_id': targetUserId,
     });
     await RecommendationService().recordEvent(
       eventType: 'follow',
@@ -127,13 +142,9 @@ class UserService {
   }
 
   Future<void> unfollow(String targetUserId) async {
-    final user = await getProfile();
-    if (user == null) return;
-    await supabase
-        .from('follows')
-        .delete()
-        .eq('follower_id', user.id)
-        .eq('following_id', targetUserId);
+    await supabase.rpc('unfollow_user', params: {
+      'p_following_id': targetUserId,
+    });
   }
 
   Future<bool> isFollowing(String targetUserId) async {
@@ -233,6 +244,40 @@ class MatchupService {
   Future<List<MatchupModel>> getMatchupsFeed(
       {String sort = 'popular', String? categoryId}) async {
     return _fetchMatchupsFallback(sort: sort, categoryId: categoryId);
+  }
+
+  Future<List<MatchupModel>> getSavedMatchups() async {
+    final user = await UserService().getProfile();
+    if (user == null) return [];
+
+    final savedRows = await supabase
+        .from('saved_items')
+        .select('item_id, created_at')
+        .eq('user_id', user.id)
+        .eq('item_type', 'matchup')
+        .order('created_at', ascending: false);
+    final savedIds = (savedRows as List)
+        .map((row) => row['item_id'])
+        .whereType<String>()
+        .toList();
+    if (savedIds.isEmpty) return [];
+
+    final matchups = await supabase
+        .from('matchups')
+        .select('*, category:categories(*), options:matchup_options(*)')
+        .inFilter('id', savedIds);
+    final byId = {
+      for (final row in matchups as List)
+        row['id'] as String: MatchupModel.fromJson({
+          ...Map<String, dynamic>.from(row as Map),
+          'is_saved': true,
+        })
+    };
+
+    return [
+      for (final id in savedIds)
+        if (byId[id] != null) byId[id]!,
+    ];
   }
 
   Future<MatchupModel?> getMatchupDetail(String matchupId) async {
@@ -373,7 +418,7 @@ class RecommendationService {
 
 class ArgumentService {
   static const _argumentSelectWithRelations =
-      '*, user:users!arguments_user_id_fkey(username, avatar_url), option:matchup_options!arguments_option_id_fkey(option_label, option_name)';
+      '*, user:users!arguments_user_id_fkey(username, avatar_url, gender, verification_type, verification_badge_style, verification_status), option:matchup_options!arguments_option_id_fkey(option_label, option_name)';
 
   Future<Map<String, dynamic>> getArguments(String matchupId,
       {String sort = 'popular', int page = 0, bool fetchAll = false}) async {
@@ -500,7 +545,7 @@ class ArgumentService {
       if (userIds.isEmpty) return;
       final rows = await supabase
           .from('users')
-          .select('id, username, avatar_url')
+          .select('id, username, avatar_url, gender')
           .inFilter('id', userIds);
       final usersById = {
         for (final row in rows as List)
@@ -619,7 +664,7 @@ class ArgumentService {
     final data = await supabase
         .from('argument_replies')
         .select(
-            '*, user:users!argument_replies_user_id_fkey(username, avatar_url)')
+            '*, user:users!argument_replies_user_id_fkey(username, avatar_url, gender, verification_type, verification_badge_style, verification_status)')
         .eq('argument_id', argumentId)
         .eq('status', 'active')
         .order('created_at');
@@ -737,10 +782,31 @@ class CoinEconomyConfig {
     supportAmounts: [10, 25, 50, 100],
     coinPacks: [
       CoinPackConfig(
-        coins: 1000,
+        coins: 100,
+        price: 99,
+        label: '\$0.99',
+        savings: '',
+        popular: false,
+      ),
+      CoinPackConfig(
+        coins: 250,
+        price: 299,
+        label: '\$2.99',
+        savings: '',
+        popular: false,
+      ),
+      CoinPackConfig(
+        coins: 550,
+        price: 499,
+        label: '\$4.99',
+        savings: 'Pi bon pase starter',
+        popular: false,
+      ),
+      CoinPackConfig(
+        coins: 1200,
         price: 999,
         label: '\$9.99',
-        savings: '',
+        savings: 'Ekonomize plis',
         popular: false,
       ),
       CoinPackConfig(
@@ -1554,6 +1620,115 @@ class AdminService {
     return (data as List).map((j) => UserModel.fromJson(j)).toList();
   }
 
+  Future<List<VerificationRequestModel>> getVerificationRequests() async {
+    final data = await supabase
+        .from('verification_requests')
+        .select('*, user:users!verification_requests_user_id_fkey(*)')
+        .order('submitted_at', ascending: false);
+    return (data as List)
+        .map((j) => VerificationRequestModel.fromJson(j))
+        .toList();
+  }
+
+  Future<void> approveVerificationRequest(VerificationRequestModel request,
+      {String? adminNotes}) async {
+    final admin = await UserService().getProfile();
+    final badgeStyle = _badgeStyleForType(request.verificationType);
+    final now = DateTime.now().toIso8601String();
+
+    await supabase.from('user_verifications').upsert({
+      'user_id': request.userId,
+      'verification_type': request.verificationType,
+      'badge_style': badgeStyle,
+      'status': 'approved',
+      'granted_by': admin?.id,
+      'granted_at': now,
+      'updated_at': now,
+    }, onConflict: 'user_id,verification_type');
+
+    await supabase.from('users').update({
+      'verification_type': request.verificationType,
+      'verification_badge_style': badgeStyle,
+      'verification_status': 'approved',
+    }).eq('id', request.userId);
+
+    await supabase.from('verification_requests').update({
+      'status': 'approved',
+      'admin_notes': adminNotes,
+      'reviewed_by': admin?.id,
+      'reviewed_at': now,
+      'updated_at': now,
+    }).eq('id', request.id);
+
+    await _notifyVerificationResult(
+      request.userId,
+      title: 'Kont ou verifye',
+      body: 'Demann verifikasyon ou a apwouve.',
+    );
+  }
+
+  Future<void> rejectVerificationRequest(VerificationRequestModel request,
+      {String? reason}) async {
+    final admin = await UserService().getProfile();
+    final now = DateTime.now().toIso8601String();
+    await supabase.from('verification_requests').update({
+      'status': 'rejected',
+      'rejection_reason': reason,
+      'reviewed_by': admin?.id,
+      'reviewed_at': now,
+      'updated_at': now,
+    }).eq('id', request.id);
+
+    await supabase
+        .from('users')
+        .update({
+          'verification_status': 'rejected',
+        })
+        .eq('id', request.userId)
+        .neq('verification_status', 'approved');
+
+    await _notifyVerificationResult(
+      request.userId,
+      title: 'Verifikasyon pa apwouve',
+      body: reason?.isNotEmpty == true
+          ? reason!
+          : 'Demann verifikasyon ou a pa apwouve pou kounye a.',
+    );
+  }
+
+  String _badgeStyleForType(String type) {
+    switch (type) {
+      case 'organization':
+        return 'business';
+      case 'public_figure':
+        return 'gold';
+      case 'trusted_creator':
+        return 'silver';
+      case 'admin':
+        return 'verified';
+      default:
+        return 'standard';
+    }
+  }
+
+  Future<void> _notifyVerificationResult(
+    String userId, {
+    required String title,
+    required String body,
+  }) async {
+    try {
+      await NotificationService().send(
+        toUserId: userId,
+        type: 'system',
+        title: title,
+        body: body,
+        relatedTable: 'verification_requests',
+      );
+    } catch (_) {
+      // Notifications should not block moderation actions.
+    }
+  }
+
   Future<void> runTrendScan() async {
     await supabase.functions.invoke('run-trend-scan');
   }
@@ -1597,5 +1772,144 @@ class AdminService {
     await supabase
         .from('categories')
         .insert({'name_ht': nameHt, 'name_en': nameEn, 'icon': icon});
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// CreatorService
+// ─────────────────────────────────────────────────────────
+class CreatorService {
+  /// Returns the signed-in user's creator profile row.
+  Future<CreatorProfileModel?> getMyProfile() async {
+    final user = await UserService().getProfile();
+    if (user == null) return null;
+
+    final data = await supabase
+        .from('creator_profiles')
+        .select()
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+    if (data == null) return null;
+    return CreatorProfileModel.fromJson(data);
+  }
+
+  /// Returns the full creator dashboard stats via RPC.
+  Future<CreatorDashboardModel?> getDashboard() async {
+    final user = await UserService().getProfile();
+    if (user == null) return null;
+
+    final result = await supabase.rpc(
+      'get_creator_dashboard',
+      params: {'p_user_id': user.id},
+    );
+    if (result == null) return null;
+    return CreatorDashboardModel.fromJson(Map<String, dynamic>.from(result));
+  }
+
+  /// Recalculates the score and auto-upgrades tier if eligible.
+  /// Safe to call after any significant user action.
+  Future<int?> refreshTier() async {
+    final user = await UserService().getProfile();
+    if (user == null) return null;
+
+    final result = await supabase.rpc(
+      'refresh_creator_tier',
+      params: {'p_user_id': user.id},
+    );
+    return result as int?;
+  }
+
+  /// Returns a public creator profile for any user by their users.id.
+  Future<CreatorProfileModel?> getProfileForUser(String userId) async {
+    final data = await supabase
+        .from('creator_profiles')
+        .select()
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (data == null) return null;
+    return CreatorProfileModel.fromJson(data);
+  }
+
+  /// Returns recent revenue events for the signed-in creator.
+  Future<List<CreatorRevenueEventModel>> getRevenueEvents({int limit = 30}) async {
+    final user = await UserService().getProfile();
+    if (user == null) return [];
+
+    final data = await supabase
+        .from('creator_revenue_events')
+        .select()
+        .eq('creator_user_id', user.id)
+        .order('created_at', ascending: false)
+        .limit(limit);
+
+    return (data as List)
+        .map((j) => CreatorRevenueEventModel.fromJson(j))
+        .toList();
+  }
+
+  /// Requests a payout of pending coins. Admin processes it manually.
+  Future<void> requestPayout({
+    required int coinsAmount,
+    required String payoutMethod,
+  }) async {
+    final user = await UserService().getProfile();
+    if (user == null) throw Exception('Not signed in');
+
+    await supabase.from('creator_payouts').insert({
+      'creator_user_id': user.id,
+      'coins_amount': coinsAmount,
+      'payout_method': payoutMethod,
+      'status': 'pending',
+    });
+  }
+}
+
+class VerificationService {
+  Future<List<VerificationRequestModel>> getMyRequests() async {
+    final user = await UserService().getProfile();
+    if (user == null) return [];
+
+    final data = await supabase
+        .from('verification_requests')
+        .select()
+        .eq('user_id', user.id)
+        .order('submitted_at', ascending: false);
+    return (data as List)
+        .map((j) => VerificationRequestModel.fromJson(j))
+        .toList();
+  }
+
+  Future<void> submitRequest({
+    required String verificationType,
+    String? displayName,
+    String? legalName,
+    String? organizationName,
+    String? website,
+    String? organizationEmail,
+    String? socialLinks,
+    String? proofNotes,
+  }) async {
+    final user = await UserService().getProfile();
+    if (user == null) throw Exception('User profile not found');
+
+    await supabase.from('verification_requests').insert({
+      'user_id': user.id,
+      'verification_type': verificationType,
+      'status': 'pending',
+      'display_name': displayName,
+      'legal_name': legalName,
+      'organization_name': organizationName,
+      'website': website,
+      'organization_email': organizationEmail,
+      'social_links': socialLinks,
+      'proof_notes': proofNotes,
+    });
+
+    await supabase
+        .from('users')
+        .update({'verification_status': 'pending'})
+        .eq('id', user.id)
+        .neq('verification_status', 'approved');
   }
 }

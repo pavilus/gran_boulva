@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
+import '../../widgets/common/user_avatar.dart';
+import '../../widgets/common/verification_badge.dart';
 import 'avatar_crop_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -26,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   UserModel? _user;
   List<BadgeProgressModel> _badges = [];
   int _unreadNotifications = 0;
+  int _totalVotes = 0;
   bool _loading = true;
   bool _uploadingAvatar = false;
 
@@ -38,20 +41,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     setState(() => _loading = true);
     try {
+      final user = await _userService.getProfile();
       final results = await Future.wait([
-        _userService.getProfile(),
         _badgeService.getUserBadges(),
         _notificationService.getUnreadCount(),
+        if (user == null) Future<int>.value(0) else _countVotes(user.id),
       ]);
       if (!mounted) return;
       setState(() {
-        _user = results[0] as UserModel?;
-        _badges = results[1] as List<BadgeProgressModel>;
-        _unreadNotifications = results[2] as int;
+        _user = user;
+        _badges = results[0] as List<BadgeProgressModel>;
+        _unreadNotifications = results[1] as int;
+        _totalVotes = results[2] as int;
         _loading = false;
       });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<int> _countVotes(String userId) async {
+    try {
+      final rows =
+          await supabase.from('votes').select('id').eq('user_id', userId);
+      return (rows as List).length;
+    } catch (_) {
+      return 0;
     }
   }
 
@@ -164,6 +179,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return '$n';
   }
 
+  String _victoryRate(UserModel user) {
+    if (user.participationCount <= 0) return '0%';
+    final rate = ((user.victoryCount / user.participationCount) * 100).round();
+    return '${rate.clamp(0, 100)}%';
+  }
+
+  String _activeTime(UserModel user) {
+    final elapsed = DateTime.now().difference(user.createdAt);
+    if (elapsed.inHours < 24) return '${elapsed.inHours.clamp(0, 23)}h';
+    if (elapsed.inDays < 30) return '${elapsed.inDays}j';
+    final months = (elapsed.inDays / 30).floor();
+    if (months < 12) return '${months}mwa';
+    final years = (elapsed.inDays / 365).floor();
+    return '${years}a';
+  }
+
+  String _aboutText(UserModel user) {
+    final bio = user.bio?.trim();
+    if (bio == null || bio.isEmpty) return 'A pwopo de mwen';
+    if (bio.length <= 120) return bio;
+    return '${bio.substring(0, 117).trimRight()}...';
+  }
+
   String _formatMemberSince(DateTime dt) {
     const months = [
       'Jan',
@@ -185,18 +223,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Color _colorFromHex(String hex) {
     final value = int.tryParse('FF${hex.replaceFirst('#', '')}', radix: 16);
     return value == null ? AppColors.purpleLight : Color(value);
-  }
-
-  void _showComingSoon() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Byento disponib...',
-            style: TextStyle(fontFamily: 'Poppins')),
-        backgroundColor: AppColors.card,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
   }
 
   @override
@@ -243,6 +269,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _buildRecentActivitySection(),
                           const SizedBox(height: 18),
                           _buildStatsMiniSection(),
+                          const SizedBox(height: 18),
+                          _buildCreatorDashboardBanner(),
                           const SizedBox(height: 18),
                           _buildSettingsList(),
                         ],
@@ -319,8 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor: AppColors.bg1,
                         backgroundImage: user.avatarUrl != null
                             ? CachedNetworkImageProvider(user.avatarUrl!)
-                            : const AssetImage('assets/images/user1.png')
-                                as ImageProvider,
+                            : UserAvatar.defaultImageProvider(user.gender),
                       ),
               ),
               Positioned(
@@ -330,7 +357,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 27,
                   height: 27,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF100A2D),
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.purpleLight, width: 1),
                   ),
@@ -362,16 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(width: 7),
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF8B3DFF),
-                      shape: BoxShape.circle,
-                    ),
-                    child:
-                        const Icon(Icons.check, color: Colors.white, size: 13),
-                  ),
+                  VerificationBadge.user(user, size: 20),
                 ],
               ),
               const SizedBox(height: 6),
@@ -386,9 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 7),
               Text(
-                user.bio?.isNotEmpty == true
-                    ? user.bio!
-                    : 'Debat. Vote. Agimante.',
+                _aboutText(user),
                 style: const TextStyle(
                   color: Color(0xFFD6CFF0),
                   fontSize: 13,
@@ -408,6 +423,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.calendar_month_outlined,
                 text: 'Manm depi ${_formatMemberSince(user.createdAt)}',
               ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  _FollowMetric(
+                    value: _fmt(user.followersCount),
+                    label: 'Abònen',
+                  ),
+                  const SizedBox(width: 10),
+                  _FollowMetric(
+                    value: _fmt(user.followingCount),
+                    label: 'Ap swiv',
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -419,64 +448,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = _user!;
     final stats = [
       (
-        icon: Icons.groups_2_outlined,
-        color: AppColors.purpleLight,
+        asset: 'assets/images/community.png',
         value: _fmt(user.influenceScore),
-        label: 'Pwen enfliyans'
+        label: 'Enfliyans'
       ),
       (
-        icon: Icons.local_fire_department_rounded,
-        color: AppColors.orange,
+        asset: 'assets/images/fire.png',
         value: _fmt(user.participationCount),
         label: 'Patisipasyon'
       ),
       (
-        icon: Icons.emoji_events_rounded,
-        color: AppColors.warning,
+        asset: 'assets/images/trophy.png',
         value: _fmt(user.victoryCount),
         label: 'Viktwa'
       ),
       (
-        icon: Icons.stars_rounded,
-        color: AppColors.purpleLight,
+        asset: 'assets/images/follower.png',
         value: _fmt(user.followersCount),
         label: 'Abònen'
       ),
     ];
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      child: AspectRatio(
-        aspectRatio: 1055 / 176,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final slotWidth = constraints.maxWidth / stats.length;
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  'assets/images/underProfile.png',
-                  fit: BoxFit.fill,
-                ),
-                for (int i = 0; i < stats.length; i++)
-                  Positioned(
-                    left: (slotWidth * i) + (slotWidth * 0.42) + 5,
-                    top: (constraints.maxHeight * 0.3) - 5,
-                    child: Text(
-                      stats[i].value,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'Poppins',
+    return Row(
+      children: [
+        for (int i = 0; i < stats.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 76),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.card.withValues(alpha: 0.42),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.borderDim),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        stats[i].asset,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.contain,
                       ),
-                    ),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          stats[i].value,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Poppins',
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-              ],
-            );
-          },
-        ),
-      ),
+                  const SizedBox(height: 5),
+                  Text(
+                    stats[i].label,
+                    style: const TextStyle(
+                      color: Color(0xFFC7B7F4),
+                      fontSize: 10,
+                      height: 1.1,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -517,67 +569,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildBadgesSection() {
-    final badges = _badges.take(5).toList();
+    final badges = _badges.where((badge) => badge.level > 0).take(5).toList();
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('Badj mwen', () => context.push('/badges')),
           const SizedBox(height: 18),
-          Row(
-            children: badges.map((badge) {
-              final color = _colorFromHex(badge.badge.colorHex);
-              return Expanded(
-                child: Column(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(18),
-                        // Border and BoxShadow properties have been removed
-                      ),
-                      //padding: const EdgeInsets.all(7),
-                      child: Image.asset(
-                        badge.badge.iconAsset,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
-                          Icons.workspace_premium_rounded,
-                          color: color,
-                          size: 50,
+          if (badges.isEmpty)
+            const Text(
+              'Ou poko genyen badj.',
+              style: TextStyle(
+                color: Color(0xFFC7B7F4),
+                fontSize: 13,
+                fontFamily: 'Poppins',
+              ),
+            )
+          else
+            Row(
+              children: badges.map((badge) {
+                final color = _colorFromHex(badge.badge.colorHex);
+                return Expanded(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          // Border and BoxShadow properties have been removed
+                        ),
+                        //padding: const EdgeInsets.all(7),
+                        child: Image.asset(
+                          badge.badge.iconAsset,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.workspace_premium_rounded,
+                            color: color,
+                            size: 50,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 9),
-                    Text(
-                      badge.badge.nameEn.isEmpty
-                          ? badge.badge.nameEn
-                          : badge.badge.nameHt,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Poppins',
+                      const SizedBox(height: 9),
+                      Text(
+                        badge.badge.nameEn.isEmpty
+                            ? badge.badge.nameEn
+                            : badge.badge.nameHt,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Poppins',
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Nivo ${badge.level}',
-                      style: const TextStyle(
-                        color: Color(0xFFC7B7F4),
-                        fontSize: 10,
-                        fontFamily: 'Poppins',
+                      const SizedBox(height: 2),
+                      Text(
+                        'Nivo ${badge.level}',
+                        style: const TextStyle(
+                          color: Color(0xFFC7B7F4),
+                          fontSize: 10,
+                          fontFamily: 'Poppins',
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
         ],
       ),
     );
@@ -586,19 +647,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildRecentActivitySection() {
     const activities = [
       (
-        icon: Icons.local_fire_department_rounded,
+        asset: 'assets/images/fire.png',
         color: AppColors.orange,
         text: 'Ou te vote “Ede plis” nan sondaj la',
         ago: '2h ago'
       ),
       (
-        icon: Icons.chat_bubble_outline_rounded,
+        asset: 'assets/images/comment.png',
         color: AppColors.pink,
         text: 'Ou te patisipe nan debat “Èske mizik rap...”',
         ago: '4h ago'
       ),
       (
-        icon: Icons.emoji_events_rounded,
+        asset: 'assets/images/trophy.png',
         color: AppColors.warning,
         text: 'Ou genyen badj “Top Voter” Nivo 3',
         ago: '1d ago'
@@ -609,7 +670,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Aktivite resan mwen', _showComingSoon),
+          _buildSectionHeader(
+            'Aktivite resan mwen',
+            () => context.push('/recent-activity'),
+          ),
           const SizedBox(height: 12),
           for (final entry in activities.indexed) ...[
             Padding(
@@ -619,11 +683,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     width: 44,
                     height: 44,
-                    decoration: BoxDecoration(
-                      color: entry.$2.color.withValues(alpha: 0.14),
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(entry.$2.icon, color: entry.$2.color, size: 22),
+                    child: Image.asset(
+                      entry.$2.asset,
+                      width: 44,
+                      height: 44,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -665,28 +733,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = _user!;
     final miniStats = [
       (
-        value: '76%',
+        value: _victoryRate(user),
         label: 'To viktwa',
-        icon: Icons.stacked_line_chart_rounded,
-        color: AppColors.purpleLight
+        asset: 'assets/images/trophy.png'
       ),
       (
-        value: _fmt(user.participationCount * 12),
+        value: _fmt(_totalVotes),
         label: 'Vòt total',
-        icon: Icons.check_circle_outline_rounded,
-        color: AppColors.pink
+        asset: 'assets/images/vote.png'
       ),
       (
         value: _fmt(user.participationCount),
         label: 'Deba patisipe',
-        icon: Icons.chat_bubble_outline_rounded,
-        color: AppColors.blue
+        asset: 'assets/images/comment.png'
       ),
       (
-        value: '24h',
+        value: _activeTime(user),
         label: 'Tan aktif',
-        icon: Icons.access_time_rounded,
-        color: AppColors.warning
+        asset: 'assets/images/clock.png'
       ),
     ];
 
@@ -694,7 +758,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Estatistik mwen', _showComingSoon),
+          _buildSectionHeader(
+            'Estatistik mwen',
+            () => context.push('/my-statistics'),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -711,8 +778,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(miniStats[i].icon,
-                              color: miniStats[i].color, size: 27),
+                          Image.asset(
+                            miniStats[i].asset,
+                            width: 27,
+                            height: 27,
+                            fit: BoxFit.contain,
+                          ),
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
@@ -749,28 +820,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildCreatorDashboardBanner() {
+    return GestureDetector(
+      onTap: () => context.push('/creator-dashboard'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2A0070), Color(0xFF4F158F)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          border: Border.all(color: AppColors.purpleLight.withValues(alpha: 0.35)),
+        ),
+        child: Row(
+          children: [
+            const Text('⚡', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tableau Kreyatè',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Wè skò, revni ak nivo kreyatè ou',
+                    style: TextStyle(color: Color(0xFFBDB3DD), fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.purpleLight, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSettingsList() {
     final items = [
       (
         icon: Icons.person_outline_rounded,
+        asset: null,
         label: 'Enfòmasyon pèsonèl',
         route: '/personal-info',
         color: AppColors.purpleLight
       ),
       (
         icon: Icons.lock_outline_rounded,
+        asset: null,
         label: 'Sekirite ak vi prive',
         route: '/security',
         color: const Color(0xFFBDB3DD)
       ),
       (
         icon: Icons.notifications_none_rounded,
+        asset: 'assets/images/notification_unifilled.png',
         label: 'Notifikasyon',
         route: '/notification-settings',
         color: const Color(0xFFBDB3DD)
       ),
       (
         icon: Icons.help_outline_rounded,
+        asset: null,
         label: 'Èd ak sipò',
         route: '/help',
         color: const Color(0xFFBDB3DD)
@@ -796,11 +917,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         width: 36,
                         height: 36,
-                        decoration: BoxDecoration(
-                          color: item.color.withValues(alpha: 0.14),
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(item.icon, color: item.color, size: 22),
+                        child: item.asset == null
+                            ? Icon(item.icon, color: item.color, size: 22)
+                            : Center(
+                                child: Image.asset(
+                                  item.asset!,
+                                  width: 22,
+                                  height: 22,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -877,7 +1006,6 @@ class _IconSquare extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: const Color(0xFF0E0826),
           borderRadius: BorderRadius.circular(13),
           border: Border.all(color: AppColors.purpleLight),
         ),
@@ -901,10 +1029,14 @@ class _NotificationButton extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           const SizedBox(
-            width: 29,
-            height: 36,
-            child: Icon(Icons.notifications_none_rounded,
-                color: Colors.white, size: 26),
+            width: 44,
+            height: 44,
+            child: Image(
+              image: AssetImage('assets/images/notification_unifilled.png'),
+              width: 39,
+              height: 39,
+              fit: BoxFit.contain,
+            ),
           ),
           if (count > 0)
             Positioned(
@@ -951,7 +1083,6 @@ class _CoinPill extends StatelessWidget {
         height: 32,
         padding: const EdgeInsets.symmetric(horizontal: 9),
         decoration: BoxDecoration(
-          color: const Color(0xFF120B34),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.purpleLight),
         ),
@@ -960,13 +1091,8 @@ class _CoinPill extends StatelessWidget {
           children: [
             Image.asset(
               'assets/images/coin.png',
-              width: 16,
-              height: 16,
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.monetization_on_rounded,
-                color: AppColors.warning,
-                size: 15,
-              ),
+              width: 24,
+              height: 24,
             ),
             const SizedBox(width: 5),
             Text(
@@ -1009,6 +1135,58 @@ class _ProfileMeta extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _FollowMetric extends StatelessWidget {
+  final String value;
+  final String label;
+
+  const _FollowMetric({
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        decoration: BoxDecoration(
+          color: AppColors.card.withValues(alpha: 0.72),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.borderDim),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'Poppins',
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  color: Color(0xFFC7B7F4),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins',
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

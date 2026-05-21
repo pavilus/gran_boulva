@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../config/app_colors.dart';
@@ -27,7 +28,11 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    context.go('/login');
+    final prefs = await SharedPreferences.getInstance();
+    final onboardingDone = prefs.getBool('onboarding_done') ?? false;
+    if (!mounted) return;
+
+    context.go(onboardingDone ? '/login' : '/onboarding');
   }
 
   @override

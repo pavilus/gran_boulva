@@ -6,12 +6,12 @@ import '../../config/app_colors.dart';
 import '../../widgets/common/grad_button.dart';
 
 class _OnboardingSlide {
-  final String emoji;
+  final String imagePath;
   final String title;
   final String description;
 
   const _OnboardingSlide({
-    required this.emoji,
+    required this.imagePath,
     required this.title,
     required this.description,
   });
@@ -19,27 +19,27 @@ class _OnboardingSlide {
 
 const _slides = [
   _OnboardingSlide(
-    emoji: '🗳️',
+    imagePath: 'assets/images/debate.png',
     title: 'Debat',
     description: 'Defann pozisyon ou sou sijè ki konte pou kominote ayisyen an',
   ),
   _OnboardingSlide(
-    emoji: '✋',
+    imagePath: 'assets/images/vote.png',
     title: 'Vote',
     description: 'Di sa w panse sou matchup yo epi fè vwa w konte',
   ),
   _OnboardingSlide(
-    emoji: '💬',
+    imagePath: 'assets/images/comment.png',
     title: 'Agimante',
     description: 'Ekri agiman ou epi kore pozisyon w ak bon rezonnman',
   ),
   _OnboardingSlide(
-    emoji: '🔮',
+    imagePath: 'assets/images/predict.png',
     title: 'Prediksyon',
     description: 'Predi sa ki pral rive epi ranpòte pwen enfliyans',
   ),
   _OnboardingSlide(
-    emoji: '👑',
+    imagePath: 'assets/images/influencer.png',
     title: 'Enfliyans',
     description:
         'Bati repitasyon ou kòm yon vwa moun ka fè konfyans nan kominote a',
@@ -66,12 +66,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  Future<void> _complete() async {
-    setState(() => _loading = true);
+  Future<void> _finish({bool showLoading = false}) async {
+    if (showLoading) setState(() => _loading = true);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
     if (mounted) context.go('/create-account');
   }
+
+  Future<void> _complete() => _finish(showLoading: true);
 
   void _next() {
     if (_isLastPage) {
@@ -84,7 +86,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _skip() => context.go('/login');
+  Future<void> _skip() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_done', true);
+    if (mounted) context.go('/login');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,9 +221,11 @@ class _SlidePage extends StatelessWidget {
               ],
             ),
             child: Center(
-              child: Text(
-                slide.emoji,
-                style: const TextStyle(fontSize: 64),
+              child: Image.asset(
+                slide.imagePath,
+                width: 80,
+                height: 80,
+                fit: BoxFit.contain,
               ),
             ),
           ),

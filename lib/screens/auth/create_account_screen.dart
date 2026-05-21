@@ -1,9 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../config/app_colors.dart';
+import '../../config/auth_redirects.dart';
 import '../../widgets/common/app_back_button.dart';
 import '../../widgets/common/grad_button.dart';
 
@@ -24,6 +26,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
+  final _birthDateCtrl = TextEditingController();
+  final _countryCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _referralCtrl = TextEditingController();
 
   bool _obscurePassword = true;
@@ -31,11 +36,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _loading = false;
   bool _agreedToTerms = false;
   String _language = 'ht';
+  String? _gender;
+  DateTime? _birthDate;
 
   // Username availability state
   bool? _usernameAvailable; // null = unchecked, true = available, false = taken
   bool _checkingUsername = false;
   String _lastCheckedUsername = '';
+  List<String> _usernameSuggestions = [];
+  int _usernameCheckToken = 0;
 
   @override
   void initState() {
@@ -53,33 +62,126 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmPasswordCtrl.dispose();
+    _birthDateCtrl.dispose();
+    _countryCtrl.dispose();
+    _phoneCtrl.dispose();
     _referralCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _checkUsernameAvailability(String username) async {
-    final trimmed = username.trim().toLowerCase();
-    if (trimmed.length < 3 || trimmed == _lastCheckedUsername) return;
+  String _normalizeUsername(String username) => username.trim().toLowerCase();
+
+  String _formatBirthDate(DateTime date) {
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '${date.year}-$month-$day';
+  }
+
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final initialDate =
+        _birthDate ?? DateTime(now.year - 18, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(now.year - 120),
+      lastDate: DateTime(now.year - 13, now.month, now.day),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppColors.purple,
+              surface: AppColors.bg1,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked == null) return;
+    setState(() {
+      _birthDate = picked;
+      _birthDateCtrl.text = _formatBirthDate(picked);
+    });
+  }
+
+  Future<bool?> _checkUsernameAvailability(
+    String username, {
+    bool force = false,
+  }) async {
+    final trimmed = _normalizeUsername(username);
+    if (trimmed.length < 3) return null;
+    if (!force && trimmed == _lastCheckedUsername) return _usernameAvailable;
+
+    final token = ++_usernameCheckToken;
 
     setState(() {
       _checkingUsername = true;
       _usernameAvailable = null;
+      _usernameSuggestions = [];
     });
 
     try {
       final result = await Supabase.instance.client
-          .rpc('is_username_available', params: {'username': trimmed});
-      if (mounted && _usernameCtrl.text.trim().toLowerCase() == trimmed) {
+          .rpc('is_username_available', params: {'p_username': trimmed});
+      final available = result == true;
+      final suggestions =
+          available ? <String>[] : await _usernameSuggestionsFor(trimmed);
+
+      if (mounted &&
+          token == _usernameCheckToken &&
+          _normalizeUsername(_usernameCtrl.text) == trimmed) {
         setState(() {
-          _usernameAvailable = result as bool? ?? false;
+          _usernameAvailable = available;
           _lastCheckedUsername = trimmed;
+          _usernameSuggestions = suggestions;
         });
       }
+      return available;
     } catch (_) {
-      if (mounted) setState(() => _usernameAvailable = null);
+      if (mounted && token == _usernameCheckToken) {
+        setState(() {
+          _usernameAvailable = null;
+          _usernameSuggestions = [];
+        });
+      }
+      return null;
     } finally {
-      if (mounted) setState(() => _checkingUsername = false);
+      if (mounted && token == _usernameCheckToken) {
+        setState(() => _checkingUsername = false);
+      }
     }
+  }
+
+  Future<List<String>> _usernameSuggestionsFor(String username) async {
+    final base = username.replaceAll(RegExp(r'[^a-z0-9_]'), '');
+    final seeds = <String>[
+      '${base}_ht',
+      '${base}_509',
+      '${base}_${DateTime.now().year % 100}',
+      '${base}_${_firstNameCtrl.text.trim().toLowerCase()}',
+      '${base}_${_lastNameCtrl.text.trim().toLowerCase()}',
+    ];
+    final candidates = <String>[
+      for (final seed in seeds)
+        seed.replaceAll(RegExp(r'[^a-z0-9_]'), '').replaceAll('__', '_'),
+      for (var i = 1; i <= 60; i++) '${base}_$i',
+    ].where((candidate) {
+      return candidate.length >= 3 && candidate != username;
+    }).toSet();
+
+    final suggestions = <String>[];
+    for (final candidate in candidates) {
+      try {
+        final result = await Supabase.instance.client
+            .rpc('is_username_available', params: {'p_username': candidate});
+        if (result == true) suggestions.add(candidate);
+        if (suggestions.length == 2) break;
+      } catch (_) {
+        break;
+      }
+    }
+    return suggestions;
   }
 
   Future<void> _submit() async {
@@ -92,10 +194,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return;
     }
 
-    // Only block if we explicitly know the username is taken.
-    // null means the check hasn't run or failed → let the server decide.
-    if (_usernameAvailable == false) {
-      _showError(_copy.usernameTaken);
+    final username = _normalizeUsername(_usernameCtrl.text);
+    final usernameVerified =
+        _lastCheckedUsername == username && _usernameAvailable == true
+            ? true
+            : await _checkUsernameAvailability(username, force: true);
+    if (usernameVerified != true) {
+      _showError(usernameVerified == false
+          ? _copy.usernameTaken
+          : _copy.usernameCheckFailed);
       return;
     }
 
@@ -106,59 +213,34 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       final password = _passwordCtrl.text;
       final fullName =
           '${_firstNameCtrl.text.trim()} ${_lastNameCtrl.text.trim()}'.trim();
-      final username = _usernameCtrl.text.trim().toLowerCase();
       final referralCode = _referralCtrl.text.trim();
+      final country = _countryCtrl.text.trim();
+      final phone = _phoneCtrl.text.trim();
 
-      // 1. Sign up with Supabase Auth
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
+        emailRedirectTo: AuthRedirects.authCallback,
         data: {
           'full_name': fullName,
           'username': username,
           'language': _language,
+          'gender': _gender,
+          'date_of_birth': _birthDateCtrl.text.trim(),
+          if (country.isNotEmpty) 'country': country,
+          if (phone.isNotEmpty) 'phone_number': phone,
+          if (referralCode.isNotEmpty) 'referral_code': referralCode,
         },
       );
 
       final userId = response.user?.id;
       if (userId == null) {
         // Supabase returns null user when email confirmation is on and address already exists.
-        // Show a neutral message that covers both cases.
         if (mounted) {
-          _showVerificationNotice();
+          _showError(_copy.emailMayAlreadyExist);
           setState(() => _loading = false);
-          await Future<void>.delayed(const Duration(milliseconds: 900));
-          if (mounted) context.go('/login');
         }
         return;
-      }
-
-      // 2. Create user profile — try edge function first, fall back to direct insert
-      try {
-        await Supabase.instance.client.functions.invoke(
-          'create-user-profile',
-          body: {
-            'auth_user_id': userId,
-            'full_name': fullName,
-            'username': username,
-            'email': email,
-            'language': _language,
-            if (referralCode.isNotEmpty) 'referral_code': referralCode,
-          },
-        );
-      } catch (_) {
-        // Edge function not deployed yet — insert directly
-        await Supabase.instance.client.from('users').upsert({
-          'id': userId,
-          'auth_user_id': userId,
-          'email': email,
-          'full_name': fullName,
-          'username': username,
-          'language': _language,
-          'role': 'user',
-          'influence_score': 0,
-          'free_boosts_available': 0,
-        });
       }
 
       if (mounted) {
@@ -169,14 +251,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     } on AuthException catch (e) {
       if (mounted) _showError(_mapAuthError(e.message));
     } catch (e) {
-      final msg = e.toString().toLowerCase();
-      if (msg.contains('unique') ||
-          msg.contains('duplicate') ||
-          msg.contains('username')) {
-        if (mounted) _showError(_copy.usernameTaken);
-      } else {
-        if (mounted) _showError(_copy.genericError);
-      }
+      if (mounted) _showError(_mapUnexpectedSignupError(e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -184,15 +259,43 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   String _mapAuthError(String message) {
     final lower = message.toLowerCase();
+    if (lower.contains('username_taken') ||
+        lower.contains('username') ||
+        lower.contains('duplicate key')) {
+      return _copy.usernameTaken;
+    }
     if (lower.contains('already registered') ||
         lower.contains('already been registered')) {
       return _copy.emailAlreadyUsed;
+    }
+    if (lower.contains('database error')) {
+      return _copy.profileCreateFailed;
     }
     if (lower.contains('password')) {
       return _copy.weakPassword;
     }
     if (lower.contains('invalid email')) {
       return _copy.emailInvalid;
+    }
+    return _copy.createFailed;
+  }
+
+  String _mapUnexpectedSignupError(Object error) {
+    final lower = error.toString().toLowerCase();
+    if (lower.contains('username_taken') ||
+        lower.contains('username') ||
+        lower.contains('duplicate') ||
+        lower.contains('unique')) {
+      return _copy.usernameTaken;
+    }
+    if (lower.contains('email')) return _copy.emailAlreadyUsed;
+    if (lower.contains('network') ||
+        lower.contains('socket') ||
+        lower.contains('connection')) {
+      return _copy.networkError;
+    }
+    if (lower.contains('row-level security') || lower.contains('permission')) {
+      return _copy.profileCreateFailed;
     }
     return _copy.createFailed;
   }
@@ -224,7 +327,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text(
-          'Verifye imèl ou pou konfime kreyasyon kont lan',
+          'Nou voye yon lyen verifikasyon. Tcheke imèl ou ak spam.',
           style: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 14,
@@ -304,7 +407,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _label(_copy.firstName),
+                            _label(_copy.firstName, required: true),
                             const SizedBox(height: 8),
                             _AuthInputField(
                               hint: _copy.firstNameHint,
@@ -326,7 +429,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _label(_copy.lastName),
+                            _label(_copy.lastName, required: true),
                             const SizedBox(height: 8),
                             _AuthInputField(
                               hint: _copy.lastNameHint,
@@ -348,7 +451,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   const SizedBox(height: 20),
 
                   // Username
-                  _label(_copy.username),
+                  _label(_copy.username, required: true),
                   const SizedBox(height: 8),
                   _AuthInputField(
                     hint: _copy.usernameHint,
@@ -362,6 +465,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                         setState(() {
                           _usernameAvailable = null;
                           _lastCheckedUsername = '';
+                          _usernameSuggestions = [];
                         });
                       }
                     },
@@ -373,13 +477,87 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(v.trim())) {
                         return _copy.usernameRule;
                       }
+                      if (_usernameAvailable == false) {
+                        return _copy.usernameTaken;
+                      }
+                      return null;
+                    },
+                  ),
+                  _usernameAvailabilityHint(),
+                  const SizedBox(height: 20),
+
+                  _label(_copy.gender, required: true),
+                  const SizedBox(height: 8),
+                  _GenderSelectField(
+                    value: _gender,
+                    hint: _copy.genderHint,
+                    options: _copy.genderOptions,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? _copy.genderRequired : null,
+                    onChanged: (value) => setState(() => _gender = value),
+                  ),
+                  const SizedBox(height: 20),
+
+                  _label(_copy.birthDate, required: true),
+                  const SizedBox(height: 8),
+                  _AuthInputField(
+                    hint: _copy.birthDateHint,
+                    controller: _birthDateCtrl,
+                    prefixIcon: Icons.calendar_month_outlined,
+                    readOnly: true,
+                    onTap: _pickBirthDate,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return _copy.birthDateRequired;
+                      }
                       return null;
                     },
                   ),
                   const SizedBox(height: 20),
 
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _label(_copy.country),
+                            const SizedBox(height: 8),
+                            _AuthInputField(
+                              hint: _copy.countryHint,
+                              controller: _countryCtrl,
+                              prefixIcon: Icons.public_rounded,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _label(_copy.phone),
+                            const SizedBox(height: 8),
+                            _AuthInputField(
+                              hint: _copy.phoneHint,
+                              controller: _phoneCtrl,
+                              keyboardType: TextInputType.phone,
+                              prefixIcon: Icons.phone_outlined,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9+() -]'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
                   // Email
-                  _label(_copy.email),
+                  _label(_copy.email, required: true),
                   const SizedBox(height: 8),
                   _AuthInputField(
                     hint: _copy.emailHint,
@@ -399,7 +577,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   const SizedBox(height: 20),
 
                   // Password
-                  _label(_copy.password),
+                  _label(_copy.password, required: true),
                   const SizedBox(height: 8),
                   _AuthInputField(
                     hint: _copy.passwordHint,
@@ -428,7 +606,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   const SizedBox(height: 20),
 
                   // Confirm password
-                  _label(_copy.confirmPassword),
+                  _label(_copy.confirmPassword, required: true),
                   const SizedBox(height: 8),
                   _AuthInputField(
                     hint: _copy.confirmPasswordHint,
@@ -470,7 +648,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                   // Terms agreement checkbox
                   GestureDetector(
-                    onTap: () => setState(() => _agreedToTerms = !_agreedToTerms),
+                    onTap: () =>
+                        setState(() => _agreedToTerms = !_agreedToTerms),
                     behavior: HitTestBehavior.opaque,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,10 +659,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                           height: 20,
                           child: Checkbox(
                             value: _agreedToTerms,
-                            onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
+                            onChanged: (v) =>
+                                setState(() => _agreedToTerms = v ?? false),
                             activeColor: AppColors.purple,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                            side: const BorderSide(color: AppColors.border, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4)),
+                            side: const BorderSide(
+                                color: AppColors.border, width: 1.5),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -506,24 +688,34 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                   text: _language == 'ht'
                                       ? 'Tèm ak Kondisyon'
                                       : 'Terms of Service',
-                                  style: const TextStyle(color: AppColors.purpleLight, fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      color: AppColors.purpleLight,
+                                      fontWeight: FontWeight.w600),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () => launchUrl(
-                                        Uri.parse('https://www.granboulva.com/terms'),
+                                        Uri.parse(
+                                            'https://www.granboulva.com/terms'),
                                         mode: LaunchMode.externalApplication),
                                 ),
-                                TextSpan(text: _language == 'ht' ? ' ak ' : ' and '),
+                                TextSpan(
+                                    text: _language == 'ht' ? ' ak ' : ' and '),
                                 TextSpan(
                                   text: _language == 'ht'
                                       ? 'Politik sou Vi Prive'
                                       : 'Privacy Policy',
-                                  style: const TextStyle(color: AppColors.purpleLight, fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      color: AppColors.purpleLight,
+                                      fontWeight: FontWeight.w600),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () => launchUrl(
-                                        Uri.parse('https://www.granboulva.com/privacy'),
+                                        Uri.parse(
+                                            'https://www.granboulva.com/privacy'),
                                         mode: LaunchMode.externalApplication),
                                 ),
-                                TextSpan(text: _language == 'ht' ? ' Gran Boulva.' : ' of Gran Boulva.'),
+                                TextSpan(
+                                    text: _language == 'ht'
+                                        ? ' Gran Boulva.'
+                                        : ' of Gran Boulva.'),
                               ],
                             ),
                           ),
@@ -576,14 +768,36 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
   }
 
-  Widget _label(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontFamily: 'Poppins',
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: AppColors.textSecondary,
+  Widget _label(String text, {bool required = false}) {
+    if (!required) {
+      return Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+      );
+    }
+    return RichText(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textSecondary,
+        ),
+        children: const [
+          TextSpan(
+            text: ' *',
+            style: TextStyle(
+              color: AppColors.error,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -610,6 +824,81 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return const Icon(Icons.cancel_rounded, color: AppColors.error, size: 22);
     }
     return null;
+  }
+
+  Widget _usernameAvailabilityHint() {
+    if (_checkingUsername || _usernameCtrl.text.trim().length < 3) {
+      return const SizedBox.shrink();
+    }
+    if (_usernameAvailable == true) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Text(
+          _copy.usernameAvailable,
+          style: const TextStyle(
+            color: AppColors.success,
+            fontSize: 12,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+    if (_usernameAvailable != false) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _copy.suggestionsLabel,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _usernameSuggestions.take(2).map((suggestion) {
+              return GestureDetector(
+                onTap: () {
+                  _usernameCtrl.text = suggestion;
+                  _usernameCtrl.selection = TextSelection.collapsed(
+                    offset: suggestion.length,
+                  );
+                  _checkUsernameAvailability(suggestion, force: true);
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.purple.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: AppColors.purpleLight.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Text(
+                    '@$suggestion',
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -692,6 +981,84 @@ class _LanguageOption extends StatelessWidget {
   }
 }
 
+class _GenderSelectField extends StatelessWidget {
+  final String? value;
+  final String hint;
+  final Map<String, String> options;
+  final ValueChanged<String?> onChanged;
+  final String? Function(String?)? validator;
+
+  const _GenderSelectField({
+    required this.value,
+    required this.hint,
+    required this.options,
+    required this.onChanged,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<String>(
+      initialValue: value,
+      validator: validator,
+      onChanged: onChanged,
+      dropdownColor: AppColors.card,
+      iconEnabledColor: AppColors.textMuted,
+      style: const TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 15,
+        color: AppColors.textPrimary,
+      ),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 15,
+          color: AppColors.textDim,
+        ),
+        filled: true,
+        fillColor: AppColors.card,
+        prefixIcon:
+            const Icon(Icons.wc_outlined, color: AppColors.textDim, size: 20),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.border, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.border, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide:
+              const BorderSide(color: AppColors.purpleLight, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.error, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
+        errorStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 12,
+          color: AppColors.error,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      items: options.entries.map((entry) {
+        return DropdownMenuItem<String>(
+          value: entry.key,
+          child: Text(entry.value, overflow: TextOverflow.ellipsis),
+        );
+      }).toList(),
+    );
+  }
+}
+
 class _CreateAccountCopy {
   final String title;
   final String subtitle;
@@ -718,9 +1085,24 @@ class _CreateAccountCopy {
   final String usernameTooShort;
   final String usernameRule;
   final String usernameTaken;
+  final String usernameAvailable;
+  final String usernameCheckFailed;
+  final String suggestionsLabel;
+  final String gender;
+  final String genderHint;
+  final String genderRequired;
+  final Map<String, String> genderOptions;
+  final String birthDate;
+  final String birthDateHint;
+  final String birthDateRequired;
+  final String country;
+  final String countryHint;
+  final String phone;
+  final String phoneHint;
   final String emailRequired;
   final String emailInvalid;
   final String emailAlreadyUsed;
+  final String emailMayAlreadyExist;
   final String passwordRequired;
   final String passwordTooShort;
   final String weakPassword;
@@ -728,6 +1110,8 @@ class _CreateAccountCopy {
   final String passwordMismatch;
   final String genericError;
   final String createFailed;
+  final String profileCreateFailed;
+  final String networkError;
 
   const _CreateAccountCopy({
     required this.title,
@@ -755,9 +1139,24 @@ class _CreateAccountCopy {
     required this.usernameTooShort,
     required this.usernameRule,
     required this.usernameTaken,
+    required this.usernameAvailable,
+    required this.usernameCheckFailed,
+    required this.suggestionsLabel,
+    required this.gender,
+    required this.genderHint,
+    required this.genderRequired,
+    required this.genderOptions,
+    required this.birthDate,
+    required this.birthDateHint,
+    required this.birthDateRequired,
+    required this.country,
+    required this.countryHint,
+    required this.phone,
+    required this.phoneHint,
     required this.emailRequired,
     required this.emailInvalid,
     required this.emailAlreadyUsed,
+    required this.emailMayAlreadyExist,
     required this.passwordRequired,
     required this.passwordTooShort,
     required this.weakPassword,
@@ -765,6 +1164,8 @@ class _CreateAccountCopy {
     required this.passwordMismatch,
     required this.genericError,
     required this.createFailed,
+    required this.profileCreateFailed,
+    required this.networkError,
   });
 
   static const kreyol = _CreateAccountCopy(
@@ -793,16 +1194,41 @@ class _CreateAccountCopy {
     usernameTooShort: 'Omwen 3 karaktè',
     usernameRule: 'Sèlman lèt, chif, ak underscore',
     usernameTaken: 'Non sa deja itilize. Chwazi yon lòt.',
+    usernameAvailable: 'Non sa disponib.',
+    usernameCheckFailed:
+        'Nou pa ka verifye non itilizatè a kounye a. Eseye ankò.',
+    suggestionsLabel: 'Non sa deja itilize. Eseye youn nan sa yo:',
+    gender: 'Sèks',
+    genderHint: 'Chwazi sèks ou',
+    genderRequired: 'Sèks obligatwa',
+    genderOptions: {
+      'female': 'Fi',
+      'male': 'Gason',
+      'non_binary': 'Non-binè',
+      'prefer_not_to_say': 'Mwen pito pa di',
+    },
+    birthDate: 'Dat nesans',
+    birthDateHint: 'AAAA-MM-JJ',
+    birthDateRequired: 'Dat nesans obligatwa',
+    country: 'Peyi',
+    countryHint: 'Ex: Ayiti',
+    phone: 'Telefòn',
+    phoneHint: '+509...',
     emailRequired: 'Imèl obligatwa',
     emailInvalid: 'Imèl pa valid.',
     emailAlreadyUsed: 'Imèl sa a deja itilize. Eseye konekte.',
+    emailMayAlreadyExist:
+        'Si imèl sa a deja gen yon kont, konekte oswa itilize "Mwen bliye modpas mwen". Si li nouvo, eseye ankò nan kèk minit.',
     passwordRequired: 'Modpas obligatwa',
     passwordTooShort: 'Modpas dwe gen 8 karaktè pou pi piti',
     weakPassword: 'Modpas la twò fèb. Itilize pou pi piti 8 karaktè.',
     confirmPasswordRequired: 'Konfime modpas la',
     passwordMismatch: 'Modpas yo pa menm',
     genericError: 'Yon erè te fèt. Tanpri eseye ankò.',
-    createFailed: 'Kreye kont echwe. Tanpri eseye ankò.',
+    createFailed: 'Kreye kont echwe. Verifye enfòmasyon yo epi eseye ankò.',
+    profileCreateFailed:
+        'Kont lan pa t ka finalize. Eseye ankò; si sa kontinye, kontakte sipò.',
+    networkError: 'Koneksyon an pa mache. Tcheke entènèt ou epi eseye ankò.',
   );
 
   static const english = _CreateAccountCopy(
@@ -831,16 +1257,42 @@ class _CreateAccountCopy {
     usernameTooShort: 'At least 3 characters',
     usernameRule: 'Only letters, numbers, and underscore',
     usernameTaken: 'This username is already taken. Choose another.',
+    usernameAvailable: 'This username is available.',
+    usernameCheckFailed:
+        'We could not verify this username right now. Please try again.',
+    suggestionsLabel: 'This username is taken. Try one of these:',
+    gender: 'Sex',
+    genderHint: 'Select your sex',
+    genderRequired: 'Sex is required',
+    genderOptions: {
+      'female': 'Female',
+      'male': 'Male',
+      'non_binary': 'Non-binary',
+      'prefer_not_to_say': 'Prefer not to say',
+    },
+    birthDate: 'Date of birth',
+    birthDateHint: 'YYYY-MM-DD',
+    birthDateRequired: 'Date of birth is required',
+    country: 'Country',
+    countryHint: 'Ex: Haiti',
+    phone: 'Phone',
+    phoneHint: '+509...',
     emailRequired: 'Email is required',
     emailInvalid: 'Email is not valid.',
     emailAlreadyUsed: 'This email is already in use. Try logging in.',
+    emailMayAlreadyExist:
+        'If this email already has an account, log in or use "Forgot password". If it is new, try again in a few minutes.',
     passwordRequired: 'Password is required',
     passwordTooShort: 'Password must be at least 8 characters',
     weakPassword: 'Password is too weak. Use at least 8 characters.',
     confirmPasswordRequired: 'Confirm your password',
     passwordMismatch: 'Passwords do not match',
     genericError: 'Something went wrong. Please try again.',
-    createFailed: 'Account creation failed. Please try again.',
+    createFailed:
+        'Account creation failed. Check your information and try again.',
+    profileCreateFailed:
+        'Your account could not be finalized. Try again; if it continues, contact support.',
+    networkError: 'Connection failed. Check your internet and try again.',
   );
 }
 
@@ -853,6 +1305,9 @@ class _AuthInputField extends StatelessWidget {
   final Widget? suffixWidget;
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final List<TextInputFormatter>? inputFormatters;
 
   const _AuthInputField({
     required this.hint,
@@ -863,6 +1318,9 @@ class _AuthInputField extends StatelessWidget {
     this.suffixWidget,
     this.validator,
     this.onChanged,
+    this.readOnly = false,
+    this.onTap,
+    this.inputFormatters,
   });
 
   @override
@@ -871,6 +1329,9 @@ class _AuthInputField extends StatelessWidget {
       controller: controller,
       obscureText: obscure,
       keyboardType: keyboardType,
+      readOnly: readOnly,
+      onTap: onTap,
+      inputFormatters: inputFormatters,
       style: const TextStyle(
         fontFamily: 'Poppins',
         fontSize: 15,

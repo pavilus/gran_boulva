@@ -13,6 +13,22 @@ type PurchaseBody = {
   usd_cents?: number;
 };
 
+type CoinPack = {
+  coins?: number;
+  price?: number;
+};
+
+const defaultCoinPacks = [
+  { coins: 100, price: 99 },
+  { coins: 250, price: 299 },
+  { coins: 550, price: 499 },
+  { coins: 1200, price: 999 },
+  { coins: 2500, price: 1999 },
+  { coins: 5000, price: 3499 },
+  { coins: 10000, price: 6499 },
+  { coins: 25000, price: 14999 },
+];
+
 async function getUser(req: Request, supabaseUrl: string, anonKey: string) {
   const authorization = req.headers.get("Authorization") ?? "";
   const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
@@ -26,6 +42,41 @@ async function getUser(req: Request, supabaseUrl: string, anonKey: string) {
   return await res.json();
 }
 
+async function getValidCoinPack(
+  admin: ReturnType<typeof createClient> | null,
+  coinAmount: number,
+  usdCents: number,
+) {
+  let packs = defaultCoinPacks;
+
+  if (admin) {
+    const { data } = await admin
+      .from("app_settings")
+      .select("value")
+      .eq("key", "coin_economy")
+      .maybeSingle();
+
+    const configuredPacks = data?.value?.coinPacks;
+    if (Array.isArray(configuredPacks) && configuredPacks.length > 0) {
+      packs = configuredPacks
+        .map((pack: CoinPack) => ({
+          coins: Number(pack?.coins ?? 0),
+          price: Number(pack?.price ?? 0),
+        }))
+        .filter((pack) =>
+          Number.isInteger(pack.coins) &&
+          Number.isInteger(pack.price) &&
+          pack.coins > 0 &&
+          pack.price > 0
+        );
+    }
+  }
+
+  return packs.find((pack) =>
+    pack.coins === coinAmount && pack.price === usdCents
+  );
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -37,7 +88,7 @@ serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
 
-    if (!supabaseUrl || !anonKey || !stripeSecretKey) {
+    if (!supabaseUrl || !anonKey || !serviceRoleKey || !stripeSecretKey) {
       return Response.json(
         { error: "Missing Supabase or Stripe function secrets" },
         { status: 500, headers: corsHeaders },
@@ -54,7 +105,9 @@ serve(async (req) => {
 
     const body = (await req.json()) as PurchaseBody;
     const coinAmount = Number(body.coin_amount ?? 0);
-    const usdCents = Number(body.usd_cents ?? Math.round((body.usd_amount ?? 0) * 100));
+    const usdCents = Number(
+      body.usd_cents ?? Math.round((body.usd_amount ?? 0) * 100),
+    );
 
     if (!Number.isInteger(coinAmount) || coinAmount <= 0) {
       return Response.json(
@@ -65,6 +118,15 @@ serve(async (req) => {
     if (!Number.isInteger(usdCents) || usdCents < 50) {
       return Response.json(
         { error: "Invalid payment amount" },
+        { status: 400, headers: corsHeaders },
+      );
+    }
+
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const validPack = await getValidCoinPack(admin, coinAmount, usdCents);
+    if (!validPack) {
+      return Response.json(
+        { error: "Invalid coin package" },
         { status: 400, headers: corsHeaders },
       );
     }
@@ -95,16 +157,13 @@ serve(async (req) => {
       );
     }
 
-    if (serviceRoleKey) {
-      const admin = createClient(supabaseUrl, serviceRoleKey);
-      await admin.from("coin_purchases").insert({
-        user_id: user.id,
-        coin_amount: coinAmount,
-        usd_cents: usdCents,
-        stripe_payment_id: paymentIntent.id,
-        status: "pending",
-      });
-    }
+    await admin.from("coin_purchases").insert({
+      user_id: user.id,
+      coin_amount: coinAmount,
+      usd_cents: usdCents,
+      stripe_payment_id: paymentIntent.id,
+      status: "pending",
+    });
 
     return Response.json(
       {

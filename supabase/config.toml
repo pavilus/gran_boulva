@@ -1,0 +1,28 @@
+project_id = "gran_boulva"
+
+[auth]
+site_url = "granboulva://auth-callback"
+additional_redirect_urls = [
+  "granboulva://auth-callback",
+  "https://granboulva.com/auth/callback",
+  "https://www.granboulva.com/auth/callback",
+]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "1m"
+otp_length = 8
+
+[auth.email.smtp]
+enabled = true
+host = "smtp.ionos.com"
+port = 465
+user = "support@granboulva.com"
+pass = "env(IONOS_SMTP_PASS)"
+admin_email = "support@granboulva.com"
+sender_name = "Gran Boulva"
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

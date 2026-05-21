@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 class CategoryItem {
   final String label;
   final String icon;
-  const CategoryItem({required this.label, required this.icon});
+  final String? asset;
+  const CategoryItem({required this.label, required this.icon, this.asset});
 }
 
 const List<CategoryItem> kCategories = [
-  CategoryItem(label: 'Popilè', icon: '🔥'),
-  CategoryItem(label: 'Tout', icon: '⭐'),
-  CategoryItem(label: 'Sosyete', icon: '👥'),
-  CategoryItem(label: 'Divètisman', icon: '🎬'),
-  CategoryItem(label: 'Sport', icon: '⚽'),
-  CategoryItem(label: 'Politik', icon: '🏛️'),
+  CategoryItem(label: 'Popilè', icon: '🔥', asset: 'assets/images/fire.png'),
+  CategoryItem(label: 'Tout', icon: '⭐', asset: 'assets/images/star.png'),
+  CategoryItem(label: 'Sosyete', icon: '👥', asset: 'assets/images/society.png'),
+  CategoryItem(label: 'Divètisman', icon: '🎬', asset: 'assets/images/entertainment.png'),
+  CategoryItem(label: 'Sport', icon: '⚽', asset: 'assets/images/sport.png'),
+  CategoryItem(label: 'Politik', icon: '🏛️', asset: 'assets/images/politics.png'),
 ];
 
 class CategoryTabs extends StatelessWidget {
@@ -73,7 +74,10 @@ class _ActiveTab extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(cat.icon, style: const TextStyle(fontSize: 13)),
+              if (cat.asset != null)
+                Image.asset(cat.asset!, width: 15, height: 15, fit: BoxFit.contain)
+              else
+                Text(cat.icon, style: const TextStyle(fontSize: 13)),
               const SizedBox(width: 5),
               Text(
                 cat.label,

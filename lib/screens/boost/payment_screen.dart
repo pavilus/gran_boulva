@@ -263,7 +263,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         isCoinPurchase: _isCoinPurchase,
         onDone: () {
           Navigator.of(context).pop();
-          context.pop();
+          context.pop(true);
         },
       ),
     );

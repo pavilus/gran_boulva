@@ -9,6 +9,7 @@ class GradButton extends StatelessWidget {
   final double height;
   final double? width;
   final IconData? icon;
+  final String? iconAsset;
   final Gradient? gradient;
 
   const GradButton({
@@ -19,6 +20,7 @@ class GradButton extends StatelessWidget {
     this.height = 54,
     this.width,
     this.icon,
+    this.iconAsset,
     this.gradient,
   });
 
@@ -53,7 +55,15 @@ class GradButton extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (icon != null) ...[
+                  if (iconAsset != null) ...[
+                    Image.asset(
+                      iconAsset!,
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(width: 8)
+                  ] else if (icon != null) ...[
                     Icon(icon, color: Colors.white, size: 20),
                     const SizedBox(width: 8)
                   ],

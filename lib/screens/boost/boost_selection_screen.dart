@@ -109,6 +109,8 @@ class _BoostSelectionScreenState extends State<BoostSelectionScreen> {
           coinCost: cost,
         );
         if (!mounted) return;
+        setState(
+            () => _coinBalance = _coinBalance > cost ? _coinBalance - cost : 0);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Boost aktive pou $cost coins!',

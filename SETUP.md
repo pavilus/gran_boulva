@@ -75,6 +75,8 @@ supabase functions deploy get-home-feed
 supabase functions deploy get-arguments
 supabase functions deploy approve-ai-draft
 supabase functions deploy boost-argument
+supabase functions deploy create-coin-purchase
+supabase functions deploy confirm-coin-purchase
 supabase functions deploy get-notifications
 supabase functions deploy close-expired-predictions
 
@@ -82,6 +84,7 @@ supabase functions deploy close-expired-predictions
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
 supabase secrets set BRAVE_SEARCH_API_KEY=BSA...
 supabase secrets set STRIPE_SECRET_KEY=sk_test_...
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
 **Note:** The Flutter app has fallback queries that work without edge functions. You can skip this step for initial testing.

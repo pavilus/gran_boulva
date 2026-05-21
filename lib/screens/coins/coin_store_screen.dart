@@ -18,9 +18,11 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
   int _balance = 0;
   bool _loading = true;
   bool _proceeding = false;
+  bool _claimingDaily = false;
   int _selectedPack = 1; // 2500 coins — popular default
   int _selectedPayment = 2; // Kat (card)
   List<CoinPackConfig> _packs = CoinEconomyConfig.fallback.coinPacks;
+  DailyCoinClaimStatus? _dailyClaim;
 
   @override
   void initState() {
@@ -33,12 +35,15 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
     try {
       final userFuture = _userService.getProfile();
       final economyFuture = _coinService.getEconomyConfig();
+      final claimFuture = _coinService.getDailyClaimStatus();
       final user = await userFuture;
       final economy = await economyFuture;
+      final claim = await claimFuture;
       if (!mounted) return;
       setState(() {
         _balance = user?.coinBalance ?? 0;
         _packs = economy.coinPacks;
+        _dailyClaim = claim;
         if (_selectedPack >= _packs.length) _selectedPack = 0;
       });
     } catch (_) {}
@@ -80,7 +85,10 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
           'argumentId': '',
         },
       );
-      context.push(uri.toString());
+      final completed = await context.push<bool>(uri.toString());
+      if (completed == true) {
+        await _load();
+      }
     } catch (e) {
       if (mounted) _showSnack('Erè: ${e.toString()}');
     } finally {
@@ -111,6 +119,24 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ));
+  }
+
+  Future<void> _claimDailyReward() async {
+    if (_claimingDaily || _dailyClaim?.canClaim != true) return;
+    setState(() => _claimingDaily = true);
+    try {
+      final result = await _coinService.claimDailyReward();
+      if (!mounted) return;
+      setState(() {
+        _dailyClaim = result;
+        _balance += result.amount;
+      });
+      _showSnack('Ou resevwa ${result.amount} Boulva Coins!');
+    } catch (e) {
+      if (mounted) _showSnack('Erè: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _claimingDaily = false);
+    }
   }
 
   String _fmtCoins(int coins) {
@@ -184,6 +210,8 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildBalanceCard(),
+                          const SizedBox(height: 20),
+                          _buildDailyClaimCard(),
                           const SizedBox(height: 20),
                           _buildPacksSection(),
                           const SizedBox(height: 20),
@@ -260,6 +288,99 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDailyClaimCard() {
+    final claim = _dailyClaim;
+    final canClaim = claim?.canClaim ?? false;
+    final amount =
+        claim?.todayAmount ?? CoinEconomyConfig.fallback.dailyClaimBase;
+    final streak =
+        canClaim ? (claim?.nextStreakCount ?? 1) : (claim?.streakCount ?? 0);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: canClaim
+              ? AppColors.success.withValues(alpha: 0.45)
+              : AppColors.border,
+        ),
+      ),
+      child: Row(children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: AppColors.success.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: const Icon(Icons.calendar_month_rounded,
+              color: AppColors.success, size: 24),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text(
+              'Rekonpans chak jou',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              canClaim
+                  ? 'Pran $amount coins. Streak: $streak jou'
+                  : 'Ou deja reklame jodi a. Streak: $streak jou',
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 12,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ]),
+        ),
+        const SizedBox(width: 10),
+        GestureDetector(
+          onTap: canClaim ? _claimDailyReward : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+            decoration: BoxDecoration(
+              color: canClaim ? AppColors.success : AppColors.bg1,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: canClaim ? AppColors.success : AppColors.border,
+              ),
+            ),
+            child: _claimingDaily
+                ? const SizedBox(
+                    width: 15,
+                    height: 15,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    canClaim ? 'Pran' : 'Fèt',
+                    style: TextStyle(
+                      color: canClaim ? Colors.white : AppColors.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+          ),
+        ),
+      ]),
     );
   }
 

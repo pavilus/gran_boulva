@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -9,7 +11,11 @@ import 'config/app_colors.dart';
 import 'config/app_theme.dart';
 import 'config/supabase_config.dart';
 
-void main() async {
+void main() {
+  bootstrapGranBoulvaApp();
+}
+
+Future<void> bootstrapGranBoulvaApp({bool resetAuthSession = false}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Lock to portrait
@@ -31,6 +37,10 @@ void main() async {
     anonKey: SupabaseConfig.anonKey,
   );
 
+  if (resetAuthSession) {
+    await Supabase.instance.client.auth.signOut(scope: SignOutScope.local);
+  }
+
   // Init Stripe
   Stripe.publishableKey = StripeConfig.publishableKey;
   await Stripe.instance.applySettings();
@@ -38,8 +48,43 @@ void main() async {
   runApp(const GranBoulvaApp());
 }
 
-class GranBoulvaApp extends StatelessWidget {
+class GranBoulvaApp extends StatefulWidget {
   const GranBoulvaApp({super.key});
+
+  @override
+  State<GranBoulvaApp> createState() => _GranBoulvaAppState();
+}
+
+class _GranBoulvaAppState extends State<GranBoulvaApp> {
+  late final _router = createRouter();
+  StreamSubscription<AuthState>? _authSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _authSubscription =
+        Supabase.instance.client.auth.onAuthStateChange.listen((authState) {
+      final event = authState.event;
+      if (event == AuthChangeEvent.signedOut) {
+        _router.go('/login');
+        return;
+      }
+
+      final session = authState.session;
+      if (session == null) return;
+
+      if (event == AuthChangeEvent.signedIn ||
+          event == AuthChangeEvent.tokenRefreshed) {
+        _router.go('/home');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +94,7 @@ class GranBoulvaApp extends StatelessWidget {
       theme: AppTheme.dark,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
-      routerConfig: createRouter(),
+      routerConfig: _router,
       builder: (context, child) {
         return MediaQuery(
           data:

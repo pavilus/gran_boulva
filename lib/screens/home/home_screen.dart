@@ -6,6 +6,7 @@ import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/matchup_search.dart';
 import '../../widgets/common/category_tabs.dart';
+import '../../widgets/common/user_avatar.dart';
 import '../../widgets/matchup/matchup_card.dart';
 
 class _StaticTopVwa {
@@ -49,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<CategoryModel> _categories = [];
   List<MatchupModel> _allMatchups = [];
   List<MatchupModel> _matchups = [];
+  List<TopVoiceModel> _topVoices = [];
   String _searchQuery = '';
   String _activeCategoryLabel = 'Popilè';
   bool _loading = true;
@@ -89,11 +91,13 @@ class _HomeScreenState extends State<HomeScreen> {
       final results = await Future.wait([
         _matchupService.getCategories(),
         _matchupService.getHomeFeed(),
+        _userService.getTopVoices(limit: 8),
       ]);
       if (!mounted) return;
       setState(() {
         _categories = results[0] as List<CategoryModel>;
         _allMatchups = results[1] as List<MatchupModel>;
+        _topVoices = results[2] as List<TopVoiceModel>;
         _matchups = _filterMatchups(_allMatchups, _searchQuery);
         _loading = false;
       });
@@ -230,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           '$greeting, $displayName!',
                           style: const TextStyle(
                             color: AppColors.textPrimary,
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Poppins',
                           ),
@@ -265,15 +269,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.notifications_outlined,
-                              color: Colors.white, size: 20),
+                        Image.asset(
+                          'assets/images/notification_unifilled.png',
+                          width: 28,
+                          height: 28,
+                          fit: BoxFit.contain,
                         ),
                         if (_unreadNotifications > 0)
                           Positioned(
@@ -329,31 +329,11 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Padding(
         padding: const EdgeInsets.all(2),
         child: ClipOval(
-          child: user?.avatarUrl != null
-              ? CachedNetworkImage(
-                  imageUrl: user!.avatarUrl!,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => _avatarFallback(user.username),
-                )
-              : _avatarFallback(user?.username ?? ''),
+          child: UserAvatar.fromUser(user, radius: 19),
         ),
       ),
     );
   }
-
-  Widget _avatarFallback(String username) => Container(
-        color: AppColors.purpleDim,
-        alignment: Alignment.center,
-        child: Text(
-          username.isNotEmpty ? username[0].toUpperCase() : '?',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Poppins',
-          ),
-        ),
-      );
 
   Widget _buildSearchBar() {
     return Padding(
@@ -368,8 +348,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           children: [
             const SizedBox(width: 14),
-            const Icon(Icons.search_rounded,
-                color: AppColors.textMuted, size: 20),
+            Image.asset('assets/images/search.png',
+                width: 20, height: 20, fit: BoxFit.contain),
             const SizedBox(width: 10),
             Expanded(
               child: TextField(
@@ -399,16 +379,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 tooltip: 'Clear search',
               )
             else
-              Container(
-                width: 36,
-                height: 36,
-                margin: const EdgeInsets.only(right: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.tune,
-                    color: AppColors.textMuted, size: 18),
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Image.asset('assets/images/filter.png',
+                    width: 22, height: 22, fit: BoxFit.contain),
               ),
           ],
         ),
@@ -453,6 +427,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTopVoicesSection() {
+    final voices = _topVoices;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -478,12 +453,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.emoji_events_rounded,
-                                    color: AppColors.warning, size: 20),
-                                SizedBox(width: 6),
-                                Text(
+                                Image.asset('assets/images/trophy.png',
+                                    width: 20, height: 20, fit: BoxFit.contain),
+                                const SizedBox(width: 6),
+                                const Text(
                                   'Tòp Vwa',
                                   style: TextStyle(
                                     color: AppColors.textPrimary,
@@ -495,7 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () => context.push('/top-voices'),
                               child: const Text(
                                 'Wè tout',
                                 style: TextStyle(
@@ -513,11 +488,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 100,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: _kTopVwa.length,
+                            itemCount: voices.isNotEmpty
+                                ? voices.length
+                                : _kTopVwa.length,
                             itemBuilder: (context, i) {
-                              final v = _kTopVwa[i];
+                              final voice =
+                                  voices.isNotEmpty ? voices[i] : null;
+                              final fallback = _kTopVwa[i % _kTopVwa.length];
+                              final username =
+                                  voice?.username ?? fallback.username;
+                              final avatar = voice?.avatarUrl;
+                              final score =
+                                  voice?.influenceScore ?? fallback.votes;
                               return GestureDetector(
-                                onTap: () => context.go('/user/${v.username}'),
+                                onTap: () => context.push('/user/$username'),
                                 child: Container(
                                   width: 72,
                                   margin: const EdgeInsets.only(right: 12),
@@ -548,8 +532,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 radius: 27,
                                                 backgroundColor:
                                                     AppColors.secondary,
-                                                backgroundImage: AssetImage(
-                                                    'assets/images/${v.file}'),
+                                                backgroundImage: voice == null
+                                                    ? AssetImage(
+                                                            'assets/images/${fallback.file}')
+                                                        as ImageProvider
+                                                    : (avatar != null &&
+                                                            avatar.isNotEmpty
+                                                        ? CachedNetworkImageProvider(
+                                                            avatar)
+                                                        : UserAvatar
+                                                            .defaultImageProvider(
+                                                                null)),
                                               ),
                                             ),
                                           ),
@@ -568,15 +561,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     color: AppColors.border,
                                                     width: 1),
                                               ),
-                                              child: Text(
-                                                '🔥 ${_fmtVotes(v.votes)}',
-                                                style: const TextStyle(
-                                                  color:
-                                                      AppColors.textSecondary,
-                                                  fontSize: 8,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontFamily: 'Poppins',
-                                                ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/fire.png',
+                                                    width: 10,
+                                                    height: 10,
+                                                    fit: BoxFit.contain,
+                                                  ),
+                                                  const SizedBox(width: 2),
+                                                  Text(
+                                                    _fmtVotes(score),
+                                                    style: const TextStyle(
+                                                      color: AppColors.textSecondary,
+                                                      fontSize: 8,
+                                                      fontWeight: FontWeight.w600,
+                                                      fontFamily: 'Poppins',
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),
@@ -584,7 +588,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       const SizedBox(height: 12),
                                       Text(
-                                        '@${v.username}',
+                                        '@$username',
                                         style: const TextStyle(
                                           color: AppColors.textSecondary,
                                           fontSize: 10,
