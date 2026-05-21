@@ -38,6 +38,10 @@ type Payout = {
   creator_user_id: string;
   coins_amount: number;
   payout_method?: string;
+  payout_phone?: string;
+  estimated_usd?: number;
+  moncash_reference?: string;
+  auto_processed?: boolean;
   status: string;
   requested_at: string;
   user?: { username: string; avatar_url?: string };
@@ -120,6 +124,31 @@ export default function CreatorsClient({
     setLoading(null);
   };
 
+  const autoProcess = async (payoutId: string) => {
+    setLoading(`auto-${payoutId}`);
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-creator-payout`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ payoutId }),
+      }
+    );
+    const data = await res.json();
+    if (data.ok && !data.manual) {
+      // Auto-processed via MonCash — remove from queue
+      setPayouts((prev) => prev.filter((p) => p.id !== payoutId));
+    } else if (data.manual) {
+      alert("Mòd Manuel aktif — voye lajan manyèlman, epi makre konplè.");
+    } else {
+      alert(`Erè: ${data.error}`);
+    }
+    setLoading(null);
+  };
+
   const toggleSuspend = async (creator: Creator) => {
     setLoading(`suspend-${creator.user_id}`);
     const res = await fetch("/api/creators/tier", {
@@ -184,35 +213,75 @@ export default function CreatorsClient({
             </div>
           )}
           {payouts.map((p) => (
-            <div key={p.id} className="flex items-center gap-3 rounded-xl px-4 py-3"
+            <div key={p.id} className="rounded-xl overflow-hidden"
               style={{ border: "1px solid #1e2040", background: "#0e0f1e" }}>
-              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed,#ec4899)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                {p.user?.avatar_url
-                  ? <img src={p.user.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-                  : <span style={{ color: "white", fontWeight: "bold", fontSize: 13 }}>{p.user?.username?.[0]?.toUpperCase()}</span>}
-              </div>
-              <div className="flex-1 min-w-0">
-                <span style={{ color: "white", fontWeight: 700, fontSize: 13 }}>@{p.user?.username}</span>
-                <div style={{ color: "#64748b", fontSize: 11 }}>
-                  {p.coins_amount} monè · {p.payout_method ?? "—"} · {fmtDate(p.requested_at)}
+              {/* Main row */}
+              <div className="flex items-center gap-3 px-4 py-3">
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed,#ec4899)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {p.user?.avatar_url
+                    ? <img src={p.user.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                    : <span style={{ color: "white", fontWeight: "bold", fontSize: 13 }}>{p.user?.username?.[0]?.toUpperCase()}</span>}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span style={{ color: "white", fontWeight: 700, fontSize: 13 }}>@{p.user?.username}</span>
+                    <span className="px-2 py-0.5 rounded text-xs"
+                      style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}>
+                      {p.payout_method ?? "—"}
+                    </span>
+                    {p.estimated_usd != null && (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold"
+                        style={{ background: "rgba(34,197,94,0.12)", color: "#22c55e" }}>
+                        ${p.estimated_usd.toFixed(2)} USD
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ color: "#64748b", fontSize: 11, marginTop: 2 }}>
+                    {p.coins_amount} coins
+                    {p.payout_phone && <> · 📱 {p.payout_phone}</>}
+                    {" · "}{fmtDate(p.requested_at)}
+                  </div>
+                </div>
+                {/* Action buttons */}
+                <div className="flex gap-2 shrink-0">
+                  <button onClick={() => autoProcess(p.id)}
+                    disabled={!!loading}
+                    className="px-2 py-1.5 rounded-lg text-xs font-semibold"
+                    style={{ color: "#a78bfa", background: "rgba(167,139,250,0.08)", border: "1px solid rgba(167,139,250,0.2)" }}
+                    title="Trete otomatik (MonCash si aktive, osinon montre enfòmasyon)">
+                    {loading === `auto-${p.id}` ? "..." : "⚡ Trete"}
+                  </button>
+                  <button onClick={() => processPayout(p.id, "complete")}
+                    disabled={!!loading}
+                    className="p-1.5 rounded-lg"
+                    style={{ color: "#22c55e", background: "rgba(34,197,94,0.08)" }}
+                    title="Makre konplè manyèlman">
+                    {loading === `payout-${p.id}` ? <span style={{ fontSize: 10 }}>...</span> : <CheckCircle size={15} />}
+                  </button>
+                  <button onClick={() => processPayout(p.id, "fail")}
+                    disabled={!!loading}
+                    className="p-1.5 rounded-lg"
+                    style={{ color: "#ef4444", background: "rgba(239,68,68,0.08)" }}
+                    title="Makre echèk">
+                    <XCircle size={15} />
+                  </button>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => processPayout(p.id, "complete")}
-                  disabled={!!loading}
-                  className="p-1.5 rounded-lg"
-                  style={{ color: "#22c55e", background: "rgba(34,197,94,0.08)" }}
-                  title="Makre konplè">
-                  {loading === `payout-${p.id}` ? <span style={{ fontSize: 10 }}>...</span> : <CheckCircle size={15} />}
-                </button>
-                <button onClick={() => processPayout(p.id, "fail")}
-                  disabled={!!loading}
-                  className="p-1.5 rounded-lg"
-                  style={{ color: "#ef4444", background: "rgba(239,68,68,0.08)" }}
-                  title="Echèk">
-                  <XCircle size={15} />
-                </button>
-              </div>
+              {/* Phone copy hint if present */}
+              {p.payout_phone && (
+                <div className="px-4 pb-3 flex items-center gap-2">
+                  <span style={{ color: "#475569", fontSize: 11 }}>Telefòn pou voye:</span>
+                  <code style={{ color: "#a78bfa", fontSize: 12, background: "rgba(167,139,250,0.08)", padding: "2px 8px", borderRadius: 4 }}>
+                    {p.payout_phone}
+                  </code>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(p.payout_phone!)}
+                    className="text-xs px-2 py-0.5 rounded"
+                    style={{ color: "#64748b", background: "#0a0b18", border: "1px solid #1e2040" }}>
+                    Kopye
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

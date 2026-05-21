@@ -1848,10 +1848,12 @@ class CreatorService {
         .toList();
   }
 
-  /// Requests a payout of pending coins. Admin processes it manually.
+  /// Requests a payout of pending coins. Admin processes it manually or via MonCash.
   Future<void> requestPayout({
     required int coinsAmount,
     required String payoutMethod,
+    String? payoutPhone,
+    double? estimatedUsd,
   }) async {
     final user = await UserService().getProfile();
     if (user == null) throw Exception('Not signed in');
@@ -1860,6 +1862,8 @@ class CreatorService {
       'creator_user_id': user.id,
       'coins_amount': coinsAmount,
       'payout_method': payoutMethod,
+      'payout_phone': payoutPhone,
+      'estimated_usd': estimatedUsd,
       'status': 'pending',
     });
   }

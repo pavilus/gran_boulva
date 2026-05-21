@@ -4,6 +4,22 @@ import Topbar from "@/components/Topbar";
 import { useEffect, useState } from "react";
 import { Plus, Save, Trash2 } from "lucide-react";
 
+type PayoutSettings = {
+  coinToUsdRate: number;
+  minPayoutCoins: number;
+  payoutMode: "manual" | "moncash_auto";
+  moncashEnvironment: "sandbox" | "live";
+  moncashEnabled: boolean;
+};
+
+const fallbackPayout: PayoutSettings = {
+  coinToUsdRate: 0.001,
+  minPayoutCoins: 1000,
+  payoutMode: "manual",
+  moncashEnvironment: "sandbox",
+  moncashEnabled: false,
+};
+
 type CoinPack = {
   coins: number;
   price: number;
@@ -233,6 +249,7 @@ export default function SettingsPage() {
   const [economy, setEconomy] = useState<CoinEconomy>(fallbackEconomy);
   const [recommendations, setRecommendations] =
     useState<RecommendationSettings>(fallbackRecommendations);
+  const [payout, setPayout] = useState<PayoutSettings>(fallbackPayout);
   const [supportAmountsText, setSupportAmountsText] = useState("10, 25, 50, 100");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -267,6 +284,15 @@ export default function SettingsPage() {
       .catch((error) => {
         if (alive) setMessage(error.message);
       });
+    fetch("/api/settings/payout")
+      .then(async (res) => {
+        if (!res.ok) throw new Error((await res.json()).error ?? "Load failed");
+        return res.json();
+      })
+      .then((data: PayoutSettings) => {
+        if (alive) setPayout(data);
+      })
+      .catch(() => {/* use fallback */});
     return () => {
       alive = false;
     };
@@ -327,8 +353,18 @@ export default function SettingsPage() {
       });
       const recData = await recRes.json();
       if (!recRes.ok) throw new Error(recData.error ?? "Save failed");
+
+      const payoutRes = await fetch("/api/settings/payout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payout),
+      });
+      const payoutData = await payoutRes.json();
+      if (!payoutRes.ok) throw new Error(payoutData.error ?? "Save failed");
+
       setEconomy(data);
       setRecommendations(recData);
+      setPayout(payoutData);
       setSupportAmountsText(data.supportAmounts.join(", "));
       setMessage("Paramèt yo sove.");
     } catch (error) {
@@ -593,6 +629,127 @@ export default function SettingsPage() {
             <Plus size={15} />
             Ajoute boost
           </button>
+        </Section>
+
+        {/* ── Peman Kreyatè ─────────────────────────────────── */}
+        <Section title="Peman Kreyatè">
+          {/* Info banner */}
+          <div className="mb-4 rounded-lg px-4 py-3 text-xs"
+            style={{ background: "#0a0b18", border: "1px solid #1e2040", color: "#94a3b8" }}>
+            <strong style={{ color: "#a78bfa" }}>Kijan sa travay:</strong>{" "}
+            Defini to konvèsyon coins → USD ak minimòm pou reklame. Lè <em>Mòd Otomatik</em> aktive
+            ak MonCash konfigire, sistem nan voye lajan otomatikman. Nan mòd <em>Manuel</em>, admin
+            voye lajan deyò app la, epi makre peman an &quot;Konplè&quot;.
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field
+              label="To Coins → USD"
+              value={payout.coinToUsdRate}
+              onChange={(v) => setPayout((p) => ({ ...p, coinToUsdRate: parseFloat(v) || 0.001 }))}
+              type="number"
+              hint="0.001 = 1000 coins = $1.00"
+            />
+            <Field
+              label="Minimòm pou reklame (coins)"
+              value={payout.minPayoutCoins}
+              onChange={(v) => setPayout((p) => ({ ...p, minPayoutCoins: Math.max(0, parseInt(v) || 1000) }))}
+              type="number"
+              hint="Rekòmande: 1000"
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 mt-4">
+            {/* Payout mode */}
+            <div>
+              <label className="block text-xs font-semibold mb-2" style={{ color: "#94a3b8" }}>
+                Mòd Peman
+              </label>
+              <div className="flex gap-2">
+                {(["manual", "moncash_auto"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setPayout((p) => ({ ...p, payoutMode: mode }))}
+                    className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all"
+                    style={{
+                      background: payout.payoutMode === mode ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#0a0b18",
+                      color: payout.payoutMode === mode ? "white" : "#64748b",
+                      border: payout.payoutMode === mode ? "none" : "1px solid #1e2040",
+                    }}
+                  >
+                    {mode === "manual" ? "✋ Manuel" : "⚡ MonCash Otomatik"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* MonCash environment */}
+            <div>
+              <label className="block text-xs font-semibold mb-2" style={{ color: "#94a3b8" }}>
+                Anviwònman MonCash
+              </label>
+              <div className="flex gap-2">
+                {(["sandbox", "live"] as const).map((env) => (
+                  <button
+                    key={env}
+                    type="button"
+                    onClick={() => setPayout((p) => ({ ...p, moncashEnvironment: env }))}
+                    className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all"
+                    style={{
+                      background: payout.moncashEnvironment === env ? (env === "live" ? "rgba(34,197,94,0.2)" : "rgba(96,165,250,0.2)") : "#0a0b18",
+                      color: payout.moncashEnvironment === env ? (env === "live" ? "#22c55e" : "#60a5fa") : "#64748b",
+                      border: `1px solid ${payout.moncashEnvironment === env ? (env === "live" ? "rgba(34,197,94,0.4)" : "rgba(96,165,250,0.4)") : "#1e2040"}`,
+                    }}
+                  >
+                    {env === "sandbox" ? "🧪 Sandbox" : "🚀 Live"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* MonCash enable toggle */}
+          <div className="mt-4 flex items-center gap-3 rounded-lg px-4 py-3"
+            style={{ background: "#0a0b18", border: `1px solid ${payout.moncashEnabled ? "rgba(34,197,94,0.3)" : "#1e2040"}` }}>
+            <label className="flex items-center gap-3 cursor-pointer flex-1">
+              <div
+                onClick={() => setPayout((p) => ({ ...p, moncashEnabled: !p.moncashEnabled }))}
+                className="relative shrink-0 cursor-pointer"
+                style={{
+                  width: 44, height: 24, borderRadius: 12,
+                  background: payout.moncashEnabled ? "#22c55e" : "#334155",
+                  transition: "background 0.2s",
+                }}
+              >
+                <div style={{
+                  position: "absolute", top: 3, left: payout.moncashEnabled ? 23 : 3,
+                  width: 18, height: 18, borderRadius: "50%", background: "white",
+                  transition: "left 0.2s",
+                }} />
+              </div>
+              <div>
+                <div className="text-sm font-semibold" style={{ color: payout.moncashEnabled ? "#22c55e" : "#64748b" }}>
+                  MonCash Otomatik {payout.moncashEnabled ? "AKTIVE" : "DEZAKTIVE"}
+                </div>
+                <div className="text-xs" style={{ color: "#475569" }}>
+                  Kle API yo dwe ajoute nan Supabase Secrets: MONCASH_CLIENT_ID, MONCASH_CLIENT_SECRET
+                </div>
+              </div>
+            </label>
+          </div>
+
+          {/* USD preview */}
+          <div className="mt-3 text-xs" style={{ color: "#475569" }}>
+            Egzanp: {payout.minPayoutCoins} coins (minimòm) ≈{" "}
+            <strong style={{ color: "#a78bfa" }}>
+              ${(payout.minPayoutCoins * payout.coinToUsdRate).toFixed(2)} USD
+            </strong>
+            {" · "}10 000 coins ≈{" "}
+            <strong style={{ color: "#a78bfa" }}>
+              ${(10000 * payout.coinToUsdRate).toFixed(2)} USD
+            </strong>
+          </div>
         </Section>
 
         <div className="flex items-center gap-3">

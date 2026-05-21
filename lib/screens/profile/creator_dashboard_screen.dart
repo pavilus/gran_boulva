@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gran_boulva/models/models.dart';
 import 'package:gran_boulva/services/supabase_service.dart';
 import 'package:gran_boulva/config/app_colors.dart';
@@ -732,7 +733,7 @@ class _Step extends StatelessWidget {
   }
 }
 
-// ─── Payout dialog ────────────────────────────────────────────
+// ─── Payout dialog (with settings-driven USD estimate + phone) ──
 class _PayoutDialog extends StatefulWidget {
   final int coins;
   const _PayoutDialog({required this.coins});
@@ -743,7 +744,51 @@ class _PayoutDialog extends StatefulWidget {
 
 class _PayoutDialogState extends State<_PayoutDialog> {
   String _method = 'moncash';
-  bool _loading = false;
+  bool _loading = true;
+  bool _submitting = false;
+  final _phoneCtrl = TextEditingController();
+
+  // Settings loaded from app_settings
+  double _coinToUsdRate = 0.001;
+  int _minPayoutCoins = 1000;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadSettings() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final row = await supabase
+          .from('app_settings')
+          .select('value')
+          .eq('key', 'payout_settings')
+          .maybeSingle();
+      if (row != null && mounted) {
+        final v = row['value'] as Map<String, dynamic>;
+        setState(() {
+          _coinToUsdRate = (v['coinToUsdRate'] as num?)?.toDouble() ?? 0.001;
+          _minPayoutCoins = (v['minPayoutCoins'] as num?)?.toInt() ?? 1000;
+          _loading = false;
+        });
+      } else {
+        if (mounted) setState(() => _loading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  double get _estimatedUsd => widget.coins * _coinToUsdRate;
+  bool get _belowMin => widget.coins < _minPayoutCoins;
 
   @override
   Widget build(BuildContext context) {
@@ -751,74 +796,135 @@ class _PayoutDialogState extends State<_PayoutDialog> {
       backgroundColor: const Color(0xFF0e0f1e),
       title: const Text('Reklame Revni',
           style: TextStyle(color: Colors.white, fontSize: 16)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${widget.coins} monè an atant',
-              style: const TextStyle(color: Colors.white70, fontSize: 13)),
-          const SizedBox(height: 12),
-          const Text('Metòd peman:',
-              style: TextStyle(color: Colors.white54, fontSize: 12)),
-          const SizedBox(height: 6),
-          _methodBtn('MonCash', 'moncash', _method,
-              (v) => setState(() => _method = v)),
-          _methodBtn('NatCash', 'natcash', _method,
-              (v) => setState(() => _method = v)),
-          _methodBtn(
-              'Stripe', 'stripe', _method, (v) => setState(() => _method = v)),
-        ],
-      ),
+      content: _loading
+          ? const SizedBox(
+              height: 60,
+              child: Center(
+                  child: CircularProgressIndicator(
+                      color: AppColors.purpleLight, strokeWidth: 2)))
+          : SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Amount + USD estimate
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.purpleLight.withAlpha(15),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.purpleLight.withAlpha(40)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${widget.coins} coins',
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                        Text(
+                          '≈ \$${_estimatedUsd.toStringAsFixed(2)} USD',
+                          style: const TextStyle(
+                              color: Color(0xFF22C55E), fontSize: 13, fontWeight: FontWeight.w600),
+                        ),
+                        if (_belowMin) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            'Minimòm: $_minPayoutCoins coins — ou pa rive toujou.',
+                            style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Phone number field
+                  const Text('Nimewo telefòn pou resevwa peman:',
+                      style: TextStyle(color: Colors.white54, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: _phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: '+509 XXXX XXXX',
+                      hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                      filled: true,
+                      fillColor: Colors.white.withAlpha(8),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.white12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.white12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Method selector
+                  const Text('Metòd peman:',
+                      style: TextStyle(color: Colors.white54, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  _methodBtn('MonCash', 'moncash', (v) => setState(() => _method = v)),
+                  _methodBtn('NatCash', 'natcash', (v) => setState(() => _method = v)),
+                  _methodBtn('Stripe', 'stripe', (v) => setState(() => _method = v)),
+                ],
+              ),
+            ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Anile', style: TextStyle(color: Colors.white38)),
         ),
         ElevatedButton(
-          onPressed: _loading ? null : _submit,
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.purpleLight),
-          child: _loading
+          onPressed: (_submitting || _belowMin || _loading) ? null : _submit,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _belowMin ? Colors.grey.shade800 : AppColors.purpleLight,
+          ),
+          child: _submitting
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white))
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
               : const Text('Soumèt', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
   }
 
-  Widget _methodBtn(
-      String label, String value, String current, void Function(String) onTap) {
-    final selected = current == value;
+  Widget _methodBtn(String label, String value, void Function(String) onTap) {
+    final selected = _method == value;
     return GestureDetector(
       onTap: () => onTap(value),
       child: Container(
         margin: const EdgeInsets.only(bottom: 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected
-              ? AppColors.purpleLight.withAlpha(30)
-              : Colors.white.withAlpha(5),
+          color: selected ? AppColors.purpleLight.withAlpha(30) : Colors.white.withAlpha(5),
           borderRadius: BorderRadius.circular(8),
-          border:
-              Border.all(color: selected ? AppColors.purpleLight : Colors.white12),
+          border: Border.all(color: selected ? AppColors.purpleLight : Colors.white12),
         ),
         child: Text(label,
             style: TextStyle(
-                color: selected ? AppColors.purpleLight : Colors.white54,
-                fontSize: 13)),
+                color: selected ? AppColors.purpleLight : Colors.white54, fontSize: 13)),
       ),
     );
   }
 
   Future<void> _submit() async {
-    setState(() => _loading = true);
+    setState(() => _submitting = true);
     try {
       await CreatorService().requestPayout(
         coinsAmount: widget.coins,
         payoutMethod: _method,
+        payoutPhone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+        estimatedUsd: _estimatedUsd,
       );
       if (mounted) {
         Navigator.of(context).pop();
