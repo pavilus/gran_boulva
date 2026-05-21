@@ -155,7 +155,13 @@ export default function CategoriesClient({
                   onCancel={() => setEditing(null)} />
               ) : (
                 <tr key={c.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
-                  <td className="px-4 py-3 text-2xl">{c.icon ?? "🏷️"}</td>
+                  <td className="px-4 py-3">
+                    {c.icon?.endsWith('.png') ? (
+                      <img src={c.icon} alt={c.name_ht} className="w-8 h-8 object-contain" />
+                    ) : (
+                      <span className="text-2xl">{c.icon ?? "🏷️"}</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-white font-medium">{c.name_ht}</td>
                   <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{c.name_en}</td>
                   <td className="px-4 py-3 font-semibold" style={{ color: "#a78bfa" }}>{countMap[c.id] ?? 0}</td>
