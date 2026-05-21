@@ -789,52 +789,31 @@ class CoinEconomyConfig {
         popular: false,
       ),
       CoinPackConfig(
-        coins: 250,
-        price: 299,
-        label: '\$2.99',
-        savings: '',
-        popular: false,
-      ),
-      CoinPackConfig(
         coins: 550,
         price: 499,
         label: '\$4.99',
-        savings: 'Pi bon pase starter',
+        savings: '9% ekonomi',
         popular: false,
       ),
       CoinPackConfig(
         coins: 1200,
         price: 999,
         label: '\$9.99',
-        savings: 'Ekonomize plis',
-        popular: false,
+        savings: '16% ekonomi',
+        popular: true,
       ),
       CoinPackConfig(
         coins: 2500,
         price: 1999,
         label: '\$19.99',
-        savings: 'Ekonomize 20%',
-        popular: true,
-      ),
-      CoinPackConfig(
-        coins: 5000,
-        price: 3499,
-        label: '\$34.99',
-        savings: 'Ekonomize 25%',
+        savings: '19% ekonomi',
         popular: false,
       ),
       CoinPackConfig(
-        coins: 10000,
-        price: 6499,
-        label: '\$64.99',
-        savings: 'Ekonomize 30%',
-        popular: false,
-      ),
-      CoinPackConfig(
-        coins: 25000,
-        price: 14999,
-        label: '\$149.99',
-        savings: 'Ekonomize 40%',
+        coins: 7000,
+        price: 4999,
+        label: '\$49.99',
+        savings: '29% ekonomi',
         popular: false,
       ),
     ],
@@ -1144,6 +1123,76 @@ class CoinService {
           relatedId: argumentId,
         );
       }
+    }
+  }
+
+  /// Gifts coins to any user (creator, argument author, etc.).
+  /// Returns the gifting result including animation intensity.
+  Future<Map<String, dynamic>> giftCoins({
+    required String receiverUserId,
+    required int coins,
+    String contextType = 'creator',
+    String? contextId,
+    bool isPublic = true,
+  }) async {
+    final result = await supabase.rpc('gift_coins', params: {
+      'p_receiver_id':  receiverUserId,
+      'p_coins':        coins,
+      'p_context_type': contextType,
+      'p_context_id':   contextId,
+      'p_is_public':    isPublic,
+    });
+    await RecommendationService().recordEvent(
+      eventType: 'support',
+      targetType: contextType,
+      targetId: contextId ?? receiverUserId,
+      metadata: {'coins': coins},
+    );
+    return Map<String, dynamic>.from(result as Map);
+  }
+
+  /// Loads support level tiers from DB (falls back to defaults).
+  Future<List<SupportLevelModel>> getSupportLevels() async {
+    try {
+      final data = await supabase
+          .from('coin_support_levels')
+          .select()
+          .eq('is_active', true)
+          .order('sort_order');
+      return (data as List)
+          .map((j) => SupportLevelModel.fromJson(j))
+          .toList();
+    } catch (_) {
+      return SupportLevelModel.defaults;
+    }
+  }
+
+  /// Top supporters for a creator (last 30 days).
+  Future<List<TopSupporterModel>> getTopSupporters(String creatorUserId) async {
+    try {
+      final data = await supabase.rpc('get_top_supporters', params: {
+        'p_creator_id': creatorUserId,
+        'p_limit':      5,
+      });
+      return (data as List)
+          .map((j) => TopSupporterModel.fromJson(j))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Public gifting feed (last N events across the platform).
+  Future<List<GiftingEventModel>> getPublicGiftingFeed({int limit = 20}) async {
+    try {
+      final data = await supabase.rpc('get_public_gifting_feed', params: {
+        'p_limit': limit,
+      });
+      return (data as List)
+          .map((j) => GiftingEventModel.fromJson(j))
+          .toList();
+    } catch (_) {
+      return [];
     }
   }
 

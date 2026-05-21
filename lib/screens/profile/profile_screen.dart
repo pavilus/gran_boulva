@@ -835,11 +835,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           border: Border.all(color: AppColors.purpleLight.withValues(alpha: 0.35)),
         ),
-        child: Row(
+        child: const Row(
           children: [
-            const Text('⚡', style: TextStyle(fontSize: 24)),
-            const SizedBox(width: 12),
-            const Expanded(
+            Text('⚡', style: TextStyle(fontSize: 24)),
+            SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -859,7 +859,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.purpleLight, size: 20),
+            Icon(Icons.chevron_right, color: AppColors.purpleLight, size: 20),
           ],
         ),
       ),

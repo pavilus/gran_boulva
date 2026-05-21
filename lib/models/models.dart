@@ -822,6 +822,113 @@ class AiDraftModel {
       );
 }
 
+// ─── Coin Economy v2 ───────────────────────────────────────
+
+class SupportLevelModel {
+  final String id;
+  final int coins;
+  final String labelHt;
+  final String labelEn;
+  final String emoji;
+  final String colorHex;
+  final int animationIntensity; // 1–5
+  final String feedMessageHt;
+
+  const SupportLevelModel({
+    required this.id,
+    required this.coins,
+    required this.labelHt,
+    required this.labelEn,
+    required this.emoji,
+    required this.colorHex,
+    required this.animationIntensity,
+    required this.feedMessageHt,
+  });
+
+  factory SupportLevelModel.fromJson(Map<String, dynamic> j) =>
+      SupportLevelModel(
+        id: j['id'] ?? '',
+        coins: j['coins'] ?? 0,
+        labelHt: j['label_ht'] ?? '',
+        labelEn: j['label_en'] ?? '',
+        emoji: j['emoji'] ?? '💙',
+        colorHex: j['color_hex'] ?? '#3B82F6',
+        animationIntensity: j['animation_intensity'] ?? 1,
+        feedMessageHt: j['feed_message_ht'] ?? '',
+      );
+
+  /// Fallback levels used while loading from DB
+  static const List<SupportLevelModel> defaults = [
+    SupportLevelModel(id:'',coins:50,   labelHt:'Sipò Rapid',     labelEn:'Quick Support',      emoji:'💙',colorHex:'#3B82F6',animationIntensity:1,feedMessageHt:'voye yon sipò rapid'),
+    SupportLevelModel(id:'',coins:250,  labelHt:'Sipò Solid',     labelEn:'Strong Support',     emoji:'💜',colorHex:'#A855F7',animationIntensity:2,feedMessageHt:'voye yon sipò solid'),
+    SupportLevelModel(id:'',coins:1000, labelHt:'Gran Sipò',      labelEn:'Major Support',      emoji:'💛',colorHex:'#EAB308',animationIntensity:3,feedMessageHt:'voye yon gran sipò'),
+    SupportLevelModel(id:'',coins:5000, labelHt:'Sipòtè Elit',    labelEn:'Elite Supporter',    emoji:'🧡',colorHex:'#F97316',animationIntensity:4,feedMessageHt:'voye yon sipò elit'),
+    SupportLevelModel(id:'',coins:10000,labelHt:'Soutyen Legendè',labelEn:'Legendary Support',  emoji:'❤️',colorHex:'#EF4444',animationIntensity:5,feedMessageHt:'voye yon soutyen legendè'),
+  ];
+}
+
+class GiftingEventModel {
+  final String id;
+  final String giverUsername;
+  final String? giverAvatar;
+  final String receiverUsername;
+  final int coinsAmount;
+  final String? feedMessage;
+  final String emoji;
+  final String colorHex;
+  final DateTime createdAt;
+
+  const GiftingEventModel({
+    required this.id,
+    required this.giverUsername,
+    this.giverAvatar,
+    required this.receiverUsername,
+    required this.coinsAmount,
+    this.feedMessage,
+    required this.emoji,
+    required this.colorHex,
+    required this.createdAt,
+  });
+
+  factory GiftingEventModel.fromJson(Map<String, dynamic> j) =>
+      GiftingEventModel(
+        id: j['id'] ?? '',
+        giverUsername: j['giver_username'] ?? '',
+        giverAvatar: j['giver_avatar'],
+        receiverUsername: j['receiver_username'] ?? '',
+        coinsAmount: j['coins_amount'] ?? 0,
+        feedMessage: j['feed_message'],
+        emoji: j['emoji'] ?? '💙',
+        colorHex: j['color_hex'] ?? '#3B82F6',
+        createdAt: DateTime.parse(j['created_at']),
+      );
+}
+
+class TopSupporterModel {
+  final String giverUserId;
+  final String username;
+  final String? avatarUrl;
+  final int totalCoins;
+  final int giftCount;
+
+  const TopSupporterModel({
+    required this.giverUserId,
+    required this.username,
+    this.avatarUrl,
+    required this.totalCoins,
+    required this.giftCount,
+  });
+
+  factory TopSupporterModel.fromJson(Map<String, dynamic> j) =>
+      TopSupporterModel(
+        giverUserId: j['giver_user_id'] ?? '',
+        username: j['username'] ?? '',
+        avatarUrl: j['avatar_url'],
+        totalCoins: j['total_coins'] ?? 0,
+        giftCount: j['gift_count'] ?? 0,
+      );
+}
+
 // ─── Creator Revenue System ────────────────────────────────
 
 class CreatorProfileModel {
@@ -908,6 +1015,10 @@ class CreatorDashboardModel {
   final int totalPaidOutCoins;
   final int revenueLast7d;
   final int revenueLast30d;
+  final double usdLast7d;
+  final double usdLast30d;
+  final double walletUsdBalance;
+  final double coinToUsdRate;
   final int uniqueSupporters30d;
   final int followersCount;
   final int participationCount;
@@ -926,6 +1037,10 @@ class CreatorDashboardModel {
     required this.totalPaidOutCoins,
     required this.revenueLast7d,
     required this.revenueLast30d,
+    this.usdLast7d = 0.0,
+    this.usdLast30d = 0.0,
+    this.walletUsdBalance = 0.0,
+    this.coinToUsdRate = 0.006,
     required this.uniqueSupporters30d,
     required this.followersCount,
     required this.participationCount,
@@ -947,6 +1062,12 @@ class CreatorDashboardModel {
         totalPaidOutCoins: j['total_paid_out_coins'] ?? 0,
         revenueLast7d: j['revenue_last_7d'] ?? 0,
         revenueLast30d: j['revenue_last_30d'] ?? 0,
+        usdLast7d: double.tryParse(j['usd_last_7d']?.toString() ?? '0') ?? 0.0,
+        usdLast30d: double.tryParse(j['usd_last_30d']?.toString() ?? '0') ?? 0.0,
+        walletUsdBalance:
+            double.tryParse(j['wallet_usd_balance']?.toString() ?? '0') ?? 0.0,
+        coinToUsdRate:
+            double.tryParse(j['coin_to_usd_rate']?.toString() ?? '0.006') ?? 0.006,
         uniqueSupporters30d: j['unique_supporters_30d'] ?? 0,
         followersCount: j['followers_count'] ?? 0,
         participationCount: j['participation_count'] ?? 0,
@@ -956,6 +1077,12 @@ class CreatorDashboardModel {
       );
 
   int get revenueSharePercent => (revenueShareRate * 100).round();
+
+  /// USD value of pending payout coins at current rate
+  double get pendingPayoutUsd => pendingPayoutCoins * coinToUsdRate;
+
+  /// USD value of total earned coins
+  double get totalEarnedUsd => totalEarnedCoins * coinToUsdRate;
 }
 
 class CreatorRevenueEventModel {

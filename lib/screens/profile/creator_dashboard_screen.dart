@@ -426,17 +426,20 @@ class _RevenueCard extends StatelessWidget {
               _RevStat(
                   label: '7 jou',
                   coins: dashboard.revenueLast7d,
-                  color: AppColors.purpleLight),
+                  color: AppColors.purpleLight,
+                  usd: dashboard.usdLast7d),
               const SizedBox(width: 12),
               _RevStat(
                   label: '30 jou',
                   coins: dashboard.revenueLast30d,
-                  color: const Color(0xFF3B82F6)),
+                  color: const Color(0xFF3B82F6),
+                  usd: dashboard.usdLast30d),
               const SizedBox(width: 12),
               _RevStat(
                   label: 'Total',
                   coins: dashboard.totalEarnedCoins,
-                  color: const Color(0xFFF59E0B)),
+                  color: const Color(0xFFF59E0B),
+                  usd: dashboard.totalEarnedUsd),
             ],
           ),
           const SizedBox(height: 12),
@@ -447,9 +450,22 @@ class _RevenueCard extends StatelessWidget {
               const Icon(Icons.pending_outlined,
                   size: 14, color: Colors.white38),
               const SizedBox(width: 6),
-              Text(
-                '${dashboard.pendingPayoutCoins} monè an atant peman',
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${dashboard.pendingPayoutCoins} coins an atant peman',
+                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
+                  if (dashboard.walletUsdBalance > 0)
+                    Text(
+                      '≈ \$${dashboard.walletUsdBalance.toStringAsFixed(2)} USD',
+                      style: const TextStyle(
+                          color: Color(0xFF22C55E),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600),
+                    ),
+                ],
               ),
               const Spacer(),
               if (dashboard.pendingPayoutCoins > 0)
@@ -491,8 +507,9 @@ class _RevStat extends StatelessWidget {
   final String label;
   final int coins;
   final Color color;
+  final double? usd;
   const _RevStat(
-      {required this.label, required this.coins, required this.color});
+      {required this.label, required this.coins, required this.color, this.usd});
 
   @override
   Widget build(BuildContext context) {
@@ -509,6 +526,14 @@ class _RevStat extends StatelessWidget {
             Text('$coins',
                 style: TextStyle(
                     color: color, fontWeight: FontWeight.bold, fontSize: 16)),
+            if (usd != null && usd! > 0)
+              Text(
+                '\$${usd!.toStringAsFixed(2)}',
+                style: TextStyle(
+                    color: color.withAlpha(180),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600),
+              ),
             Text(label,
                 style: const TextStyle(color: Colors.white38, fontSize: 10)),
             const Text('monè',

@@ -19,7 +19,7 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
   bool _loading = true;
   bool _proceeding = false;
   bool _claimingDaily = false;
-  int _selectedPack = 1; // 2500 coins — popular default
+  int _selectedPack = 2; // 1200 coins — popular default
   int _selectedPayment = 2; // Kat (card)
   List<CoinPackConfig> _packs = CoinEconomyConfig.fallback.coinPacks;
   DailyCoinClaimStatus? _dailyClaim;
