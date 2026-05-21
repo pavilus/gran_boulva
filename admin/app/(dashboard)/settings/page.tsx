@@ -13,8 +13,8 @@ type PayoutSettings = {
 };
 
 const fallbackPayout: PayoutSettings = {
-  coinToUsdRate: 0.001,
-  minPayoutCoins: 1000,
+  coinToUsdRate: 0.006,
+  minPayoutCoins: 4167,
   payoutMode: "manual",
   moncashEnvironment: "sandbox",
   moncashEnabled: false,
@@ -81,7 +81,7 @@ const fallbackEconomy: CoinEconomy = {
   dailyClaimBase: 2,
   dailyStreakBonus: 1,
   dailyClaimMax: 10,
-  supportAmounts: [10, 25, 50, 100],
+  supportAmounts: [50, 250, 1000, 5000, 10000],
   boostTiers: [
     {
       label: "24 Èdtan",
@@ -103,50 +103,11 @@ const fallbackEconomy: CoinEconomy = {
     },
   ],
   coinPacks: [
-    { coins: 100, price: 99, label: "$0.99", savings: "", popular: false },
-    { coins: 250, price: 299, label: "$2.99", savings: "", popular: false },
-    {
-      coins: 550,
-      price: 499,
-      label: "$4.99",
-      savings: "Pi bon pase starter",
-      popular: false,
-    },
-    {
-      coins: 1200,
-      price: 999,
-      label: "$9.99",
-      savings: "Ekonomize plis",
-      popular: false,
-    },
-    {
-      coins: 2500,
-      price: 1999,
-      label: "$19.99",
-      savings: "Ekonomize 20%",
-      popular: true,
-    },
-    {
-      coins: 5000,
-      price: 3499,
-      label: "$34.99",
-      savings: "Ekonomize 25%",
-      popular: false,
-    },
-    {
-      coins: 10000,
-      price: 6499,
-      label: "$64.99",
-      savings: "Ekonomize 30%",
-      popular: false,
-    },
-    {
-      coins: 25000,
-      price: 14999,
-      label: "$149.99",
-      savings: "Ekonomize 40%",
-      popular: false,
-    },
+    { coins: 100,  price: 99,   label: "$0.99",  savings: "",            popular: false },
+    { coins: 550,  price: 499,  label: "$4.99",  savings: "9% ekonomi",  popular: false },
+    { coins: 1200, price: 999,  label: "$9.99",  savings: "16% ekonomi", popular: true  },
+    { coins: 2500, price: 1999, label: "$19.99", savings: "19% ekonomi", popular: false },
+    { coins: 7000, price: 4999, label: "$49.99", savings: "29% ekonomi", popular: false },
   ],
 };
 
@@ -250,7 +211,7 @@ export default function SettingsPage() {
   const [recommendations, setRecommendations] =
     useState<RecommendationSettings>(fallbackRecommendations);
   const [payout, setPayout] = useState<PayoutSettings>(fallbackPayout);
-  const [supportAmountsText, setSupportAmountsText] = useState("10, 25, 50, 100");
+  const [supportAmountsText, setSupportAmountsText] = useState("50, 250, 1000, 5000, 10000");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -648,7 +609,7 @@ export default function SettingsPage() {
               value={payout.coinToUsdRate}
               onChange={(v) => setPayout((p) => ({ ...p, coinToUsdRate: parseFloat(v) || 0.001 }))}
               type="number"
-              hint="0.001 = 1000 coins = $1.00"
+              hint="0.006 = 1000 coins = $6.00"
             />
             <Field
               label="Minimòm pou reklame (coins)"

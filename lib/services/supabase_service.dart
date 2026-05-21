@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/models.dart';
 
@@ -942,8 +943,33 @@ class CoinService {
 
   Future<DailyCoinClaimStatus> claimDailyReward() async {
     final data = await supabase.rpc('claim_daily_coin_reward');
-    return DailyCoinClaimStatus.fromJson(
-        Map<String, dynamic>.from(data as Map));
+    final result =
+        DailyCoinClaimStatus.fromJson(Map<String, dynamic>.from(data as Map));
+    final now = DateTime.now();
+    final dailyKey =
+        'daily:${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    await BadgeService().recordEvent(
+      badgeKey: 'hot_streak',
+      eventType: 'daily_claim',
+      xpGained: 1,
+      referenceKey: dailyKey,
+    );
+    if (now.weekday == DateTime.monday || result.streakCount % 7 == 0) {
+      await BadgeService().recordEvent(
+        badgeKey: 'consistent',
+        eventType: 'weekly_participation',
+        xpGained: 1,
+        referenceKey: _weekReferenceKey(now),
+      );
+    }
+    return result;
+  }
+
+  String _weekReferenceKey(DateTime date) {
+    final firstDay = DateTime(date.year, 1, 1);
+    final dayOfYear = date.difference(firstDay).inDays + 1;
+    final week = ((dayOfYear + firstDay.weekday - 2) / 7).floor() + 1;
+    return 'week:${date.year}-W${week.toString().padLeft(2, '0')}';
   }
 
   Future<int> getBalance() async {
@@ -1112,6 +1138,13 @@ class CoinService {
         );
       }
     }
+    await BadgeService().recordEvent(
+      badgeKey: 'community',
+      eventType: 'argument_support',
+      xpGained: 2,
+      referenceKey:
+          'support:$argumentId:$amount:${DateTime.now().millisecondsSinceEpoch}',
+    );
     if (ownerUserId != null) {
       final user = await UserService().getProfile();
       if (user != null && ownerUserId != user.id) {
@@ -1136,17 +1169,24 @@ class CoinService {
     bool isPublic = true,
   }) async {
     final result = await supabase.rpc('gift_coins', params: {
-      'p_receiver_id':  receiverUserId,
-      'p_coins':        coins,
+      'p_receiver_id': receiverUserId,
+      'p_coins': coins,
       'p_context_type': contextType,
-      'p_context_id':   contextId,
-      'p_is_public':    isPublic,
+      'p_context_id': contextId,
+      'p_is_public': isPublic,
     });
     await RecommendationService().recordEvent(
       eventType: 'support',
       targetType: contextType,
       targetId: contextId ?? receiverUserId,
       metadata: {'coins': coins},
+    );
+    await BadgeService().recordEvent(
+      badgeKey: 'community',
+      eventType: 'coin_gift',
+      xpGained: 2,
+      referenceKey:
+          'gift:$receiverUserId:${contextId ?? receiverUserId}:$coins:${DateTime.now().millisecondsSinceEpoch}',
     );
     return Map<String, dynamic>.from(result as Map);
   }
@@ -1159,9 +1199,7 @@ class CoinService {
           .select()
           .eq('is_active', true)
           .order('sort_order');
-      return (data as List)
-          .map((j) => SupportLevelModel.fromJson(j))
-          .toList();
+      return (data as List).map((j) => SupportLevelModel.fromJson(j)).toList();
     } catch (_) {
       return SupportLevelModel.defaults;
     }
@@ -1172,11 +1210,9 @@ class CoinService {
     try {
       final data = await supabase.rpc('get_top_supporters', params: {
         'p_creator_id': creatorUserId,
-        'p_limit':      5,
+        'p_limit': 5,
       });
-      return (data as List)
-          .map((j) => TopSupporterModel.fromJson(j))
-          .toList();
+      return (data as List).map((j) => TopSupporterModel.fromJson(j)).toList();
     } catch (_) {
       return [];
     }
@@ -1188,9 +1224,7 @@ class CoinService {
       final data = await supabase.rpc('get_public_gifting_feed', params: {
         'p_limit': limit,
       });
-      return (data as List)
-          .map((j) => GiftingEventModel.fromJson(j))
-          .toList();
+      return (data as List).map((j) => GiftingEventModel.fromJson(j)).toList();
     } catch (_) {
       return [];
     }
@@ -1230,18 +1264,18 @@ class BadgeService {
       'name_en': 'Top Voter',
       'description_ht': 'Vote sou matchups pou monte nivo ou.',
       'description_en': 'Vote on matchups to level up.',
-      'icon_asset': 'assets/images/Topvotè.png',
+      'icon_asset': 'assets/images/topvotè.png',
       'color_hex': '#A855F7',
       'sort_order': 1,
     },
     {
       'id': 'hot_streak',
       'key': 'hot_streak',
-      'name_ht': 'Tankou Dife',
+      'name_ht': 'San Kanpe',
       'name_en': 'Hot Streak',
       'description_ht': 'Kenbe aktivite ou vivan chak jou.',
       'description_en': 'Keep your participation streak alive.',
-      'icon_asset': 'assets/images/TankouDife.png',
+      'icon_asset': 'assets/images/sankanpe.png',
       'color_hex': '#F97316',
       'sort_order': 2,
     },
@@ -1252,7 +1286,7 @@ class BadgeService {
       'name_en': 'Debater',
       'description_ht': 'Ekri agiman ki fè diskisyon an pi rich.',
       'description_en': 'Post arguments that strengthen the debate.',
-      'icon_asset': 'assets/images/Grandebatè.png',
+      'icon_asset': 'assets/images/grandebatè.png',
       'color_hex': '#3B82F6',
       'sort_order': 3,
     },
@@ -1263,35 +1297,30 @@ class BadgeService {
       'name_en': 'Consistent',
       'description_ht': 'Patisipe regilyèman semèn apre semèn.',
       'description_en': 'Participate reliably week after week.',
-      'icon_asset': 'assets/images/konsistan .png',
+      'icon_asset': 'assets/images/konsistan.png',
       'color_hex': '#22C55E',
       'sort_order': 4,
     },
     {
       'id': 'community',
       'key': 'community',
-      'name_ht': 'Kominote',
-      'name_en': 'Community',
+      'name_ht': 'Gran Sipòtè',
+      'name_en': 'Great Supporter',
       'description_ht': 'Sipòte lòt moun epi fè kominote a grandi.',
       'description_en': 'Support others and help the community grow.',
-      'icon_asset': 'assets/images/kominotè.png',
+      'icon_asset': 'assets/images/sipote.png',
       'color_hex': '#D90C82',
       'sort_order': 5,
     },
   ];
 
-  static const List<int> _levelThresholds = [
-    5,
-    15,
-    35,
-    70,
-    120,
-    200,
-    320,
-    500,
-    750,
-    1100,
-  ];
+  static const Map<String, List<int>> _levelThresholds = {
+    'top_voter': [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000],
+    'hot_streak': [3, 7, 14, 21, 30, 45, 60, 90, 180, 365],
+    'debater': [5, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000],
+    'consistent': [1, 2, 4, 8, 12, 24, 36, 52, 104, 156],
+    'community': [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000],
+  };
 
   List<BadgeProgressModel> fallbackProgress() {
     final badges = _fallbackBadges.map(BadgeModel.fromJson).toList();
@@ -1364,26 +1393,37 @@ class BadgeService {
     }
   }
 
-  Future<void> recordEvent({
+  Future<BadgeEventResult?> recordEvent({
     required String badgeKey,
     required String eventType,
     required int xpGained,
     String? referenceId,
+    String? referenceKey,
   }) async {
     try {
-      await supabase.rpc('record_badge_event', params: {
-        'p_badge_key': badgeKey,
-        'p_event_type': eventType,
-        'p_xp_gained': xpGained,
-        'p_reference_id': referenceId,
-      });
+      final data = await supabase.rpc(
+        referenceKey == null ? 'record_badge_event' : 'record_badge_event_v2',
+        params: {
+          'p_badge_key': badgeKey,
+          'p_event_type': eventType,
+          'p_xp_gained': xpGained,
+          'p_reference_id': referenceId,
+          if (referenceKey != null) 'p_reference_key': referenceKey,
+        },
+      );
+      if (data is Map) {
+        return BadgeEventResult.fromJson(Map<String, dynamic>.from(data));
+      }
     } catch (_) {
       // Badge progress is nice-to-have and should not block core actions.
     }
+    return null;
   }
 
   List<BadgeLevelModel> _fallbackLevels(String badgeId) {
-    return _levelThresholds.indexed.map((entry) {
+    final thresholds =
+        _levelThresholds[badgeId] ?? _levelThresholds['top_voter']!;
+    return thresholds.indexed.map((entry) {
       final level = entry.$1 + 1;
       final requiredXp = entry.$2;
       return BadgeLevelModel(
@@ -1672,7 +1712,8 @@ class AdminService {
   Future<List<VerificationRequestModel>> getVerificationRequests() async {
     final data = await supabase
         .from('verification_requests')
-        .select('*, user:users!verification_requests_user_id_fkey(*)')
+        .select(
+            '*, user:users!verification_requests_user_id_fkey(*), documents:verification_documents!verification_documents_verification_request_id_fkey(*)')
         .order('submitted_at', ascending: false);
     return (data as List)
         .map((j) => VerificationRequestModel.fromJson(j))
@@ -1743,6 +1784,43 @@ class AdminService {
           ? reason!
           : 'Demann verifikasyon ou a pa apwouve pou kounye a.',
     );
+  }
+
+  Future<void> revokeVerification(UserModel user, {String? reason}) async {
+    final admin = await UserService().getProfile();
+    final now = DateTime.now().toIso8601String();
+
+    await supabase
+        .from('user_verifications')
+        .update({
+          'status': 'revoked',
+          'revoked_at': now,
+          'revoked_by': admin?.id,
+          'revocation_reason': reason,
+          'updated_at': now,
+        })
+        .eq('user_id', user.id)
+        .eq('status', 'approved');
+
+    await supabase.from('users').update({
+      'verification_type': null,
+      'verification_badge_style': null,
+      'verification_status': 'revoked',
+    }).eq('id', user.id);
+
+    await _notifyVerificationResult(
+      user.id,
+      title: 'Verifikasyon retire',
+      body: reason?.isNotEmpty == true
+          ? reason!
+          : 'Badj verifikasyon ou a retire.',
+    );
+  }
+
+  Future<String> createVerificationDocumentUrl(String documentPath) async {
+    return supabase.storage
+        .from('verification-documents')
+        .createSignedUrl(documentPath, 60 * 10);
   }
 
   String _badgeStyleForType(String type) {
@@ -1881,7 +1959,8 @@ class CreatorService {
   }
 
   /// Returns recent revenue events for the signed-in creator.
-  Future<List<CreatorRevenueEventModel>> getRevenueEvents({int limit = 30}) async {
+  Future<List<CreatorRevenueEventModel>> getRevenueEvents(
+      {int limit = 30}) async {
     final user = await UserService().getProfile();
     if (user == null) return [];
 
@@ -1925,7 +2004,8 @@ class VerificationService {
 
     final data = await supabase
         .from('verification_requests')
-        .select()
+        .select(
+            '*, documents:verification_documents!verification_documents_verification_request_id_fkey(*)')
         .eq('user_id', user.id)
         .order('submitted_at', ascending: false);
     return (data as List)
@@ -1933,7 +2013,7 @@ class VerificationService {
         .toList();
   }
 
-  Future<void> submitRequest({
+  Future<VerificationRequestModel> submitRequest({
     required String verificationType,
     String? displayName,
     String? legalName,
@@ -1946,23 +2026,66 @@ class VerificationService {
     final user = await UserService().getProfile();
     if (user == null) throw Exception('User profile not found');
 
-    await supabase.from('verification_requests').insert({
-      'user_id': user.id,
-      'verification_type': verificationType,
-      'status': 'pending',
-      'display_name': displayName,
-      'legal_name': legalName,
-      'organization_name': organizationName,
-      'website': website,
-      'organization_email': organizationEmail,
-      'social_links': socialLinks,
-      'proof_notes': proofNotes,
-    });
+    final row = await supabase
+        .from('verification_requests')
+        .insert({
+          'user_id': user.id,
+          'verification_type': verificationType,
+          'status': 'pending',
+          'display_name': displayName,
+          'legal_name': legalName,
+          'organization_name': organizationName,
+          'website': website,
+          'organization_email': organizationEmail,
+          'social_links': socialLinks,
+          'proof_notes': proofNotes,
+        })
+        .select()
+        .single();
 
     await supabase
         .from('users')
         .update({'verification_status': 'pending'})
         .eq('id', user.id)
         .neq('verification_status', 'approved');
+
+    return VerificationRequestModel.fromJson(row);
+  }
+
+  Future<void> uploadDocument({
+    required String requestId,
+    required Uint8List bytes,
+    required String fileName,
+    String documentType = 'proof',
+  }) async {
+    final authUser = supabase.auth.currentUser;
+    final user = await UserService().getProfile();
+    if (authUser == null || user == null) {
+      throw Exception('User profile not found');
+    }
+
+    final extension = fileName.split('.').last.toLowerCase();
+    final safeExtension =
+        ['jpg', 'jpeg', 'png', 'webp'].contains(extension) ? extension : 'jpg';
+    final path =
+        '${authUser.id}/$requestId/${DateTime.now().millisecondsSinceEpoch}.$safeExtension';
+    final contentType = switch (safeExtension) {
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      _ => 'image/jpeg',
+    };
+
+    await supabase.storage.from('verification-documents').uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(contentType: contentType, upsert: false),
+        );
+
+    await supabase.from('verification_documents').insert({
+      'verification_request_id': requestId,
+      'user_id': user.id,
+      'document_type': documentType,
+      'document_url': path,
+    });
   }
 }

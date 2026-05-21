@@ -67,8 +67,8 @@ class _MenuScreenState extends State<MenuScreen> {
     final s = p?.influenceScore ?? 0;
     if (s >= 70) return 'Elit';
     if (s >= 35) return 'Konfime';
-    if (s >= 15) return 'Monte';
-    return 'Debutant';
+    if (s >= 15) return 'Entèmedyè';
+    return 'Debitan';
   }
 
   String _tierEmoji(UserModel? p) {
@@ -375,7 +375,7 @@ class _MenuScreenState extends State<MenuScreen> {
           onTap: () => context.push('/subscriptions'),
         ),
         _MenuItemData(
-          imagePath: 'assets/images/topvotè.png',
+          imagePath: 'assets/images/topvote.png',
           color: const Color(0xFFF59E0B),
           title: 'Tòp Vwa',
           subtitle: 'Kreyatè ki pi enfliyans yo',
@@ -544,22 +544,23 @@ class _MenuItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(children: [
           // Icon box — custom image or Material icon
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: data.color.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(11),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(11),
+            child: SizedBox(
+              width: 38,
+              height: 38,
+              child: data.imagePath != null
+                  ? Image.asset(
+                      data.imagePath!,
+                      fit: BoxFit.cover,
+                      color: data.color,
+                      colorBlendMode: BlendMode.srcIn,
+                    )
+                  : Container(
+                      color: data.color.withValues(alpha: 0.14),
+                      child: Icon(data.icon, color: data.color, size: 22),
+                    ),
             ),
-            padding: const EdgeInsets.all(7),
-            child: data.imagePath != null
-                ? Image.asset(
-                    data.imagePath!,
-                    fit: BoxFit.contain,
-                    color: data.color,
-                    colorBlendMode: BlendMode.srcIn,
-                  )
-                : Icon(data.icon, color: data.color, size: 20),
           ),
           const SizedBox(width: 14),
           Expanded(

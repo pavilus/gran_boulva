@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gran_boulva/models/models.dart';
 import 'package:gran_boulva/services/supabase_service.dart';
 import 'package:gran_boulva/config/app_colors.dart';
+import 'package:gran_boulva/widgets/common/app_back_button.dart';
 
 // ─── Tier config ────────────────────────────────────────────
 const _tierColors = [
@@ -63,14 +64,11 @@ class _CreatorDashboardScreenState extends State<CreatorDashboardScreen> {
         backgroundColor: AppColors.bg0,
         elevation: 0,
         title: const Text(
-          'Tableau Kreyatè',
+          'Panèl Kreyatè',
           style: TextStyle(
               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: AppBackButton(onTap: () => Navigator.of(context).pop()),
         actions: [
           if (_refreshing)
             const Padding(
@@ -83,8 +81,8 @@ class _CreatorDashboardScreenState extends State<CreatorDashboardScreen> {
             )
           else
             IconButton(
-              icon:
-                  const Icon(Icons.refresh, color: AppColors.purpleLight, size: 20),
+              icon: const Icon(Icons.refresh,
+                  color: AppColors.purpleLight, size: 20),
               onPressed: _refresh,
               tooltip: 'Aktyalize',
             ),
@@ -141,7 +139,8 @@ class _CreatorDashboardScreenState extends State<CreatorDashboardScreen> {
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: _refresh,
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.purpleLight),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.purpleLight),
             child:
                 const Text('Eseye ankò', style: TextStyle(color: Colors.white)),
           )
@@ -230,7 +229,7 @@ class _TierCard extends StatelessWidget {
   String _tierLabel(int t) {
     switch (t) {
       case 1:
-        return 'Kreyatè Monte';
+        return 'Kreyatè Entèmedyè';
       case 2:
         return 'Kreyatè Verifye';
       case 3:
@@ -253,7 +252,7 @@ class _NextTierHint extends StatelessWidget {
     String hint;
     switch (currentTier) {
       case 0:
-        hint = 'Rive 15 pwen ak 10+ abòne pou tounen Kreyatè Monte';
+        hint = 'Rive 15 pwen ak 10+ abòne pou tounen Kreyatè Entèmedyè';
         break;
       case 1:
         hint =
@@ -332,7 +331,7 @@ class _ScoreCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Skò Kreyatè',
+              const Text('Pwen Kreyatè',
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -342,7 +341,7 @@ class _ScoreCard extends StatelessWidget {
                   style: const TextStyle(color: Colors.white54, fontSize: 12)),
               const SizedBox(height: 4),
               _ScoreBar(
-                  label: 'Ensiny',
+                  label: 'Enfliyans',
                   value: dashboard.influenceScore / 1000,
                   color: AppColors.purpleLight),
               _ScoreBar(
@@ -363,8 +362,8 @@ class _ScoreCard extends StatelessWidget {
   String _scoreLabel(int s) {
     if (s >= 70) return 'Elit';
     if (s >= 35) return 'Konfime';
-    if (s >= 15) return 'Monte';
-    return 'Debutant';
+    if (s >= 15) return 'Entèmedyè';
+    return 'Debitan';
   }
 }
 
@@ -478,8 +477,8 @@ class _RevenueCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppColors.purpleLight.withAlpha(30),
                       borderRadius: BorderRadius.circular(20),
-                      border:
-                          Border.all(color: AppColors.purpleLight.withAlpha(80)),
+                      border: Border.all(
+                          color: AppColors.purpleLight.withAlpha(80)),
                     ),
                     child: const Text('Reklame',
                         style: TextStyle(
@@ -509,7 +508,10 @@ class _RevStat extends StatelessWidget {
   final Color color;
   final double? usd;
   const _RevStat(
-      {required this.label, required this.coins, required this.color, this.usd});
+      {required this.label,
+      required this.coins,
+      required this.color,
+      this.usd});
 
   @override
   Widget build(BuildContext context) {
@@ -590,7 +592,7 @@ class _StatsGrid extends StatelessWidget {
                   value: '${dashboard.uniqueSupporters30d}',
                   icon: Icons.star_border),
               _Stat(
-                  label: 'Ensiny',
+                  label: 'Enfliyans',
                   value: '${dashboard.influenceScore}',
                   icon: Icons.trending_up),
             ],
@@ -839,7 +841,8 @@ class _PayoutDialogState extends State<_PayoutDialog> {
                     decoration: BoxDecoration(
                       color: AppColors.purpleLight.withAlpha(15),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppColors.purpleLight.withAlpha(40)),
+                      border: Border.all(
+                          color: AppColors.purpleLight.withAlpha(40)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -847,18 +850,23 @@ class _PayoutDialogState extends State<_PayoutDialog> {
                         Text(
                           '${widget.coins} coins',
                           style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),
                         ),
                         Text(
                           '≈ \$${_estimatedUsd.toStringAsFixed(2)} USD',
                           style: const TextStyle(
-                              color: Color(0xFF22C55E), fontSize: 13, fontWeight: FontWeight.w600),
+                              color: Color(0xFF22C55E),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600),
                         ),
                         if (_belowMin) ...[
                           const SizedBox(height: 6),
                           Text(
                             'Minimòm: $_minPayoutCoins coins — ou pa rive toujou.',
-                            style: const TextStyle(color: Color(0xFFEF4444), fontSize: 11),
+                            style: const TextStyle(
+                                color: Color(0xFFEF4444), fontSize: 11),
                           ),
                         ],
                       ],
@@ -876,10 +884,12 @@ class _PayoutDialogState extends State<_PayoutDialog> {
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: '+509 XXXX XXXX',
-                      hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                      hintStyle:
+                          const TextStyle(color: Colors.white24, fontSize: 13),
                       filled: true,
                       fillColor: Colors.white.withAlpha(8),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(color: Colors.white12),
@@ -896,9 +906,12 @@ class _PayoutDialogState extends State<_PayoutDialog> {
                   const Text('Metòd peman:',
                       style: TextStyle(color: Colors.white54, fontSize: 12)),
                   const SizedBox(height: 6),
-                  _methodBtn('MonCash', 'moncash', (v) => setState(() => _method = v)),
-                  _methodBtn('NatCash', 'natcash', (v) => setState(() => _method = v)),
-                  _methodBtn('Stripe', 'stripe', (v) => setState(() => _method = v)),
+                  _methodBtn(
+                      'MonCash', 'moncash', (v) => setState(() => _method = v)),
+                  _methodBtn(
+                      'NatCash', 'natcash', (v) => setState(() => _method = v)),
+                  _methodBtn(
+                      'Stripe', 'stripe', (v) => setState(() => _method = v)),
                 ],
               ),
             ),
@@ -910,13 +923,15 @@ class _PayoutDialogState extends State<_PayoutDialog> {
         ElevatedButton(
           onPressed: (_submitting || _belowMin || _loading) ? null : _submit,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _belowMin ? Colors.grey.shade800 : AppColors.purpleLight,
+            backgroundColor:
+                _belowMin ? Colors.grey.shade800 : AppColors.purpleLight,
           ),
           child: _submitting
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white))
               : const Text('Soumèt', style: TextStyle(color: Colors.white)),
         ),
       ],
@@ -931,13 +946,17 @@ class _PayoutDialogState extends State<_PayoutDialog> {
         margin: const EdgeInsets.only(bottom: 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? AppColors.purpleLight.withAlpha(30) : Colors.white.withAlpha(5),
+          color: selected
+              ? AppColors.purpleLight.withAlpha(30)
+              : Colors.white.withAlpha(5),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: selected ? AppColors.purpleLight : Colors.white12),
+          border: Border.all(
+              color: selected ? AppColors.purpleLight : Colors.white12),
         ),
         child: Text(label,
             style: TextStyle(
-                color: selected ? AppColors.purpleLight : Colors.white54, fontSize: 13)),
+                color: selected ? AppColors.purpleLight : Colors.white54,
+                fontSize: 13)),
       ),
     );
   }
@@ -948,7 +967,8 @@ class _PayoutDialogState extends State<_PayoutDialog> {
       await CreatorService().requestPayout(
         coinsAmount: widget.coins,
         payoutMethod: _method,
-        payoutPhone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+        payoutPhone:
+            _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
         estimatedUsd: _estimatedUsd,
       );
       if (mounted) {

@@ -190,6 +190,7 @@ class VerificationRequestModel {
   final DateTime submittedAt;
   final DateTime? reviewedAt;
   final UserModel? user;
+  final List<VerificationDocumentModel> documents;
 
   const VerificationRequestModel({
     required this.id,
@@ -208,10 +209,12 @@ class VerificationRequestModel {
     required this.submittedAt,
     this.reviewedAt,
     this.user,
+    this.documents = const [],
   });
 
   factory VerificationRequestModel.fromJson(Map<String, dynamic> j) {
     final userJson = j['user'];
+    final documentJson = j['documents'] ?? j['verification_documents'];
     return VerificationRequestModel(
       id: j['id'],
       userId: j['user_id'],
@@ -234,6 +237,12 @@ class VerificationRequestModel {
           : userJson is Map
               ? UserModel.fromJson(Map<String, dynamic>.from(userJson))
               : null,
+      documents: documentJson is List
+          ? documentJson
+              .map((doc) => VerificationDocumentModel.fromJson(
+                  Map<String, dynamic>.from(doc)))
+              .toList()
+          : const [],
     );
   }
 
@@ -251,6 +260,34 @@ class VerificationRequestModel {
         return 'Verifye';
     }
   }
+}
+
+class VerificationDocumentModel {
+  final String id;
+  final String requestId;
+  final String userId;
+  final String documentType;
+  final String documentUrl;
+  final DateTime createdAt;
+
+  const VerificationDocumentModel({
+    required this.id,
+    required this.requestId,
+    required this.userId,
+    required this.documentType,
+    required this.documentUrl,
+    required this.createdAt,
+  });
+
+  factory VerificationDocumentModel.fromJson(Map<String, dynamic> j) =>
+      VerificationDocumentModel(
+        id: j['id'],
+        requestId: j['verification_request_id'],
+        userId: j['user_id'],
+        documentType: j['document_type'] ?? 'proof',
+        documentUrl: j['document_url'],
+        createdAt: DateTime.parse(j['created_at'] ?? j['uploaded_at']),
+      );
 }
 
 class CategoryModel {
@@ -649,6 +686,36 @@ class BadgeProgressModel {
   }
 }
 
+class BadgeEventResult {
+  final String badgeKey;
+  final String badgeName;
+  final int xp;
+  final int oldLevel;
+  final int level;
+  final bool leveledUp;
+  final bool insertedEvent;
+
+  const BadgeEventResult({
+    required this.badgeKey,
+    required this.badgeName,
+    required this.xp,
+    required this.oldLevel,
+    required this.level,
+    required this.leveledUp,
+    required this.insertedEvent,
+  });
+
+  factory BadgeEventResult.fromJson(Map<String, dynamic> j) => BadgeEventResult(
+        badgeKey: j['badge_key'] ?? '',
+        badgeName: j['badge_name'] ?? '',
+        xp: j['xp'] ?? 0,
+        oldLevel: j['old_level'] ?? 0,
+        level: j['level'] ?? 0,
+        leveledUp: j['leveled_up'] ?? false,
+        insertedEvent: j['inserted_event'] ?? false,
+      );
+}
+
 class PredictionModel {
   final String id;
   final String categoryId;
@@ -859,11 +926,51 @@ class SupportLevelModel {
 
   /// Fallback levels used while loading from DB
   static const List<SupportLevelModel> defaults = [
-    SupportLevelModel(id:'',coins:50,   labelHt:'Sipò Rapid',     labelEn:'Quick Support',      emoji:'💙',colorHex:'#3B82F6',animationIntensity:1,feedMessageHt:'voye yon sipò rapid'),
-    SupportLevelModel(id:'',coins:250,  labelHt:'Sipò Solid',     labelEn:'Strong Support',     emoji:'💜',colorHex:'#A855F7',animationIntensity:2,feedMessageHt:'voye yon sipò solid'),
-    SupportLevelModel(id:'',coins:1000, labelHt:'Gran Sipò',      labelEn:'Major Support',      emoji:'💛',colorHex:'#EAB308',animationIntensity:3,feedMessageHt:'voye yon gran sipò'),
-    SupportLevelModel(id:'',coins:5000, labelHt:'Sipòtè Elit',    labelEn:'Elite Supporter',    emoji:'🧡',colorHex:'#F97316',animationIntensity:4,feedMessageHt:'voye yon sipò elit'),
-    SupportLevelModel(id:'',coins:10000,labelHt:'Soutyen Legendè',labelEn:'Legendary Support',  emoji:'❤️',colorHex:'#EF4444',animationIntensity:5,feedMessageHt:'voye yon soutyen legendè'),
+    SupportLevelModel(
+        id: '',
+        coins: 50,
+        labelHt: 'Sipò Rapid',
+        labelEn: 'Quick Support',
+        emoji: '💙',
+        colorHex: '#3B82F6',
+        animationIntensity: 1,
+        feedMessageHt: 'voye yon sipò rapid'),
+    SupportLevelModel(
+        id: '',
+        coins: 250,
+        labelHt: 'Sipò Solid',
+        labelEn: 'Strong Support',
+        emoji: '💜',
+        colorHex: '#A855F7',
+        animationIntensity: 2,
+        feedMessageHt: 'voye yon sipò solid'),
+    SupportLevelModel(
+        id: '',
+        coins: 1000,
+        labelHt: 'Gran Sipò',
+        labelEn: 'Major Support',
+        emoji: '💛',
+        colorHex: '#EAB308',
+        animationIntensity: 3,
+        feedMessageHt: 'voye yon gran sipò'),
+    SupportLevelModel(
+        id: '',
+        coins: 5000,
+        labelHt: 'Sipòtè Elit',
+        labelEn: 'Elite Supporter',
+        emoji: '🧡',
+        colorHex: '#F97316',
+        animationIntensity: 4,
+        feedMessageHt: 'voye yon sipò elit'),
+    SupportLevelModel(
+        id: '',
+        coins: 10000,
+        labelHt: 'Soutyen Legendè',
+        labelEn: 'Legendary Support',
+        emoji: '❤️',
+        colorHex: '#EF4444',
+        animationIntensity: 5,
+        feedMessageHt: 'voye yon soutyen legendè'),
   ];
 }
 
@@ -933,9 +1040,9 @@ class TopSupporterModel {
 
 class CreatorProfileModel {
   final String userId;
-  final int creatorTier;       // 0=User, 1=Rising, 2=Verified, 3=Elite, 4=Icon
-  final int creatorScore;      // 0-100
-  final int trustScore;        // 0-100
+  final int creatorTier; // 0=User, 1=Rising, 2=Verified, 3=Elite, 4=Icon
+  final int creatorScore; // 0-100
+  final int trustScore; // 0-100
   final bool isMonetizationEnabled;
   final bool monetizationSuspended;
   final double revenueShareRate; // e.g. 0.70
@@ -983,21 +1090,31 @@ class CreatorProfileModel {
 
   String get tierLabel {
     switch (creatorTier) {
-      case 1: return 'Kreyatè Monte';
-      case 2: return 'Kreyatè Verifye';
-      case 3: return 'Kreyatè Elit';
-      case 4: return 'Ikòn Kiltirèl';
-      default: return 'Itilizatè';
+      case 1:
+        return 'Kreyatè Entèmedyè';
+      case 2:
+        return 'Kreyatè Verifye';
+      case 3:
+        return 'Kreyatè Elit';
+      case 4:
+        return 'Ikòn Kiltirèl';
+      default:
+        return 'Itilizatè';
     }
   }
 
   String get tierLabelEn {
     switch (creatorTier) {
-      case 1: return 'Rising Creator';
-      case 2: return 'Verified Creator';
-      case 3: return 'Elite Creator';
-      case 4: return 'Cultural Icon';
-      default: return 'User';
+      case 1:
+        return 'Rising Creator';
+      case 2:
+        return 'Verified Creator';
+      case 3:
+        return 'Elite Creator';
+      case 4:
+        return 'Cultural Icon';
+      default:
+        return 'User';
     }
   }
 
@@ -1063,11 +1180,13 @@ class CreatorDashboardModel {
         revenueLast7d: j['revenue_last_7d'] ?? 0,
         revenueLast30d: j['revenue_last_30d'] ?? 0,
         usdLast7d: double.tryParse(j['usd_last_7d']?.toString() ?? '0') ?? 0.0,
-        usdLast30d: double.tryParse(j['usd_last_30d']?.toString() ?? '0') ?? 0.0,
+        usdLast30d:
+            double.tryParse(j['usd_last_30d']?.toString() ?? '0') ?? 0.0,
         walletUsdBalance:
             double.tryParse(j['wallet_usd_balance']?.toString() ?? '0') ?? 0.0,
         coinToUsdRate:
-            double.tryParse(j['coin_to_usd_rate']?.toString() ?? '0.006') ?? 0.006,
+            double.tryParse(j['coin_to_usd_rate']?.toString() ?? '0.006') ??
+                0.006,
         uniqueSupporters30d: j['unique_supporters_30d'] ?? 0,
         followersCount: j['followers_count'] ?? 0,
         participationCount: j['participation_count'] ?? 0,

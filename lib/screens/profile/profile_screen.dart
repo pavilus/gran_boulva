@@ -661,7 +661,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       (
         asset: 'assets/images/trophy.png',
         color: AppColors.warning,
-        text: 'Ou genyen badj “Top Voter” Nivo 3',
+        text: 'Ou genyen badj “Top Votè” Nivo 3',
         ago: '1d ago'
       ),
     ];
@@ -833,7 +833,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          border: Border.all(color: AppColors.purpleLight.withValues(alpha: 0.35)),
+          border:
+              Border.all(color: AppColors.purpleLight.withValues(alpha: 0.35)),
         ),
         child: const Row(
           children: [
@@ -844,7 +845,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tableau Kreyatè',
+                    'Panèl Kreyatè',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

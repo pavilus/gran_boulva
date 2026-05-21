@@ -445,7 +445,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
         backgroundColor: _matchupPageBg,
         appBar: AppBar(
           backgroundColor: _matchupPageBg,
-          leading: AppBackButton(
+          leading: AppBackButton.matchupStyle(
             onTap: () => Navigator.of(context).maybePop(),
           ),
         ),
@@ -469,7 +469,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       toolbarHeight: 76,
       backgroundColor: _matchupPageBg,
       surfaceTintColor: Colors.transparent,
-      leading: AppBackButton(
+      leading: AppBackButton.matchupStyle(
         onTap: () => Navigator.of(context).maybePop(),
       ),
       title: Image.asset(
