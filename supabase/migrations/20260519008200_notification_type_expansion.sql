@@ -1,0 +1,10 @@
+alter type public.notification_type add value if not exists 'coin';
+alter type public.notification_type add value if not exists 'coins';
+alter type public.notification_type add value if not exists 'argument_like';
+alter type public.notification_type add value if not exists 'argument_reply';
+alter type public.notification_type add value if not exists 'argument_support';
+alter type public.notification_type add value if not exists 'badge';
+alter type public.notification_type add value if not exists 'badge_earned';
+alter type public.notification_type add value if not exists 'badge_level_up';
+alter type public.notification_type add value if not exists 'new_matchup';
+alter type public.notification_type add value if not exists 'matchup';

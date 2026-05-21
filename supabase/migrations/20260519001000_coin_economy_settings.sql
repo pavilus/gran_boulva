@@ -6,6 +6,9 @@ create table if not exists public.app_settings (
 
 alter table public.app_settings enable row level security;
 
+grant select on table public.app_settings to authenticated;
+grant select, insert, update, delete on table public.app_settings to service_role;
+
 drop policy if exists "Authenticated users can read app settings" on public.app_settings;
 create policy "Authenticated users can read app settings"
   on public.app_settings for select
@@ -49,10 +52,31 @@ values (
     ],
     "coinPacks": [
       {
-        "coins": 1000,
+        "coins": 100,
+        "price": 99,
+        "label": "$0.99",
+        "savings": "",
+        "popular": false
+      },
+      {
+        "coins": 250,
+        "price": 299,
+        "label": "$2.99",
+        "savings": "",
+        "popular": false
+      },
+      {
+        "coins": 550,
+        "price": 499,
+        "label": "$4.99",
+        "savings": "Pi bon pase starter",
+        "popular": false
+      },
+      {
+        "coins": 1200,
         "price": 999,
         "label": "$9.99",
-        "savings": "",
+        "savings": "Ekonomize plis",
         "popular": false
       },
       {

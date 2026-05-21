@@ -21,6 +21,10 @@ type CoinEconomy = {
   coinsPerVote: number;
   coinsPerArgument: number;
   transferFee: number;
+  signupBonus: number;
+  dailyClaimBase: number;
+  dailyStreakBonus: number;
+  dailyClaimMax: number;
   supportAmounts: number[];
   boostTiers: BoostTier[];
   coinPacks: CoinPack[];
@@ -30,6 +34,10 @@ const DEFAULT_ECONOMY: CoinEconomy = {
   coinsPerVote: 0,
   coinsPerArgument: 0,
   transferFee: 10,
+  signupBonus: 5,
+  dailyClaimBase: 2,
+  dailyStreakBonus: 1,
+  dailyClaimMax: 10,
   supportAmounts: [10, 25, 50, 100],
   boostTiers: [
     {
@@ -52,7 +60,22 @@ const DEFAULT_ECONOMY: CoinEconomy = {
     },
   ],
   coinPacks: [
-    { coins: 1000, price: 999, label: "$9.99", savings: "", popular: false },
+    { coins: 100, price: 99, label: "$0.99", savings: "", popular: false },
+    { coins: 250, price: 299, label: "$2.99", savings: "", popular: false },
+    {
+      coins: 550,
+      price: 499,
+      label: "$4.99",
+      savings: "Pi bon pase starter",
+      popular: false,
+    },
+    {
+      coins: 1200,
+      price: 999,
+      label: "$9.99",
+      savings: "Ekonomize plis",
+      popular: false,
+    },
     {
       coins: 2500,
       price: 1999,
@@ -121,6 +144,13 @@ function cleanEconomy(input: Partial<CoinEconomy>): CoinEconomy {
     coinsPerVote: toNumber(input.coinsPerVote),
     coinsPerArgument: toNumber(input.coinsPerArgument),
     transferFee: toNumber(input.transferFee, DEFAULT_ECONOMY.transferFee),
+    signupBonus: toNumber(input.signupBonus, DEFAULT_ECONOMY.signupBonus),
+    dailyClaimBase: toNumber(input.dailyClaimBase, DEFAULT_ECONOMY.dailyClaimBase),
+    dailyStreakBonus: toNumber(
+      input.dailyStreakBonus,
+      DEFAULT_ECONOMY.dailyStreakBonus
+    ),
+    dailyClaimMax: toNumber(input.dailyClaimMax, DEFAULT_ECONOMY.dailyClaimMax),
     supportAmounts: supportAmounts.length
       ? [...new Set(supportAmounts)]
       : DEFAULT_ECONOMY.supportAmounts,

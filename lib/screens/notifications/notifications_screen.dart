@@ -136,11 +136,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (!mounted || matchupId == null) return;
       context.push('/matchup/$matchupId');
     } else if (table == 'users') {
-      context.push('/user/$id');
+      final user = await UserService().getProfileById(id);
+      if (!mounted || user == null) return;
+      context.push('/user/${user.username}');
     } else if (table == 'badges' || table == 'user_badges') {
       context.push('/badges');
     } else if (table == 'coin_transactions' || table == 'coin_purchases') {
       context.push('/coins');
+    } else if (table == 'verification_requests') {
+      context.push('/verification-request');
     }
   }
 
@@ -152,12 +156,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  ({IconData icon, Color color, String label}) _typeInfo(String type) {
+  ({IconData icon, String? asset, Color color, String label}) _typeInfo(
+      String type) {
     switch (type) {
       case 'reply':
       case 'argument_reply':
         return (
           icon: Icons.mode_comment_outlined,
+          asset: null,
           color: AppColors.purpleLight,
           label: 'Repons'
         );
@@ -165,6 +171,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'argument_like':
         return (
           icon: Icons.favorite_border_rounded,
+          asset: null,
           color: AppColors.pink,
           label: 'Reyaksyon'
         );
@@ -172,6 +179,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'support':
         return (
           icon: Icons.volunteer_activism_outlined,
+          asset: null,
           color: AppColors.success,
           label: 'Sipò'
         );
@@ -180,6 +188,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'badge_level_up':
         return (
           icon: Icons.workspace_premium_rounded,
+          asset: null,
           color: AppColors.warning,
           label: 'Badj'
         );
@@ -187,12 +196,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'free_boost_earned':
         return (
           icon: Icons.rocket_launch_outlined,
+          asset: null,
           color: AppColors.orange,
           label: 'Boost'
         );
       case 'prediction_result':
         return (
           icon: Icons.query_stats_rounded,
+          asset: null,
           color: AppColors.purple,
           label: 'Prediksyon'
         );
@@ -200,12 +211,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'matchup':
         return (
           icon: Icons.sports_mma_rounded,
+          asset: null,
           color: AppColors.blue,
           label: 'Matchup'
         );
       case 'new_follower':
         return (
           icon: Icons.person_add_alt_1_rounded,
+          asset: null,
           color: AppColors.blue,
           label: 'Abònen'
         );
@@ -213,18 +226,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'coins':
         return (
           icon: Icons.monetization_on_outlined,
+          asset: 'assets/images/coin.png',
           color: AppColors.success,
           label: 'Coins'
         );
       case 'invite_accepted':
         return (
           icon: Icons.celebration_outlined,
+          asset: null,
           color: AppColors.success,
           label: 'Envitasyon'
         );
       default:
         return (
           icon: Icons.notifications_outlined,
+          asset: 'assets/images/notification_unifilled.png',
           color: AppColors.textMuted,
           label: 'Notifikasyon'
         );
@@ -306,8 +322,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 gradient: AppColors.primaryGradient,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.notifications_active_outlined,
-                  color: Colors.white, size: 21),
+              child: Center(
+                child: Image.asset(
+                  'assets/images/notification_unifilled.png',
+                  width: 23,
+                  height: 23,
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -450,8 +472,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 80, 16, 24),
       children: [
-        Icon(Icons.notifications_none_rounded,
-            color: AppColors.textMuted.withValues(alpha: 0.75), size: 58),
+        Center(
+          child: Image.asset(
+            'assets/images/notification_unifilled.png',
+            width: 58,
+            height: 58,
+            fit: BoxFit.contain,
+          ),
+        ),
         const SizedBox(height: 12),
         Text(
           message,
@@ -497,7 +525,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   color: info.color.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(info.icon, color: info.color, size: 21),
+                child: info.asset == null
+                    ? Icon(info.icon, color: info.color, size: 21)
+                    : Center(
+                        child: Image.asset(
+                          info.asset!,
+                          width: 23,
+                          height: 23,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
               ),
               const SizedBox(width: 12),
               Expanded(
