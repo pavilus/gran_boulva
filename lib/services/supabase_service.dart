@@ -173,12 +173,13 @@ class MatchupService {
     return (data as List).map((j) => CategoryModel.fromJson(j)).toList();
   }
 
-  Future<List<MatchupModel>> getHomeFeed({String? categoryId}) async {
+  Future<List<MatchupModel>> getHomeFeed({String? categoryId, bool popular = false}) async {
     List<MatchupModel> matchups = [];
     try {
       final data = await supabase.rpc('get_recommended_home_feed', params: {
         'p_category_id': categoryId,
         'p_limit': 30,
+        'p_popular': popular,
       });
       matchups = (data as List? ?? [])
           .map((j) => MatchupModel.fromJson(j))

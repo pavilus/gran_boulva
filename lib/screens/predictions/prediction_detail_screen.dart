@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
@@ -118,6 +119,15 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
     }
   }
 
+  void _share() {
+    final p = _prediction;
+    if (p == null) return;
+    final text = '🔮 ${p.titleHt}\n'
+        '${p.optionA}  vs  ${p.optionB}\n'
+        '👉 granboulva.com/prediction/${p.id}';
+    Share.share(text);
+  }
+
   String _formatDeadline(PredictionModel p) {
     if (p.isClosed) return 'Fèmen';
     if (p.deadlineAt == null) return 'Aktif';
@@ -147,6 +157,15 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
               fontFamily: 'Poppins'),
         ),
         centerTitle: true,
+        actions: [
+          if (_prediction != null)
+            IconButton(
+              onPressed: _share,
+              icon: const Icon(Icons.ios_share_rounded,
+                  color: AppColors.textSecondary, size: 20),
+              tooltip: 'Pataje',
+            ),
+        ],
       ),
       body: _loading
           ? const Center(

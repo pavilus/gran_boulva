@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final results = await Future.wait([
         _matchupService.getCategories(),
-        _matchupService.getHomeFeed(),
+        _matchupService.getHomeFeed(popular: true), // default tab is Popilè
         _userService.getTopVoices(limit: 8),
         PredictionService().getPredictions(),
         PredictionService().getTopPredictors(limit: 8),
@@ -154,11 +154,11 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {}
   }
 
-  Future<void> _onCategoryTap(String? categoryId) async {
+  Future<void> _onCategoryTap(String? categoryId, {bool popular = false}) async {
     setState(() => _loading = true);
     try {
-      final matchups =
-          await _matchupService.getHomeFeed(categoryId: categoryId);
+      final matchups = await _matchupService.getHomeFeed(
+          categoryId: categoryId, popular: popular);
       if (!mounted) return;
       setState(() {
         _allMatchups = matchups;
@@ -174,7 +174,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_homeTab == 0) {
       // ── Matchups tab: fetch from API ───────────────────────────────────────
       setState(() => _activeCategoryLabel = label);
-      if (label == 'Popilè' || label == 'Tout') {
+      if (label == 'Popilè') {
+        _onCategoryTap(null, popular: true);
+        return;
+      }
+      if (label == 'Tout') {
         _onCategoryTap(null);
         return;
       }
