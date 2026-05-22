@@ -371,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       clipBehavior: Clip.none,
                       children: [
                         Image.asset(
-                          'assets/images/notification_unifilled.png',
+                          'assets/images/notification_filled.png',
                           width: 28,
                           height: 28,
                           fit: BoxFit.contain,
@@ -482,11 +482,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 tooltip: 'Clear search',
               )
             else
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: Image.asset('assets/images/filter.png',
-                    width: 22, height: 22, fit: BoxFit.contain),
-              ),
+              const SizedBox.shrink(),
           ],
         ),
       ),

@@ -1419,30 +1419,47 @@ class EquippedCosmetics {
   final String? profileFrameId;
   final String? profileFrameKey;
   final String? usernameEffectId;
+  final String? usernameEffectKey;
   final String? profileThemeId;
+  final String? profileThemeKey;
   final String? cosmeticBadgeId;
+  final String? cosmeticBadgeKey;
 
   const EquippedCosmetics({
     this.profileFrameId,
     this.profileFrameKey,
     this.usernameEffectId,
+    this.usernameEffectKey,
     this.profileThemeId,
+    this.profileThemeKey,
     this.cosmeticBadgeId,
+    this.cosmeticBadgeKey,
   });
 
-  // ignore: avoid_unused_constructor_parameters
   const EquippedCosmetics.empty()
       : profileFrameId = null,
         profileFrameKey = null,
         usernameEffectId = null,
+        usernameEffectKey = null,
         profileThemeId = null,
-        cosmeticBadgeId = null;
+        profileThemeKey = null,
+        cosmeticBadgeId = null,
+        cosmeticBadgeKey = null;
 
   factory EquippedCosmetics.fromJson(Map<String, dynamic> j) => EquippedCosmetics(
         profileFrameId: j['profile_frame_id'] as String?,
         profileFrameKey: j['profile_frame_key'] as String?,
         usernameEffectId: j['username_effect_id'] as String?,
+        usernameEffectKey: j['username_effect_key'] as String?,
         profileThemeId: j['profile_theme_id'] as String?,
+        profileThemeKey: j['profile_theme_key'] as String?,
         cosmeticBadgeId: j['cosmetic_badge_id'] as String?,
+        cosmeticBadgeKey: j['cosmetic_badge_key'] as String?,
       );
+
+  bool get hasAny =>
+      profileFrameKey != null ||
+      usernameEffectKey != null ||
+      profileThemeKey != null ||
+      cosmeticBadgeKey != null;
 }

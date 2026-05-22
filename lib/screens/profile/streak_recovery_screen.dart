@@ -204,24 +204,13 @@ class _StreakRecoveryScreenState extends State<StreakRecoveryScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1a0038), Color(0xFF2e0060)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.purple.withValues(alpha: 0.4)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.purple.withValues(alpha: 0.25),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
-          const Text('🔥', style: TextStyle(fontSize: 64)),
+          Image.asset('assets/images/fire.png', width: 72, height: 72),
           const SizedBox(height: 12),
           Text(
             '$streak jou',
@@ -233,10 +222,10 @@ class _StreakRecoveryScreenState extends State<StreakRecoveryScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
+          const Text(
             'Streak aktyèl ou',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
+              color: AppColors.textSecondary,
               fontSize: 14,
               fontFamily: 'Poppins',
             ),
@@ -245,8 +234,9 @@ class _StreakRecoveryScreenState extends State<StreakRecoveryScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: AppColors.purple.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.purple.withValues(alpha: 0.25)),
             ),
             child: Text(
               '🏆 Pi long streak: $longest jou',

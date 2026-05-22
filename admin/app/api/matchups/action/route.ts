@@ -36,6 +36,33 @@ export async function POST(req: Request) {
   const { id } = body;
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
+  if (action === "update") {
+    const { title_ht, title_en, description_ht, category_id, status, expires_at, option_a_name, option_b_name } = body;
+    if (!title_ht) return NextResponse.json({ error: "title_ht required" }, { status: 400 });
+
+    const { error: mErr } = await supabase.from("matchups").update({
+      title_ht,
+      title_en: title_en || null,
+      description_ht: description_ht || null,
+      category_id: category_id || null,
+      status: status || undefined,
+      expires_at: expires_at || null,
+    }).eq("id", id);
+    if (mErr) return NextResponse.json({ error: mErr.message }, { status: 500 });
+
+    // Update option names if provided
+    if (option_a_name) {
+      await supabase.from("matchup_options").update({ option_name: option_a_name })
+        .eq("matchup_id", id).eq("option_label", "A");
+    }
+    if (option_b_name) {
+      await supabase.from("matchup_options").update({ option_name: option_b_name })
+        .eq("matchup_id", id).eq("option_label", "B");
+    }
+
+    return NextResponse.json({ ok: true });
+  }
+
   if (action === "publish") {
     const { error } = await supabase.from("matchups").update({ status: "published", published_at: new Date().toISOString() }).eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
-import '../../widgets/common/user_avatar.dart';
 import '../../widgets/common/verification_badge.dart';
+import '../../widgets/cosmetics/cosmetic_avatar.dart';
+import '../../widgets/cosmetics/cosmetic_username.dart';
 
 class PublicProfileScreen extends StatefulWidget {
   final String username;
@@ -18,7 +18,10 @@ class PublicProfileScreen extends StatefulWidget {
 }
 
 class _PublicProfileScreenState extends State<PublicProfileScreen> {
+  final _cosmeticsService = CosmeticsService();
+
   UserModel? _profile;
+  EquippedCosmetics _equipped = const EquippedCosmetics.empty();
   bool _isOwnProfile = false;
   bool _loading = true;
   bool _isFollowing = false;
@@ -38,15 +41,22 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
       if (profile != null) {
         final currentUser = await UserService().getProfile();
         final isOwnProfile = currentUser?.id == profile.id;
-        final following =
-            isOwnProfile ? false : await UserService().isFollowing(profile.id);
-        final args = await _loadRecentArguments(profile.id);
+        final results = await Future.wait([
+          isOwnProfile
+              ? Future<bool>.value(false)
+              : UserService().isFollowing(profile.id),
+          _loadRecentArguments(profile.id),
+          _cosmeticsService
+              .getEquippedCosmetics(profile.id)
+              .then((e) => e ?? const EquippedCosmetics.empty()),
+        ]);
         if (mounted) {
           setState(() {
             _profile = profile;
             _isOwnProfile = isOwnProfile;
-            _isFollowing = following;
-            _recentArguments = args;
+            _isFollowing = results[0] as bool;
+            _recentArguments = results[1] as List<Map<String, dynamic>>;
+            _equipped = results[2] as EquippedCosmetics;
             _loading = false;
           });
         }
@@ -317,41 +327,28 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
       child: Column(
         children: [
           // Avatar
-          Container(
-            width: 80,
-            height: 80,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF6F2BFF), Color(0xFFFF2DAA)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(3),
-              child: CircleAvatar(
-                radius: 37,
-                backgroundColor: AppColors.bg1,
-                backgroundImage: p.avatarUrl != null
-                    ? CachedNetworkImageProvider(p.avatarUrl!)
-                    : UserAvatar.defaultImageProvider(p.gender),
-              ),
-            ),
+          CosmeticAvatar(
+            avatarUrl: p.avatarUrl,
+            gender: p.gender,
+            frameKey: _equipped.profileFrameKey,
+            size: 80,
+            ringWidth: 3,
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
-                child: Text(
-                  p.fullName,
+                child: CosmeticUsername(
+                  name: p.fullName,
+                  effectKey: _equipped.usernameEffectKey,
+                  badgeKey: _equipped.cosmeticBadgeKey,
                   style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Poppins'),
-                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
               const SizedBox(width: 6),
@@ -359,8 +356,9 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
             ],
           ),
           const SizedBox(height: 2),
-          Text(
-            '@${p.username}',
+          CosmeticHandle(
+            handle: '@${p.username}',
+            effectKey: _equipped.usernameEffectKey,
             style: const TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 14,

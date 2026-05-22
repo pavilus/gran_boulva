@@ -416,13 +416,14 @@ class _MenuScreenState extends State<MenuScreen> {
           subtitle: 'Dekouvri ak kolekte badj ou yo',
           onTap: () => context.push('/badges'),
         ),
-        _MenuItemData(
-          icon: Icons.auto_awesome_rounded,
-          color: AppColors.pink,
-          title: 'Boutik Kosmetik',
-          subtitle: 'Kadè pwofil, efè non ak plis',
-          onTap: () => context.push('/cosmetics'),
-        ),
+        // TODO: Uncomment when Kosmetik is ready to launch
+        // _MenuItemData(
+        //   icon: Icons.auto_awesome_rounded,
+        //   color: AppColors.pink,
+        //   title: 'Boutik Kosmetik',
+        //   subtitle: 'Kadè pwofil, efè non ak plis',
+        //   onTap: () => context.push('/cosmetics'),
+        // ),
       ];
 
   List<_MenuItemData> _preferencesItems() {
@@ -562,23 +563,18 @@ class _MenuItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(children: [
           // Icon box — custom image or Material icon
-          ClipRRect(
-            borderRadius: BorderRadius.circular(11),
-            child: SizedBox(
-              width: 38,
-              height: 38,
-              child: data.imagePath != null
-                  ? Image.asset(
-                      data.imagePath!,
-                      fit: BoxFit.cover,
-                      color: data.color,
-                      colorBlendMode: BlendMode.srcIn,
-                    )
-                  : Container(
+          SizedBox(
+            width: 38,
+            height: 38,
+            child: data.imagePath != null
+                ? Image.asset(data.imagePath!, fit: BoxFit.contain)
+                : Container(
+                    decoration: BoxDecoration(
                       color: data.color.withValues(alpha: 0.14),
-                      child: Icon(data.icon, color: data.color, size: 22),
+                      borderRadius: BorderRadius.circular(11),
                     ),
-            ),
+                    child: Icon(data.icon, color: data.color, size: 22),
+                  ),
           ),
           const SizedBox(width: 14),
           Expanded(

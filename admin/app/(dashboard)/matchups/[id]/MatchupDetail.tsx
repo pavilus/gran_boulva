@@ -1,11 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line, Cell,
 } from "recharts";
-import { MessageSquare, RefreshCw, TrendingUp, Users } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, MessageSquare, RefreshCw, Save, TrendingUp, Users } from "lucide-react";
 import MatchupImageGenerator from "./MatchupImageGenerator";
+import { createClient } from "@/lib/supabase/client";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -372,6 +374,154 @@ function VoterList({ votes, options }: { votes: Vote[]; options: Option[] }) {
   );
 }
 
+// ─── Edit Panel ───────────────────────────────────────────────────────────────
+
+const inputStyle: React.CSSProperties = {
+  width: "100%", background: "#080916", border: "1px solid #1e2040",
+  borderRadius: 8, color: "#D4D4D4", fontSize: 13, padding: "8px 12px", outline: "none",
+};
+
+type Category = { id: string; name_ht: string };
+
+function EditMatchupPanel({ matchup }: { matchup: Matchup }) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  const options = matchup.options ?? [];
+  const optA = options.find((o) => o.option_label === "A");
+  const optB = options.find((o) => o.option_label === "B");
+  const categoryId = (matchup as any).category_id ?? "";
+
+  const [form, setForm] = useState({
+    title_ht: matchup.title_ht ?? "",
+    title_en: matchup.title_en ?? "",
+    description_ht: matchup.description_ht ?? "",
+    category_id: categoryId,
+    status: matchup.status ?? "draft",
+    expires_at: matchup.expires_at ? matchup.expires_at.slice(0, 16) : "",
+    option_a_name: optA?.option_name ?? "",
+    option_b_name: optB?.option_name ?? "",
+  });
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from("categories").select("id, name_ht").order("name_ht")
+      .then(({ data }) => { if (data) setCategories(data); });
+  }, []);
+
+  const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  async function save() {
+    setSaving(true);
+    setError("");
+    setSuccess(false);
+    try {
+      const res = await fetch("/api/matchups/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update", id: matchup.id, ...form }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Erè");
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erè");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+      {/* Toggle header */}
+      <button
+        className="w-full flex items-center justify-between px-5 py-4 text-left"
+        onClick={() => setOpen((p) => !p)}
+      >
+        <span className="text-sm font-semibold" style={{ color: "#D4D4D4" }}>Edite Matchup</span>
+        {open ? <ChevronUp size={16} style={{ color: "#475569" }} /> : <ChevronDown size={16} style={{ color: "#475569" }} />}
+      </button>
+
+      {open && (
+        <div className="px-5 pb-5 space-y-4" style={{ borderTop: "1px solid #1e2040" }}>
+          <div className="pt-4 grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
+            {/* Title HT */}
+            <div className="col-span-2">
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#94a3b8" }}>Tit (Kreyòl) *</label>
+              <input style={inputStyle} value={form.title_ht} onChange={(e) => set("title_ht", e.target.value)} />
+            </div>
+            {/* Title EN */}
+            <div className="col-span-2">
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#94a3b8" }}>Title (English)</label>
+              <input style={inputStyle} value={form.title_en} onChange={(e) => set("title_en", e.target.value)} />
+            </div>
+            {/* Description */}
+            <div className="col-span-2">
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#94a3b8" }}>Deskripsyon</label>
+              <textarea
+                style={{ ...inputStyle, resize: "vertical", minHeight: 72 }}
+                value={form.description_ht}
+                onChange={(e) => set("description_ht", e.target.value)}
+              />
+            </div>
+            {/* Category */}
+            <div>
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#94a3b8" }}>Kategori</label>
+              <select style={{ ...inputStyle, appearance: "none" as const }} value={form.category_id} onChange={(e) => set("category_id", e.target.value)}>
+                <option value="">— chwazi —</option>
+                {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ht}</option>)}
+              </select>
+            </div>
+            {/* Status */}
+            <div>
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#94a3b8" }}>Estati</label>
+              <select style={{ ...inputStyle, appearance: "none" as const }} value={form.status} onChange={(e) => set("status", e.target.value)}>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="closed">Closed</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+            {/* Expires at */}
+            <div>
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#94a3b8" }}>Ekspire</label>
+              <input type="datetime-local" style={inputStyle} value={form.expires_at} onChange={(e) => set("expires_at", e.target.value)} />
+            </div>
+            {/* Option A name */}
+            <div>
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#a78bfa" }}>Opsyon A — Non</label>
+              <input style={{ ...inputStyle, borderColor: "#3d2a6e" }} value={form.option_a_name} onChange={(e) => set("option_a_name", e.target.value)} />
+            </div>
+            {/* Option B name */}
+            <div>
+              <label className="text-xs font-semibold mb-1 block" style={{ color: "#ec4899" }}>Opsyon B — Non</label>
+              <input style={{ ...inputStyle, borderColor: "#6b1d3e" }} value={form.option_b_name} onChange={(e) => set("option_b_name", e.target.value)} />
+            </div>
+          </div>
+
+          {/* Feedback */}
+          {error && <p className="text-xs rounded-lg px-3 py-2" style={{ color: "#fca5a5", background: "rgba(239,68,68,.1)" }}>{error}</p>}
+          {success && <p className="text-xs rounded-lg px-3 py-2" style={{ color: "#86efac", background: "rgba(34,197,94,.1)" }}>✓ Chanjman yo sovgade</p>}
+
+          <button
+            onClick={save}
+            disabled={saving || !form.title_ht.trim()}
+            className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-xs font-semibold disabled:opacity-50"
+            style={{ background: "linear-gradient(90deg,#7c3aed,#ec4899)", color: "#fff" }}
+          >
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            {saving ? "Ap sovgade…" : "Sovgade chanjman"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function MatchupDetail({ matchup, votes, args }: { matchup: Matchup; votes: Vote[]; args: Arg[] }) {
@@ -385,6 +535,9 @@ export default function MatchupDetail({ matchup, votes, args }: { matchup: Match
 
   return (
     <div className="space-y-5">
+      {/* Edit panel */}
+      <EditMatchupPanel matchup={matchup} />
+
       {/* Header card */}
       <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
         <div className="flex items-start justify-between gap-4">

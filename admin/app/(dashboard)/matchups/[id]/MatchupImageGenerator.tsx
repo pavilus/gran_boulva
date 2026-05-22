@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { Download, ImagePlus, Loader2, Share2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { Download, ImagePlus, Loader2, Upload } from "lucide-react";
 
-type GeneratedSet = {
-  option_a_image_url: string;
-  option_b_image_url: string;
-  poster_image_url: string;
-  share_image_url: string;
-};
+type Slot = "option_a" | "option_b" | "poster" | "share";
+
+interface ImageState {
+  option_a: string;
+  option_b: string;
+  poster: string;
+  share: string;
+}
 
 export default function MatchupImageGenerator({
   matchupId,
@@ -23,267 +25,218 @@ export default function MatchupImageGenerator({
   initialOptionA?: string | null;
   initialOptionB?: string | null;
 }) {
-  const [images, setImages] = useState<GeneratedSet>({
-    option_a_image_url: initialOptionA ?? "",
-    option_b_image_url: initialOptionB ?? "",
-    poster_image_url: initialPoster ?? "",
-    share_image_url: initialShare ?? "",
+  const [images, setImages] = useState<ImageState>({
+    option_a: initialOptionA ?? "",
+    option_b: initialOptionB ?? "",
+    poster: initialPoster ?? "",
+    share: initialShare ?? "",
   });
   const [generating, setGenerating] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [posterFile, setPosterFile] = useState<File | null>(null);
-  const [shareFile, setShareFile] = useState<File | null>(null);
-  const [error, setError] = useState("");
+  const [uploading, setUploading] = useState<Partial<Record<Slot, boolean>>>({});
+  const [genError, setGenError] = useState("");
+  const [slotErrors, setSlotErrors] = useState<Partial<Record<Slot, string>>>({});
 
+  // ── AI generation (A + B + composite attempt) ──────────────────────────────
   async function generate() {
     setGenerating(true);
-    setError("");
+    setGenError("");
     try {
-      const response = await fetch("/api/matchups/images/generate", {
+      const res = await fetch("/api/matchups/images/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ matchup_id: matchupId }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Jenerasyon echwe");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Jenerasyon echwe");
       setImages({
-        option_a_image_url: data.option_a_image_url,
-        option_b_image_url: data.option_b_image_url,
-        poster_image_url: data.poster_image_url,
-        share_image_url: data.share_image_url,
+        option_a: data.option_a_image_url ?? images.option_a,
+        option_b: data.option_b_image_url ?? images.option_b,
+        poster:   data.poster_image_url   ?? images.poster,
+        share:    data.share_image_url    ?? images.share,
       });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Jenerasyon echwe");
+    } catch (e) {
+      setGenError(e instanceof Error ? e.message : "Jenerasyon echwe");
     } finally {
       setGenerating(false);
     }
   }
 
-  async function uploadManualImages() {
-    if (!posterFile || !shareFile) return;
-    setUploading(true);
-    setError("");
+  // ── Individual slot upload ─────────────────────────────────────────────────
+  async function uploadSlot(slot: Slot, file: File) {
+    setUploading((p) => ({ ...p, [slot]: true }));
+    setSlotErrors((p) => ({ ...p, [slot]: "" }));
     try {
-      const payload = new FormData();
-      payload.append("matchup_id", matchupId);
-      payload.append("poster", posterFile);
-      payload.append("share", shareFile);
-      const response = await fetch("/api/matchups/images/upload", {
-        method: "POST",
-        body: payload,
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Upload echwe");
-      setImages({
-        option_a_image_url: data.option_a_image_url,
-        option_b_image_url: data.option_b_image_url,
-        poster_image_url: data.poster_image_url,
-        share_image_url: data.share_image_url,
-      });
-      setPosterFile(null);
-      setShareFile(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload echwe");
+      const fd = new FormData();
+      fd.append("matchup_id", matchupId);
+      fd.append("slot", slot);
+      fd.append("image", file);
+      const res = await fetch("/api/matchups/images/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Upload echwe");
+      setImages((p) => ({ ...p, [slot]: data.url }));
+    } catch (e) {
+      setSlotErrors((p) => ({ ...p, [slot]: e instanceof Error ? e.message : "Erè" }));
     } finally {
-      setUploading(false);
+      setUploading((p) => ({ ...p, [slot]: false }));
     }
   }
 
   return (
-    <section
-      className="rounded-xl p-5"
-      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
-    >
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+    <section className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+      {/* Header */}
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-white">Imaj Matchup</h2>
-          <p className="mt-1 max-w-2xl text-xs leading-relaxed" style={{ color: "#64748b" }}>
-            Kreye de imaj kat la ak yon composite maketing/share. Composite la
-            antre nan galri admin lan epi paj share la itilize vèsyon OG li.
+          <h2 className="text-sm font-semibold" style={{ color: "#D4D4D4" }}>Imaj Matchup</h2>
+          <p className="mt-1 text-xs leading-relaxed" style={{ color: "#64748b" }}>
+            IA jenere Opsyon A & B. Upload Poster ak Share manyèlman (Canva, etc.).
           </p>
         </div>
         <button
           onClick={generate}
           disabled={generating}
           className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold disabled:opacity-60"
-          style={{
-            color: "#ffffff",
-            background: "linear-gradient(90deg,#7c3aed,#ec4899)",
-          }}
+          style={{ color: "#ffffff", background: "linear-gradient(90deg,#7c3aed,#ec4899)" }}
         >
-          {generating ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <ImagePlus size={14} />
-          )}
-          {generating ? "Ap jenere..." : images.poster_image_url ? "Rejenere" : "Jenere imaj"}
+          {generating ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />}
+          {generating ? "Ap jenere…" : "Jenere ak IA"}
         </button>
       </div>
 
-      {error && (
-        <div
-          className="mb-4 rounded-lg px-3 py-2 text-xs"
-          style={{ color: "#fca5a5", background: "rgba(239,68,68,.1)" }}
-        >
-          {error}
+      {genError && (
+        <div className="mb-4 rounded-lg px-3 py-2 text-xs" style={{ color: "#fca5a5", background: "rgba(239,68,68,.1)" }}>
+          {genError}
         </div>
       )}
 
-      <div className="grid gap-3" style={{ gridTemplateColumns: "1fr 1fr minmax(180px,.8fr)" }}>
-        <Preview label="Opsyon A" src={images.option_a_image_url} ratio="4 / 5" />
-        <Preview label="Opsyon B" src={images.option_b_image_url} ratio="4 / 5" />
-        <Preview label="Composite" src={images.poster_image_url} ratio="4 / 5" />
+      {/* 4 image zones */}
+      <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr 1fr 1fr" }}>
+        <SlotZone
+          slot="option_a" label="Opsyon A" hint="Jenere oswa upload" aspect="4 / 5"
+          url={images.option_a} uploading={!!uploading.option_a} error={slotErrors.option_a ?? ""}
+          onFile={(f) => uploadSlot("option_a", f)}
+        />
+        <SlotZone
+          slot="option_b" label="Opsyon B" hint="Jenere oswa upload" aspect="4 / 5"
+          url={images.option_b} uploading={!!uploading.option_b} error={slotErrors.option_b ?? ""}
+          onFile={(f) => uploadSlot("option_b", f)}
+        />
+        <SlotZone
+          slot="poster" label="Poster 4:5" hint="1080 × 1350 px — upload manyèl" aspect="4 / 5"
+          url={images.poster} uploading={!!uploading.poster} error={slotErrors.poster ?? ""}
+          onFile={(f) => uploadSlot("poster", f)}
+        />
+        <SlotZone
+          slot="share" label="Share OG" hint="1200 × 630 px — upload manyèl" aspect="1200 / 630"
+          url={images.share} uploading={!!uploading.share} error={slotErrors.share ?? ""}
+          onFile={(f) => uploadSlot("share", f)}
+        />
       </div>
 
-      {(images.option_a_image_url || images.option_b_image_url || images.poster_image_url) && (
+      {/* Download links */}
+      {(images.option_a || images.option_b || images.poster || images.share) && (
         <div className="mt-4 flex flex-wrap gap-2">
-          {images.option_a_image_url && (
-            <DownloadLink href={images.option_a_image_url} label="Opsyon A" />
+          {(["option_a", "option_b", "poster", "share"] as Slot[]).map((s) =>
+            images[s] ? (
+              <a
+                key={s}
+                href={images[s]}
+                download
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+                style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+              >
+                <Download size={12} />
+                {{ option_a: "Opsyon A", option_b: "Opsyon B", poster: "Poster", share: "Share" }[s]}
+              </a>
+            ) : null
           )}
-          {images.option_b_image_url && (
-            <DownloadLink href={images.option_b_image_url} label="Opsyon B" />
-          )}
-          {images.poster_image_url && (
-            <a
-              href={images.poster_image_url}
-              download
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-              style={{ color: "#D4D4D4", border: "1px solid #3a2669" }}
-            >
-              <Download size={13} />
-              Poster 4:5
-            </a>
-          )}
-          {images.share_image_url && (
-            <a
-              href={images.share_image_url}
-              download
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-              style={{ color: "#a78bfa", border: "1px solid #31205b" }}
-            >
-              <Share2 size={13} />
-              Preview share
-            </a>
-          )}
-          <a
-            href="/matchup-images"
-            className="rounded-lg px-3 py-1.5 text-xs font-semibold"
-            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
-          >
+          <a href="/matchup-images" className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+            style={{ color: "#475569", border: "1px solid #1e2040" }}>
             Louvri galri
           </a>
         </div>
       )}
-
-      <div
-        className="mt-4 rounded-xl p-4"
-        style={{ background: "#080916", border: "1px solid #1e2040" }}
-      >
-        <div className="mb-3">
-          <h3 className="text-xs font-semibold text-white">Upload Canva</h3>
-          <p className="mt-1 text-xs leading-relaxed" style={{ color: "#64748b" }}>
-            Telechaje opsyon A/B, fini poster la nan Canva, epi remete poster PNG
-            1080 x 1350 ak share PNG 1200 x 630 la isit la.
-          </p>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <UploadField
-            label="Poster 4:5"
-            value={posterFile}
-            onChange={setPosterFile}
-          />
-          <UploadField
-            label="Share OG"
-            value={shareFile}
-            onChange={setShareFile}
-          />
-        </div>
-        <button
-          onClick={uploadManualImages}
-          disabled={uploading || !posterFile || !shareFile}
-          className="mt-3 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold disabled:opacity-50"
-          style={{ color: "#ffffff", border: "1px solid #3a2669" }}
-        >
-          {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-          {uploading ? "Ap upload..." : "Upload poster ak share"}
-        </button>
-      </div>
     </section>
   );
 }
 
-function DownloadLink({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-      download
-      className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-      style={{ color: "#c4b5fd", border: "1px solid #31205b" }}
-    >
-      <Download size={13} />
-      {label}
-    </a>
-  );
-}
+// ── Individual slot upload zone ────────────────────────────────────────────────
 
-function UploadField({
-  label,
-  value,
-  onChange,
+function SlotZone({
+  label, hint, aspect, url, uploading, error, onFile,
 }: {
+  slot: Slot;
   label: string;
-  value: File | null;
-  onChange: (file: File | null) => void;
+  hint: string;
+  aspect: string;
+  url: string;
+  uploading: boolean;
+  error: string;
+  onFile: (file: File) => void;
 }) {
-  return (
-    <label
-      className="block rounded-lg px-3 py-2 text-xs"
-      style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
-    >
-      <span className="mb-1 block font-semibold text-white">{label}</span>
-      <input
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        onChange={(event) => onChange(event.currentTarget.files?.[0] ?? null)}
-        className="block w-full text-xs"
-      />
-      <span className="mt-1 block truncate" style={{ color: "#64748b" }}>
-        {value?.name ?? "PNG, JPEG, oswa WebP"}
-      </span>
-    </label>
-  );
-}
+  const ref = useRef<HTMLInputElement>(null);
 
-function Preview({
-  label,
-  src,
-  ratio,
-}: {
-  label: string;
-  src: string;
-  ratio: string;
-}) {
   return (
     <div>
-      <div className="mb-1 text-xs font-semibold" style={{ color: "#94a3b8" }}>
-        {label}
-      </div>
-      <div
-        className="flex items-center justify-center overflow-hidden rounded-xl text-xs"
-        style={{
-          aspectRatio: ratio,
-          color: "#475569",
-          background: "#080916",
-          border: "1px solid #1e2040",
-        }}
-      >
-        {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={src} alt={label} className="h-full w-full object-cover" />
-        ) : (
-          "Poko gen imaj"
+      {/* Label + download */}
+      <div className="mb-1 flex items-center justify-between">
+        <span className="text-xs font-semibold" style={{ color: "#94a3b8" }}>{label}</span>
+        {url && (
+          <a href={url} download className="text-xs" style={{ color: "#475569" }}>
+            <Download size={11} />
+          </a>
         )}
       </div>
+
+      {/* Zone */}
+      <div
+        className="group relative overflow-hidden rounded-xl"
+        style={{
+          aspectRatio: aspect,
+          background: "#080916",
+          border: `1px dashed ${error ? "#ef4444" : "#1e2040"}`,
+          cursor: "pointer",
+        }}
+        onClick={() => ref.current?.click()}
+      >
+        <input
+          ref={ref}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.currentTarget.files?.[0];
+            if (f) onFile(f);
+            e.currentTarget.value = "";
+          }}
+        />
+
+        {/* Current image */}
+        {url && !uploading && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={label} className="h-full w-full object-cover" />
+        )}
+
+        {/* Overlay: spinner while uploading, upload icon on hover or when empty */}
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 transition-opacity"
+          style={{ background: url ? "rgba(0,0,0,0.6)" : "transparent", opacity: uploading || !url ? 1 : 0 }}
+        >
+          <style>{`.group:hover > div { opacity: 1 !important; }`}</style>
+          {uploading ? (
+            <Loader2 size={20} className="animate-spin" style={{ color: "#a78bfa" }} />
+          ) : (
+            <>
+              <Upload size={15} style={{ color: url ? "#D4D4D4" : "#475569" }} />
+              <span className="text-xs" style={{ color: url ? "#D4D4D4" : "#64748b" }}>
+                {url ? "Chanje" : "Upload"}
+              </span>
+              <span style={{ color: "#475569", fontSize: 10 }}>{hint}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {error && <p className="mt-1 text-xs" style={{ color: "#fca5a5" }}>{error}</p>}
     </div>
   );
 }

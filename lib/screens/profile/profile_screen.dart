@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,8 +7,9 @@ import 'package:image_picker/image_picker.dart';
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
-import '../../widgets/common/user_avatar.dart';
 import '../../widgets/common/verification_badge.dart';
+import '../../widgets/cosmetics/cosmetic_avatar.dart';
+import '../../widgets/cosmetics/cosmetic_username.dart';
 import 'avatar_crop_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -23,10 +23,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _userService = UserService();
   final _badgeService = BadgeService();
   final _notificationService = NotificationService();
+  final _cosmeticsService = CosmeticsService();
   final _picker = ImagePicker();
 
   UserModel? _user;
   List<BadgeProgressModel> _badges = [];
+  EquippedCosmetics _equipped = const EquippedCosmetics.empty();
   int _unreadNotifications = 0;
   int _totalVotes = 0;
   bool _loading = true;
@@ -46,6 +48,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _badgeService.getUserBadges(),
         _notificationService.getUnreadCount(),
         if (user == null) Future<int>.value(0) else _countVotes(user.id),
+        if (user == null)
+          Future<EquippedCosmetics>.value(const EquippedCosmetics.empty())
+        else
+          _cosmeticsService.getEquippedCosmetics(user.id).then(
+                (e) => e ?? const EquippedCosmetics.empty(),
+              ),
       ]);
       if (!mounted) return;
       setState(() {
@@ -53,6 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _badges = results[0] as List<BadgeProgressModel>;
         _unreadNotifications = results[1] as int;
         _totalVotes = results[2] as int;
+        _equipped = results[3] as EquippedCosmetics;
         _loading = false;
       });
     } catch (_) {
@@ -324,34 +333,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Container(
-                width: 99,
-                height: 99,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: AppColors.primaryGradient,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.purpleLight.withValues(alpha: 0.55),
-                      blurRadius: 18,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(3),
-                child: _uploadingAvatar
-                    ? const CircleAvatar(
+              _uploadingAvatar
+                  ? Container(
+                      width: 99,
+                      height: 99,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: AppColors.primaryGradient,
+                      ),
+                      padding: const EdgeInsets.all(3),
+                      child: const CircleAvatar(
                         backgroundColor: AppColors.purpleDim,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
-                      )
-                    : CircleAvatar(
-                        backgroundColor: AppColors.bg1,
-                        backgroundImage: user.avatarUrl != null
-                            ? CachedNetworkImageProvider(user.avatarUrl!)
-                            : UserAvatar.defaultImageProvider(user.gender),
                       ),
-              ),
+                    )
+                  : CosmeticAvatar(
+                      avatarUrl: user.avatarUrl,
+                      gender: user.gender,
+                      frameKey: _equipped.profileFrameKey,
+                      size: 99,
+                      ringWidth: 3,
+                    ),
               Positioned(
                 bottom: 2,
                 right: 2,
@@ -360,6 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 27,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
+                    color: AppColors.bg1,
                     border: Border.all(color: AppColors.purpleLight, width: 1),
                   ),
                   child: const Icon(Icons.edit_square,
@@ -377,8 +381,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 children: [
                   Flexible(
-                    child: Text(
-                      user.fullName.isEmpty ? user.username : user.fullName,
+                    child: CosmeticUsername(
+                      name: user.fullName.isEmpty ? user.username : user.fullName,
+                      effectKey: _equipped.usernameEffectKey,
+                      badgeKey: _equipped.cosmeticBadgeKey,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 23,
@@ -386,7 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Poppins',
                       ),
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ),
                   const SizedBox(width: 7),
@@ -394,14 +400,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               const SizedBox(height: 6),
-              Text(
-                '@${user.username}',
+              CosmeticHandle(
+                handle: '@${user.username}',
+                effectKey: _equipped.usernameEffectKey,
                 style: const TextStyle(
                   color: Color(0xFFC7B7F4),
                   fontSize: 14.5,
                   fontFamily: 'Poppins',
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 7),
               Text(
@@ -576,20 +582,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: BoxDecoration(
+          color: AppColors.card,
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1a0038), Color(0xFF2e0060)],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          border: Border.all(
-              color: AppColors.purpleLight.withValues(alpha: 0.35)),
+          border: Border.all(color: AppColors.border),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Text('🔥', style: TextStyle(fontSize: 24)),
-            SizedBox(width: 12),
-            Expanded(
+            Image.asset('assets/images/fire.png', width: 28, height: 28),
+            const SizedBox(width: 12),
+            const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -604,7 +605,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   SizedBox(height: 2),
                   Text(
-                    'Wè streak ou ak opsyon retablisman',
+                    'Gade konbyen jou ou fè san kanpe ak opsyon retablisman.',
                     style: TextStyle(
                         color: Color(0xFFBDB3DD), fontSize: 12,
                         fontFamily: 'Poppins'),
@@ -612,7 +613,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: AppColors.purpleLight, size: 20),
+            const Icon(Icons.chevron_right, color: AppColors.purpleLight, size: 20),
           ],
         ),
       ),
@@ -1084,7 +1085,7 @@ class _NotificationButton extends StatelessWidget {
             width: 44,
             height: 44,
             child: Image(
-              image: AssetImage('assets/images/notification_unifilled.png'),
+              image: AssetImage('assets/images/notification_filled.png'),
               width: 39,
               height: 39,
               fit: BoxFit.contain,

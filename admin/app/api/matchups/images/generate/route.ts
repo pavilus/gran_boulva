@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import {
   generateOptionImages,
   matchupImageModel,
-  renderCompositeImages,
   type ImageGeneratorMatchup,
 } from "@/lib/matchup-images";
 
@@ -65,72 +64,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Generate only Option A and B images — composite is added manually
     const generated = await generateOptionImages(matchup, session.access_token);
-    const composites = await renderCompositeImages({
-      matchup,
-      optionA: generated.optionA,
-      optionB: generated.optionB,
-      imageA: generated.imageA,
-      imageB: generated.imageB,
-    });
 
-    const [optionAImageUrl, optionBImageUrl, posterImageUrl, shareImageUrl] =
-      await Promise.all([
-        uploadImage(supabase, "generated/options", generated.imageA),
-        uploadImage(supabase, "generated/options", generated.imageB),
-        uploadImage(supabase, "generated/posters", composites.posterImage),
-        uploadImage(supabase, "generated/share", composites.shareImage),
-      ]);
+    const [optionAImageUrl, optionBImageUrl] = await Promise.all([
+      uploadImage(supabase, "generated/options", generated.imageA),
+      uploadImage(supabase, "generated/options", generated.imageB),
+    ]);
 
-    const [{ error: optionAError }, { error: optionBError }] =
-      await Promise.all([
-        supabase
-          .from("matchup_options")
-          .update({ image_url: optionAImageUrl })
-          .eq("id", generated.optionA.id),
-        supabase
-          .from("matchup_options")
-          .update({ image_url: optionBImageUrl })
-          .eq("id", generated.optionB.id),
-      ]);
+    const [{ error: optionAError }, { error: optionBError }] = await Promise.all([
+      supabase.from("matchup_options").update({ image_url: optionAImageUrl }).eq("id", generated.optionA.id),
+      supabase.from("matchup_options").update({ image_url: optionBImageUrl }).eq("id", generated.optionB.id),
+    ]);
 
     if (optionAError || optionBError) {
       throw new Error(optionAError?.message ?? optionBError?.message);
     }
 
-    const { error: matchupError } = await supabase
-      .from("matchups")
-      .update({
-        poster_image_url: posterImageUrl,
-        share_image_url: shareImageUrl,
-      })
-      .eq("id", matchup.id);
-
-    if (matchupError) throw new Error(matchupError.message);
-
-    const { data: imageSet, error: imageSetError } = await supabase
-      .from("matchup_image_sets")
-      .insert({
-        matchup_id: matchup.id,
-        option_a_image_url: optionAImageUrl,
-        option_b_image_url: optionBImageUrl,
-        poster_image_url: posterImageUrl,
-        share_image_url: shareImageUrl,
-        prompt: generated.prompts.join("\n\n---\n\n"),
-        model: matchupImageModel,
-      })
-      .select()
-      .single();
-
-    if (imageSetError) throw new Error(imageSetError.message);
-
     return NextResponse.json({
       ok: true,
-      image_set: imageSet,
       option_a_image_url: optionAImageUrl,
       option_b_image_url: optionBImageUrl,
-      poster_image_url: posterImageUrl,
-      share_image_url: shareImageUrl,
+      poster_image_url: null,
+      share_image_url: null,
     });
   } catch (error) {
     console.error("matchup image generation failed", error);

@@ -257,17 +257,7 @@ class _MatchupsFeedScreenState extends State<MatchupsFeedScreen> {
                 tooltip: 'Clear search',
               )
             else
-              Container(
-                width: 36,
-                height: 36,
-                margin: const EdgeInsets.only(right: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.tune,
-                    color: AppColors.textMuted, size: 18),
-              ),
+              const SizedBox.shrink(),
           ],
         ),
       ),
