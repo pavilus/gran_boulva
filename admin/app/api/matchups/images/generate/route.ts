@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import {
   generateOptionImages,
   matchupImageModel,
@@ -55,7 +56,16 @@ export async function POST(req: NextRequest) {
     }
 
     const matchup = data as unknown as ImageGeneratorMatchup;
-    const generated = await generateOptionImages(matchup);
+    const sessionClient = await createClient();
+    const {
+      data: { session },
+    } = await sessionClient.auth.getSession();
+
+    if (!session?.access_token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const generated = await generateOptionImages(matchup, session.access_token);
     const composites = await renderCompositeImages({
       matchup,
       optionA: generated.optionA,

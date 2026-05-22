@@ -16,7 +16,6 @@ export type ImageGeneratorMatchup = {
 };
 
 const imageModel = "gpt-image-1.5";
-const optionSize = "1024x1536";
 
 function optionPrompt(matchup: ImageGeneratorMatchup, option: MatchupOption) {
   const side = option.option_label === "A" ? "left" : "right";
@@ -91,32 +90,33 @@ async function brandLogoDataUri() {
   return `data:image/png;base64,${logo.toString("base64")}`;
 }
 
-async function generatedImage(prompt: string) {
-  const openaiKey = process.env.OPENAI_API_KEY;
-  if (!openaiKey) throw new Error("OPENAI_API_KEY is not set");
-
-  const response = await fetch("https://api.openai.com/v1/images/generations", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${openaiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: imageModel,
-      prompt,
-      size: optionSize,
-      quality: "high",
-      output_format: "png",
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`OpenAI image generation failed: ${await response.text()}`);
+async function generatedImage(prompt: string, accessToken: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    throw new Error("Supabase Edge Function config is missing");
   }
 
-  const json = (await response.json()) as { data?: Array<{ b64_json?: string }> };
-  const base64 = json.data?.[0]?.b64_json;
-  if (!base64) throw new Error("OpenAI image generation returned no image");
+  const response = await fetch(
+    `${supabaseUrl}/functions/v1/generate-matchup-option-image`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        apikey: anonKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Matchup image Edge Function failed: ${await response.text()}`);
+  }
+
+  const json = (await response.json()) as { image_b64?: string };
+  const base64 = json.image_b64;
+  if (!base64) throw new Error("Matchup image Edge Function returned no image");
   return Buffer.from(base64, "base64");
 }
 
@@ -231,13 +231,18 @@ async function optionBackdrop(imageA: Buffer, imageB: Buffer, width: number, hei
     .toBuffer();
 }
 
-export async function generateOptionImages(matchup: ImageGeneratorMatchup) {
+export async function generateOptionImages(
+  matchup: ImageGeneratorMatchup,
+  accessToken: string,
+) {
   const optionA = matchup.options.find((option) => option.option_label === "A");
   const optionB = matchup.options.find((option) => option.option_label === "B");
   if (!optionA || !optionB) throw new Error("Matchup requires options A and B");
 
   const prompts = [optionPrompt(matchup, optionA), optionPrompt(matchup, optionB)];
-  const [imageA, imageB] = await Promise.all(prompts.map(generatedImage));
+  const [imageA, imageB] = await Promise.all(
+    prompts.map((prompt) => generatedImage(prompt, accessToken)),
+  );
   return { imageA, imageB, optionA, optionB, prompts };
 }
 
