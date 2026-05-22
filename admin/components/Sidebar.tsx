@@ -21,6 +21,7 @@ import {
   Settings,
   ScrollText,
   Mail,
+  Images,
   ChevronLeft,
   ChevronRight,
   Shield,
@@ -31,6 +32,7 @@ import { createClient } from "@/lib/supabase/client";
 const NAV = [
   { href: "/overview", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/matchups", icon: Swords, label: "Matchups" },
+  { href: "/matchup-images", icon: Images, label: "Galri Imaj" },
   { href: "/predictions", icon: TrendingUp, label: "Prediksyon" },
   { href: "/scout", icon: Bot, label: "AI Boulva Scout" },
   { href: "/categories", icon: Tag, label: "Kategori" },

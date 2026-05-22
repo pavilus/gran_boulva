@@ -5,6 +5,7 @@ import {
   ResponsiveContainer, LineChart, Line, Cell,
 } from "recharts";
 import { MessageSquare, RefreshCw, TrendingUp, Users } from "lucide-react";
+import MatchupImageGenerator from "./MatchupImageGenerator";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,6 +14,7 @@ type Matchup = {
   id: string; title_ht: string; title_en?: string; description_ht?: string;
   status: string; total_votes: number; engagement_score: number;
   created_at: string; published_at?: string; expires_at?: string;
+  poster_image_url?: string; share_image_url?: string;
   category?: { name_ht: string } | null;
   options?: Option[];
 };
@@ -426,6 +428,14 @@ export default function MatchupDetail({ matchup, votes, args }: { matchup: Match
         <StatPill icon={RefreshCw} label="Vòt Chanje" value={fmt(changedVotes)} color="#f59e0b" />
         <StatPill icon={TrendingUp} label="Lokasyon Diferan" value={uniqueLocations || "—"} color="#6ee7b7" />
       </div>
+
+      <MatchupImageGenerator
+        matchupId={matchup.id}
+        initialPoster={matchup.poster_image_url}
+        initialShare={matchup.share_image_url}
+        initialOptionA={options.find((option) => option.option_label === "A")?.image_url}
+        initialOptionB={options.find((option) => option.option_label === "B")?.image_url}
+      />
 
       {/* Vote split + timeline */}
       <div className="grid gap-5" style={{ gridTemplateColumns: "1fr 1fr" }}>
