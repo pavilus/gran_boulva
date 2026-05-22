@@ -51,9 +51,15 @@ class _HomeScreenState extends State<HomeScreen> {
   List<MatchupModel> _allMatchups = [];
   List<MatchupModel> _matchups = [];
   List<TopVoiceModel> _topVoices = [];
+  List<TopVoiceModel> _topPredictors = [];
+  List<PredictionModel> _predictions = [];
   String _searchQuery = '';
   String _activeCategoryLabel = 'Popilè';
+  String _activePredCategoryLabel = 'Tout';
+  String? _predCategoryId; // null = all categories in predictions tab
   bool _loading = true;
+  bool _predictionsLoading = true;
+  int _homeTab = 0; // 0 = Matchups, 1 = Prediksyon
   UserModel? _userProfile;
   int _unreadNotifications = 0;
 
@@ -77,7 +83,23 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _searchQuery = query;
       _matchups = _filterMatchups(_allMatchups, query);
+      // _filteredPredictions is a getter — setState alone triggers rebuild
     });
+  }
+
+  List<PredictionModel> get _filteredPredictions {
+    var list = _predictions;
+    if (_predCategoryId != null) {
+      list = list.where((p) => p.categoryId == _predCategoryId).toList();
+    }
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      list = list.where((p) =>
+          p.titleHt.toLowerCase().contains(q) ||
+          p.optionA.toLowerCase().contains(q) ||
+          p.optionB.toLowerCase().contains(q)).toList();
+    }
+    return list;
   }
 
   List<MatchupModel> _filterMatchups(
@@ -86,24 +108,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _init() async {
-    setState(() => _loading = true);
+    setState(() { _loading = true; _predictionsLoading = true; });
     try {
       final results = await Future.wait([
         _matchupService.getCategories(),
         _matchupService.getHomeFeed(),
         _userService.getTopVoices(limit: 8),
+        PredictionService().getPredictions(),
+        PredictionService().getTopPredictors(limit: 8),
       ]);
       if (!mounted) return;
       setState(() {
-        _categories = results[0] as List<CategoryModel>;
-        _allMatchups = results[1] as List<MatchupModel>;
-        _topVoices = results[2] as List<TopVoiceModel>;
+        _categories      = results[0] as List<CategoryModel>;
+        _allMatchups     = results[1] as List<MatchupModel>;
+        _topVoices       = results[2] as List<TopVoiceModel>;
+        _predictions     = results[3] as List<PredictionModel>;
+        _topPredictors   = results[4] as List<TopVoiceModel>;
         _matchups = _filterMatchups(_allMatchups, _searchQuery);
         _loading = false;
+        _predictionsLoading = false;
       });
     } catch (e) {
       debugPrint('HomeScreen _init error: $e');
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() { _loading = false; _predictionsLoading = false; });
     }
 
     // Load user profile and notifications independently so a permissions error
@@ -136,6 +163,32 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _onCategoryLabelTap(String label) {
+    if (_homeTab == 0) {
+      // ── Matchups tab: fetch from API ───────────────────────────────────────
+      setState(() => _activeCategoryLabel = label);
+      if (label == 'Popilè' || label == 'Tout') {
+        _onCategoryTap(null);
+        return;
+      }
+      final match = _categories
+          .where((c) => c.nameHt.toLowerCase() == label.toLowerCase())
+          .firstOrNull;
+      _onCategoryTap(match?.id);
+    } else {
+      // ── Predictions tab: filter locally ───────────────────────────────────
+      final match = label == 'Tout' || label == 'Popilè'
+          ? null
+          : _categories
+              .where((c) => c.nameHt.toLowerCase() == label.toLowerCase())
+              .firstOrNull;
+      setState(() {
+        _activePredCategoryLabel = label;
+        _predCategoryId = match?.id;
+      });
+    }
+  }
+
   Future<void> _toggleSave(MatchupModel matchup, bool save) async {
     await _matchupService.toggleSave(matchup.id, save);
   }
@@ -155,46 +208,82 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverToBoxAdapter(child: _buildSearchBar()),
               SliverToBoxAdapter(child: _buildCategoryChips()),
               SliverToBoxAdapter(child: _buildHeroBanner()),
-              SliverToBoxAdapter(child: _buildTopVoicesSection()),
-              SliverToBoxAdapter(child: _buildPredictionsEntry()),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                sliver: _loading
-                    ? const SliverToBoxAdapter(
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 40),
-                            child: CircularProgressIndicator(
-                                color: AppColors.purple),
-                          ),
-                        ),
-                      )
-                    : _matchups.isEmpty
-                        ? SliverToBoxAdapter(child: _buildEmptyState())
-                        : SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, i) {
-                                final matchup = _matchups[i];
-                                return MatchupCard(
-                                  matchup: matchup,
-                                  onTap: () async {
-                                    await _matchupService
-                                        .recordMatchupView(matchup.id);
-                                    if (!context.mounted) return;
-                                    final voted = matchup.myVoteOptionId;
-                                    final query = voted == null
-                                        ? ''
-                                        : '?voted=${Uri.encodeComponent(voted)}';
-                                    context
-                                        .push('/matchup/${matchup.id}$query');
-                                  },
-                                  onSave: (save) => _toggleSave(matchup, save),
-                                );
-                              },
-                              childCount: _matchups.length,
+              SliverToBoxAdapter(
+                child: _homeTab == 0
+                    ? _buildTopVoicesSection()
+                    : _buildTopPredictorsSection(),
+              ),
+              SliverToBoxAdapter(child: _buildHomeTabBar()),
+              if (_homeTab == 0)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  sliver: _loading
+                      ? const SliverToBoxAdapter(
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: CircularProgressIndicator(
+                                  color: AppColors.purple),
                             ),
                           ),
-              ),
+                        )
+                      : _matchups.isEmpty
+                          ? SliverToBoxAdapter(child: _buildEmptyState())
+                          : SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, i) {
+                                  final matchup = _matchups[i];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: MatchupCard(
+                                      matchup: matchup,
+                                      onTap: () async {
+                                        await _matchupService
+                                            .recordMatchupView(matchup.id);
+                                        if (!context.mounted) return;
+                                        final voted = matchup.myVoteOptionId;
+                                        final query = voted == null
+                                            ? ''
+                                            : '?voted=${Uri.encodeComponent(voted)}';
+                                        context
+                                            .push('/matchup/${matchup.id}$query');
+                                      },
+                                      onSave: (save) =>
+                                          _toggleSave(matchup, save),
+                                    ),
+                                  );
+                                },
+                                childCount: _matchups.length,
+                              ),
+                            ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  sliver: _predictionsLoading
+                      ? const SliverToBoxAdapter(
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: CircularProgressIndicator(
+                                  color: AppColors.purple),
+                            ),
+                          ),
+                        )
+                      : _filteredPredictions.isEmpty
+                          ? SliverToBoxAdapter(
+                              child: _buildPredictionsEmptyState())
+                          : SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, i) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _buildPredictionCard(
+                                      _filteredPredictions[i]),
+                                ),
+                                childCount: _filteredPredictions.length,
+                              ),
+                            ),
+                ),
             ],
           ),
         ),
@@ -360,8 +449,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 14,
                   fontFamily: 'Poppins',
                 ),
-                decoration: const InputDecoration(
-                  hintText: 'Chèche matchups, kategori,...',
+                decoration: InputDecoration(
+                  hintText: _homeTab == 0
+                      ? 'Chèche matchups, kategori,...'
+                      : 'Chèche prediksyon...',
                   hintStyle: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 14,
@@ -391,23 +482,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _onCategoryLabelTap(String label) {
-    setState(() => _activeCategoryLabel = label);
-    if (label == 'Popilè' || label == 'Tout') {
-      _onCategoryTap(null);
-      return;
-    }
-    final match = _categories
-        .where((c) => c.nameHt.toLowerCase() == label.toLowerCase())
-        .firstOrNull;
-    _onCategoryTap(match?.id);
-  }
-
   Widget _buildCategoryChips() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: CategoryTabs(
-        activeCategory: _activeCategoryLabel,
+        activeCategory:
+            _homeTab == 0 ? _activeCategoryLabel : _activePredCategoryLabel,
         onSelect: _onCategoryLabelTap,
       ),
     );
@@ -614,16 +694,197 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 4),
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Text(
-            'Matchups pou ou',
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Poppins',
+      ],
+    );
+  }
+
+  Widget _buildTopPredictorsSection() {
+    final predictors = _topPredictors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Container(
+            color: Colors.transparent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/Cardback.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Text('🔮',
+                                    style: TextStyle(fontSize: 18)),
+                                const SizedBox(width: 6),
+                                const Text(
+                                  'Tòp Pwofèt',
+                                  style: TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            GestureDetector(
+                              onTap: () => context.push('/predictions'),
+                              child: const Text(
+                                'Wè tout',
+                                style: TextStyle(
+                                  color: AppColors.purpleLight,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        if (predictors.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              'Pa gen prediksyon aktif kounye a.',
+                              style: TextStyle(
+                                  color: AppColors.textMuted,
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins'),
+                            ),
+                          )
+                        else
+                          SizedBox(
+                            height: 100,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: predictors.length,
+                              itemBuilder: (context, i) {
+                                final p = predictors[i];
+                                return GestureDetector(
+                                  onTap: () =>
+                                      context.push('/user/${p.username}'),
+                                  child: Container(
+                                    width: 72,
+                                    margin: const EdgeInsets.only(right: 12),
+                                    child: Column(
+                                      children: [
+                                        Stack(
+                                          clipBehavior: Clip.none,
+                                          alignment: Alignment.bottomCenter,
+                                          children: [
+                                            Container(
+                                              width: 62,
+                                              height: 62,
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Color(0xFFA855F7),
+                                                    Color(0xFFEC4899)
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(2.5),
+                                                child: CircleAvatar(
+                                                  radius: 27,
+                                                  backgroundColor:
+                                                      AppColors.secondary,
+                                                  backgroundImage: p.avatarUrl !=
+                                                              null &&
+                                                          p.avatarUrl!.isNotEmpty
+                                                      ? CachedNetworkImageProvider(
+                                                              p.avatarUrl!)
+                                                          as ImageProvider
+                                                      : UserAvatar
+                                                          .defaultImageProvider(
+                                                              null),
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: -6,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 5,
+                                                        vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.secondary,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                      color: AppColors.border,
+                                                      width: 1),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    const Text('🔮',
+                                                        style: TextStyle(
+                                                            fontSize: 8)),
+                                                    const SizedBox(width: 2),
+                                                    Text(
+                                                      _fmtVotes(
+                                                          p.influenceScore),
+                                                      style: const TextStyle(
+                                                        color: AppColors
+                                                            .textSecondary,
+                                                        fontSize: 8,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontFamily: 'Poppins',
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          '@${p.username}',
+                                          style: const TextStyle(
+                                            color: AppColors.textSecondary,
+                                            fontSize: 10,
+                                            fontFamily: 'Poppins',
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -631,60 +892,267 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPredictionsEntry() {
+  Widget _buildHomeTabBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(13),
+          border: Border.all(
+              color: AppColors.border.withValues(alpha: 0.5), width: 1),
+        ),
+        child: Row(
+          children: [
+            _homeTabItem('⚔️  Matchups', 0),
+            _homeTabItem('🔮  Prediksyon', 1),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _homeTabItem(String label, int index) {
+    final active = _homeTab == index;
+    return Expanded(
       child: GestureDetector(
-        onTap: () => context.push('/predictions'),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: Stack(
-            children: [
-              Container(
-                height: 70,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF1A0533), Color(0xFF3B0764)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Image.asset('assets/images/predict.png',
-                          width: 36, height: 36),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('Prediksyon',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: 'Poppins')),
-                            Text('Fè pwopozisyon ou, wè si ou gen rezon',
-                                style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 11,
-                                    fontFamily: 'Poppins')),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.arrow_forward_ios_rounded,
-                          color: AppColors.purpleLight, size: 14),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+        onTap: () => setState(() => _homeTab = index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            gradient: active ? AppColors.primaryGradient : null,
+            borderRadius: BorderRadius.circular(9),
           ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: active ? Colors.white : AppColors.textMuted,
+              fontSize: 13,
+              fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatPredDeadline(PredictionModel p) {
+    if (p.isClosed) return 'Fèmen';
+    if (p.deadlineAt == null) return 'Aktif';
+    final d = p.timeLeft;
+    if (d.isNegative) return 'Ekspire';
+    if (d.inDays > 0) return '${d.inDays}j rete';
+    if (d.inHours > 0) return '${d.inHours}h rete';
+    return '${d.inMinutes}m rete';
+  }
+
+  Widget _buildPredictionCard(PredictionModel p) {
+    final deadline = _formatPredDeadline(p);
+    final isActive = p.isActive;
+    final participated = p.hasParticipated;
+
+    return GestureDetector(
+      onTap: () => context.push('/prediction/${p.id}'),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: participated
+                ? AppColors.purple.withValues(alpha: 0.5)
+                : AppColors.border.withValues(alpha: 0.5),
+            width: participated ? 1.5 : 1,
+          ),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row: category chip + status badge
+            Row(
+              children: [
+                if (p.category != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.purple.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      p.category!.nameHt,
+                      style: const TextStyle(
+                          color: AppColors.purpleLight,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins'),
+                    ),
+                  ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? AppColors.success.withValues(alpha: 0.15)
+                        : AppColors.textDim.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    isActive ? '🟢 Aktif' : '🔴 Fèmen',
+                    style: TextStyle(
+                        color: isActive
+                            ? AppColors.success
+                            : AppColors.textMuted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Poppins'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Title
+            Text(
+              p.titleHt,
+              style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Poppins'),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 12),
+            // Option A vs B
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.optionAGradient,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      p.optionA,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins'),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text('VS',
+                      style: TextStyle(
+                          color: AppColors.textDim,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Poppins')),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.optionBGradient,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      p.optionB,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins'),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Bottom row: deadline + votes + participation badge
+            Row(
+              children: [
+                const Text('⏰', style: TextStyle(fontSize: 12)),
+                const SizedBox(width: 4),
+                Text(
+                  deadline,
+                  style: TextStyle(
+                      color:
+                          isActive ? AppColors.warning : AppColors.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins'),
+                ),
+                const SizedBox(width: 12),
+                const Text('👥', style: TextStyle(fontSize: 12)),
+                const SizedBox(width: 4),
+                Text(
+                  '${_fmtVotes(p.totalVotes)} vòt',
+                  style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                      fontFamily: 'Poppins'),
+                ),
+                const Spacer(),
+                if (participated)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      '✓ Patisipe',
+                      style: TextStyle(
+                          color: AppColors.success,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins'),
+                    ),
+                  )
+                else
+                  const Icon(Icons.chevron_right_rounded,
+                      color: AppColors.textDim, size: 20),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPredictionsEmptyState() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 60),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('🔮', style: TextStyle(fontSize: 48)),
+            SizedBox(height: 12),
+            Text(
+              'Pa gen prediksyon aktif kounye a.',
+              style: TextStyle(
+                  color: AppColors.textMuted, fontFamily: 'Poppins'),
+            ),
+          ],
         ),
       ),
     );

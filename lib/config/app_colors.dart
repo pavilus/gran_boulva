@@ -61,14 +61,16 @@ class AppColors {
         end: Alignment.bottomCenter,
       );
 
+  // Option A — deep indigo → purple (matches matchup card left side)
   static LinearGradient get optionAGradient => const LinearGradient(
-        colors: [gradPurple, gradPink],
+        colors: [Color(0xFF1E0A6B), Color(0xFF4C1D95)],
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
       );
 
+  // Option B — deep rose → hot pink (matches matchup card right side)
   static LinearGradient get optionBGradient => const LinearGradient(
-        colors: [gradPurple, gradPink],
+        colors: [Color(0xFF7C1050), Color(0xFFBE185D)],
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
       );

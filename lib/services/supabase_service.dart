@@ -1495,12 +1495,21 @@ class PredictionService {
   }
 
   Future<PredictionModel?> getPredictionDetail(String id) async {
-    final data = await supabase
-        .from('predictions')
-        .select('*, category:categories(*)')
-        .eq('id', id)
-        .single();
-    return PredictionModel.fromJson(data);
+    try {
+      final data = await supabase
+          .from('predictions')
+          .select('*, category:categories(*)')
+          .eq('id', id)
+          .maybeSingle();
+      if (data == null) {
+        debugPrint('getPredictionDetail: no row found for id=$id');
+        return null;
+      }
+      return PredictionModel.fromJson(data);
+    } catch (e) {
+      debugPrint('getPredictionDetail ERROR: $e');
+      return null;
+    }
   }
 
   Future<void> submitPrediction({
@@ -1543,6 +1552,48 @@ class PredictionService {
         .eq('prediction_id', predictionId)
         .order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(data);
+  }
+
+  /// Returns up to [limit] users sorted by number of predictions they have voted on.
+  Future<List<TopVoiceModel>> getTopPredictors({int limit = 8}) async {
+    try {
+      final votes = await supabase
+          .from('prediction_votes')
+          .select('user_id');
+      // Count votes per user
+      final countMap = <String, int>{};
+      for (final v in votes as List) {
+        final uid = v['user_id'] as String? ?? '';
+        if (uid.isEmpty) continue;
+        countMap[uid] = (countMap[uid] ?? 0) + 1;
+      }
+      if (countMap.isEmpty) return [];
+      final sorted = countMap.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      final topIds = sorted.take(limit).map((e) => e.key).toList();
+      final users = await supabase
+          .from('users')
+          .select('id, username, avatar_url')
+          .inFilter('id', topIds);
+      return topIds
+          .map((uid) {
+            final user = (users as List).cast<Map<String, dynamic>>()
+                .where((u) => u['id'] == uid)
+                .firstOrNull;
+            if (user == null) return null;
+            return TopVoiceModel(
+              id: uid,
+              username: user['username'] as String? ?? '',
+              avatarUrl: user['avatar_url'] as String?,
+              influenceScore: countMap[uid] ?? 0,
+            );
+          })
+          .whereType<TopVoiceModel>()
+          .toList();
+    } catch (e) {
+      debugPrint('getTopPredictors error: $e');
+      return [];
+    }
   }
 }
 

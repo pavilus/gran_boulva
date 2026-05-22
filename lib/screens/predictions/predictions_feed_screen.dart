@@ -207,7 +207,7 @@ class _PredictionsFeedScreenState extends State<PredictionsFeedScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${p.category!.icon ?? ''}${p.category!.nameHt}',
+                      p.category!.nameHt,
                       style: const TextStyle(
                           color: AppColors.purpleLight,
                           fontSize: 11,

@@ -37,6 +37,7 @@ class CategoryTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: kCategories.map((cat) {
           final isActive = cat.label == activeCategory;

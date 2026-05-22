@@ -42,34 +42,41 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
+
+    PredictionModel? pred;
     try {
-      final pred =
-          await PredictionService().getPredictionDetail(widget.predictionId);
-      final myVote =
-          await PredictionService().getUserPredictionVote(widget.predictionId);
+      pred = await PredictionService().getPredictionDetail(widget.predictionId);
+    } catch (e) {
+      debugPrint('getPredictionDetail error: $e');
+    }
 
-      List<Map<String, dynamic>> communityVotes = [];
-      if (myVote != null && pred != null) {
-        communityVotes =
-            await PredictionService().getPredictionVotes(widget.predictionId);
-      }
+    Map<String, dynamic>? myVote;
+    try {
+      myVote = await PredictionService().getUserPredictionVote(widget.predictionId);
+    } catch (e) {
+      debugPrint('getUserPredictionVote error: $e');
+    }
 
-      if (mounted) {
-        final vA =
-            communityVotes.where((v) => v['selected_option'] == 'A').length;
-        final vB =
-            communityVotes.where((v) => v['selected_option'] == 'B').length;
-        setState(() {
-          _prediction = pred;
-          _myVote = myVote;
-          _communityVotes = communityVotes;
-          _votesA = vA;
-          _votesB = vB;
-          _loading = false;
-        });
+    List<Map<String, dynamic>> communityVotes = [];
+    if (myVote != null && pred != null) {
+      try {
+        communityVotes = await PredictionService().getPredictionVotes(widget.predictionId);
+      } catch (e) {
+        debugPrint('getPredictionVotes error: $e');
       }
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
+    }
+
+    if (mounted) {
+      final vA = communityVotes.where((v) => v['selected_option'] == 'A').length;
+      final vB = communityVotes.where((v) => v['selected_option'] == 'B').length;
+      setState(() {
+        _prediction = pred;
+        _myVote = myVote;
+        _communityVotes = communityVotes;
+        _votesA = vA;
+        _votesB = vB;
+        _loading = false;
+      });
     }
   }
 
@@ -172,7 +179,7 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Text(
-                  '${p.category!.icon ?? ''}${p.category!.nameHt}',
+                  p.category!.nameHt,
                   style: const TextStyle(
                       color: AppColors.purpleLight,
                       fontSize: 12,
