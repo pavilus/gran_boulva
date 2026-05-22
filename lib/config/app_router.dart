@@ -307,7 +307,7 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isActive = index == current;
     const activeColor = Color(0xFFA855F7);
-    const inactiveColor = Color(0xFF4A4A6A);
+    const inactiveColor = Color(0xFF8888AA);
     final color = isActive ? activeColor : inactiveColor;
     final asset = isActive ? activeAsset : inactiveAsset;
 

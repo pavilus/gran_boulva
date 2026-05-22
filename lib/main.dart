@@ -74,8 +74,10 @@ class _GranBoulvaAppState extends State<GranBoulvaApp> {
       final session = authState.session;
       if (session == null) return;
 
-      if (event == AuthChangeEvent.signedIn ||
-          event == AuthChangeEvent.tokenRefreshed) {
+      // Only navigate on explicit sign-in, NOT on token refresh.
+      // tokenRefreshed fires automatically every ~60 min and on cold-start,
+      // causing HomeScreen to remount and re-fetch everything unnecessarily.
+      if (event == AuthChangeEvent.signedIn) {
         _router.go('/home');
       }
     });
