@@ -10,6 +10,7 @@ import 'config/app_router.dart';
 import 'config/app_colors.dart';
 import 'config/app_theme.dart';
 import 'config/supabase_config.dart';
+import 'widgets/badges/badge_unlock_overlay.dart';
 
 void main() {
   bootstrapGranBoulvaApp();
@@ -96,14 +97,16 @@ class _GranBoulvaAppState extends State<GranBoulvaApp> {
       themeMode: ThemeMode.dark,
       routerConfig: _router,
       builder: (context, child) {
-        return MediaQuery(
-          data:
-              MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-          child: Stack(
-            children: [
-              const Positioned.fill(child: ColoredBox(color: AppColors.bg0)),
-              child!,
-            ],
+        return BadgeUnlockOverlayHost(
+          child: MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.noScaling),
+            child: Stack(
+              children: [
+                const Positioned.fill(child: ColoredBox(color: AppColors.bg0)),
+                child!,
+              ],
+            ),
           ),
         );
       },

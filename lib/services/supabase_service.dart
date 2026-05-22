@@ -174,12 +174,13 @@ class MatchupService {
   }
 
   Future<List<MatchupModel>> getHomeFeed({String? categoryId}) async {
+    List<MatchupModel> matchups = [];
     try {
       final data = await supabase.rpc('get_recommended_home_feed', params: {
         'p_category_id': categoryId,
         'p_limit': 30,
       });
-      return (data as List? ?? [])
+      matchups = (data as List? ?? [])
           .map((j) => MatchupModel.fromJson(j))
           .toList();
     } catch (e) {
@@ -189,14 +190,17 @@ class MatchupService {
             queryParameters:
                 categoryId != null ? {'category_id': categoryId} : null);
         final data = res.data as Map<String, dynamic>;
-        final matchups = (data['matchups'] as List? ?? [])
+        matchups = (data['matchups'] as List? ?? [])
             .map((j) => MatchupModel.fromJson(j))
             .toList();
-        return matchups;
       } catch (_) {
-        return _fetchMatchupsFallback(categoryId: categoryId);
+        matchups = await _fetchMatchupsFallback(categoryId: categoryId);
       }
     }
+    // Deduplicate by ID (guards against RPC returning the same matchup twice
+    // due to multi-row joins on user_interests / trending_scores)
+    final seen = <String>{};
+    return matchups.where((m) => seen.add(m.id)).toList();
   }
 
   Future<void> recordMatchupView(String matchupId) {
@@ -1452,12 +1456,18 @@ class BadgeService {
 
 class PredictionService {
   Future<List<PredictionModel>> getPredictions() async {
-    final data = await supabase
-        .from('predictions')
-        .select('*, category:categories(*)')
-        .inFilter('status', ['active', 'closed', 'resolved']).order(
-            'deadline_at');
-    return (data as List).map((j) => PredictionModel.fromJson(j)).toList();
+    try {
+      final data = await supabase
+          .from('predictions')
+          .select('*, category:categories(*)')
+          .inFilter('status', ['active', 'closed', 'resolved']).order(
+              'deadline_at');
+      debugPrint('getPredictions: ${(data as List).length} rows');
+      return data.map((j) => PredictionModel.fromJson(j)).toList();
+    } catch (e) {
+      debugPrint('getPredictions ERROR: $e');
+      return [];
+    }
   }
 
   Future<PredictionModel?> getPredictionDetail(String id) async {
