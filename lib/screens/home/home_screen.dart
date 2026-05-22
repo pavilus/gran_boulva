@@ -5,6 +5,7 @@ import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/matchup_search.dart';
+import '../../utils/search_utils.dart';
 import '../../widgets/common/category_tabs.dart';
 import '../../widgets/common/user_avatar.dart';
 import '../../widgets/matchup/matchup_card.dart';
@@ -93,11 +94,17 @@ class _HomeScreenState extends State<HomeScreen> {
       list = list.where((p) => p.categoryId == _predCategoryId).toList();
     }
     if (_searchQuery.isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
-      list = list.where((p) =>
-          p.titleHt.toLowerCase().contains(q) ||
-          p.optionA.toLowerCase().contains(q) ||
-          p.optionB.toLowerCase().contains(q)).toList();
+      list = list.where((p) {
+        final haystack = [
+          p.titleHt,
+          p.titleEn,
+          p.descriptionHt,
+          p.optionA,
+          p.optionB,
+          p.category?.nameHt,
+        ].whereType<String>().join(' ');
+        return matchesQuery(haystack, _searchQuery);
+      }).toList();
     }
     return list;
   }

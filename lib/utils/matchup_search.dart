@@ -1,17 +1,24 @@
 import '../models/models.dart';
+import 'search_utils.dart';
 
+/// Returns true when [matchup] matches every word in [query].
+///
+/// Searched fields:
+///   - title (HT + EN)
+///   - description
+///   - category name (HT + EN)
+///   - option names (the answer text for both options)
 bool matchupMatchesQuery(MatchupModel matchup, String query) {
-  final normalizedQuery = query.trim().toLowerCase();
-  if (normalizedQuery.isEmpty) return true;
+  if (query.trim().isEmpty) return true;
 
-  final searchableText = [
+  final haystack = [
     matchup.titleHt,
     matchup.titleEn,
     matchup.descriptionHt,
     matchup.category?.nameHt,
     matchup.category?.nameEn,
-    ...matchup.options.map((option) => option.optionName),
-  ].whereType<String>().join(' ').toLowerCase();
+    ...matchup.options.map((o) => o.optionName),
+  ].whereType<String>().join(' ');
 
-  return searchableText.contains(normalizedQuery);
+  return matchesQuery(haystack, query);
 }
