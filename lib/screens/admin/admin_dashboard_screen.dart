@@ -654,7 +654,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                     itemBuilder: (_, i) {
                       final p = _predictions[i];
                       final deadline =
-                          '${p.deadlineAt.day}/${p.deadlineAt.month}/${p.deadlineAt.year}';
+                          p.deadlineAt != null ? '${p.deadlineAt!.day}/${p.deadlineAt!.month}/${p.deadlineAt!.year}' : 'Pa gen limit';
                       return Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(

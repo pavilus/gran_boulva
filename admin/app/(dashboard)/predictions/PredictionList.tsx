@@ -2,11 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Trophy, Bot, Check, X, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Trophy, Bot, Check, X, Loader2, ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
 
 type Prediction = {
   id: string; title_ht: string; title_en?: string; option_a: string; option_b: string;
-  deadline_at: string; status: string; winning_option?: string; total_votes: number;
+  deadline_at?: string | null; status: string; winning_option?: string; total_votes: number;
   created_at: string; category_id?: string | null;
   category?: { name_ht: string } | { name_ht: string }[] | null;
 };
@@ -48,10 +48,25 @@ function getCatName(category: Prediction["category"]): string {
 
 const TABS = ["active", "closed", "resolved"] as const;
 const TAB_LABELS = { active: "Ouvè", closed: "Fèmen", resolved: "Rezoud" };
+const STATUS_OPTIONS = ["active", "closed", "resolved"];
 
 function fmtDate(d?: string | null) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("fr-HT", { month: "short", day: "numeric", year: "numeric" });
+}
+
+// ─── Shared form fields ───────────────────────────────────────────────────────
+function inputStyle(extra?: React.CSSProperties): React.CSSProperties {
+  return { background: "#0a0b18", border: "1px solid #1e2040", color: "white", borderRadius: 10, padding: "8px 12px", fontSize: 13, width: "100%", outline: "none", ...extra };
+}
+
+function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-xs font-semibold mb-1" style={{ color: "#94a3b8" }}>{label}</div>
+      {children}
+    </div>
+  );
 }
 
 // ─── Resolve modal ────────────────────────────────────────────────────────────
@@ -96,6 +111,163 @@ function ResolveModal({ p, onClose, onResolved }: { p: Prediction; onClose: () =
             className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: winner ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#1e2040" }}>
             {loading ? "…" : "Konfime"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Edit modal ───────────────────────────────────────────────────────────────
+function EditModal({ p, categories, onClose, onSaved }: {
+  p: Prediction; categories: Category[]; onClose: () => void; onSaved: (updated: Prediction) => void;
+}) {
+  const [form, setForm] = useState({
+    title_ht: p.title_ht,
+    title_en: p.title_en ?? "",
+    option_a: p.option_a,
+    option_b: p.option_b,
+    deadline_at: p.deadline_at ? p.deadline_at.slice(0, 10) : "",
+    category_id: p.category_id ?? "",
+    status: p.status,
+  });
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
+  const save = async () => {
+    setLoading(true); setErr("");
+    const res = await fetch("/api/predictions/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: p.id, action: "update", ...form }),
+    });
+    const d = await res.json();
+    setLoading(false);
+    if (!res.ok) { setErr(d.error ?? "Erè"); return; }
+    onSaved({ ...p, ...form, deadline_at: form.deadline_at || null, category_id: form.category_id || null });
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.75)" }}>
+      <div className="rounded-2xl p-6 w-full max-w-lg space-y-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040", maxHeight: "90vh", overflowY: "auto" }}>
+        <div className="text-white font-bold text-lg">Modifye Prediksyon</div>
+
+        <FormField label="Tit (Kreyòl)">
+          <input style={inputStyle()} value={form.title_ht} onChange={e => setForm(f => ({ ...f, title_ht: e.target.value }))} />
+        </FormField>
+        <FormField label="Tit (Angle) — opsyonèl">
+          <input style={inputStyle()} value={form.title_en} onChange={e => setForm(f => ({ ...f, title_en: e.target.value }))} />
+        </FormField>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Opsyon A">
+            <input style={inputStyle()} value={form.option_a} onChange={e => setForm(f => ({ ...f, option_a: e.target.value }))} />
+          </FormField>
+          <FormField label="Opsyon B">
+            <input style={inputStyle()} value={form.option_b} onChange={e => setForm(f => ({ ...f, option_b: e.target.value }))} />
+          </FormField>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Dat limit">
+            <input type="date" style={inputStyle()} value={form.deadline_at} onChange={e => setForm(f => ({ ...f, deadline_at: e.target.value }))} />
+          </FormField>
+          <FormField label="Estati">
+            <select style={inputStyle()} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+              {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </FormField>
+        </div>
+        <FormField label="Kategorì">
+          <select style={inputStyle()} value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}>
+            <option value="">— Chwazi kategorì —</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name_ht}</option>)}
+          </select>
+        </FormField>
+
+        {err && <div className="text-xs px-3 py-2 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>{err}</div>}
+
+        <div className="flex gap-3 pt-2">
+          <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl text-sm"
+            style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>Anile</button>
+          <button onClick={save} disabled={loading}
+            className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white"
+            style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7)" }}>
+            {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : "Sovgade"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Create modal ─────────────────────────────────────────────────────────────
+function CreateModal({ categories, onClose, onCreated }: {
+  categories: Category[]; onClose: () => void; onCreated: (p: Prediction) => void;
+}) {
+  const [form, setForm] = useState({
+    title_ht: "", title_en: "", option_a: "", option_b: "",
+    deadline_at: "", category_id: "", status: "active",
+  });
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+
+  const save = async () => {
+    setLoading(true); setErr("");
+    const res = await fetch("/api/predictions/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "create", ...form }),
+    });
+    const d = await res.json();
+    setLoading(false);
+    if (!res.ok) { setErr(d.error ?? "Erè"); return; }
+    onCreated(d.prediction);
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.75)" }}>
+      <div className="rounded-2xl p-6 w-full max-w-lg space-y-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040", maxHeight: "90vh", overflowY: "auto" }}>
+        <div className="text-white font-bold text-lg">Kreye Prediksyon</div>
+
+        <FormField label="Tit (Kreyòl) *">
+          <input style={inputStyle()} value={form.title_ht} onChange={e => setForm(f => ({ ...f, title_ht: e.target.value }))} placeholder="Ekri tit prediksyon an…" />
+        </FormField>
+        <FormField label="Tit (Angle) — opsyonèl">
+          <input style={inputStyle()} value={form.title_en} onChange={e => setForm(f => ({ ...f, title_en: e.target.value }))} />
+        </FormField>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Opsyon A *">
+            <input style={inputStyle()} value={form.option_a} onChange={e => setForm(f => ({ ...f, option_a: e.target.value }))} placeholder="Wi / Vre / …" />
+          </FormField>
+          <FormField label="Opsyon B *">
+            <input style={inputStyle()} value={form.option_b} onChange={e => setForm(f => ({ ...f, option_b: e.target.value }))} placeholder="Non / Fo / …" />
+          </FormField>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Dat limit — opsyonèl">
+            <input type="date" style={inputStyle()} value={form.deadline_at} onChange={e => setForm(f => ({ ...f, deadline_at: e.target.value }))} />
+          </FormField>
+          <FormField label="Estati">
+            <select style={inputStyle()} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+              {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </FormField>
+        </div>
+        <FormField label="Kategorì — opsyonèl">
+          <select style={inputStyle()} value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}>
+            <option value="">— Chwazi kategorì —</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.name_ht}</option>)}
+          </select>
+        </FormField>
+
+        {err && <div className="text-xs px-3 py-2 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444" }}>{err}</div>}
+
+        <div className="flex gap-3 pt-2">
+          <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl text-sm"
+            style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>Anile</button>
+          <button onClick={save} disabled={loading || !form.title_ht || !form.option_a || !form.option_b}
+            className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white"
+            style={{ background: (form.title_ht && form.option_a && form.option_b) ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#1e2040" }}>
+            {loading ? <Loader2 size={14} className="animate-spin mx-auto" /> : "Kreye"}
           </button>
         </div>
       </div>
@@ -182,10 +354,12 @@ export default function PredictionList({
   const [drafts, setDrafts] = useState(initialDrafts);
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>("active");
   const [resolving, setResolving] = useState<Prediction | null>(null);
+  const [editing, setEditing] = useState<Prediction | null>(null);
+  const [creating, setCreating] = useState(false);
   const [draftsOpen, setDraftsOpen] = useState(true);
 
   // Dropdown filter state
-  const [filters, setFilters] = useState({ title: "", category: "", status: "" });
+  const [filters, setFilters] = useState({ title: "", category: "" });
 
   // Derive unique category names for dropdown
   const allCatNames = Array.from(new Set(preds.map((p) => getCatName(p.category)).filter((n) => n !== "—"))).sort();
@@ -204,6 +378,7 @@ export default function PredictionList({
 
   return (
     <div className="space-y-5">
+      {/* ── Modals ──────────────────────────────────────────────────── */}
       {resolving && (
         <ResolveModal
           p={resolving}
@@ -211,6 +386,28 @@ export default function PredictionList({
           onResolved={(winner) => {
             setPreds((prev) => prev.map((p) => p.id === resolving.id ? { ...p, status: "resolved", winning_option: winner } : p));
             setResolving(null);
+          }}
+        />
+      )}
+      {editing && (
+        <EditModal
+          p={editing}
+          categories={categories}
+          onClose={() => setEditing(null)}
+          onSaved={(updated) => {
+            setPreds((prev) => prev.map((p) => p.id === updated.id ? updated : p));
+            setEditing(null);
+          }}
+        />
+      )}
+      {creating && (
+        <CreateModal
+          categories={categories}
+          onClose={() => setCreating(false)}
+          onCreated={(p) => {
+            setPreds((prev) => [p, ...prev]);
+            setCreating(false);
+            setActiveTab(p.status as typeof TABS[number]);
           }}
         />
       )}
@@ -240,7 +437,7 @@ export default function PredictionList({
         </div>
       )}
 
-      {/* ── Tabs ────────────────────────────────────────────────────── */}
+      {/* ── Tabs + Create button ─────────────────────────────────────── */}
       <div className="flex items-center gap-2">
         {TABS.map((t) => (
           <button key={t} onClick={() => setActiveTab(t)}
@@ -253,6 +450,14 @@ export default function PredictionList({
             {TAB_LABELS[t]} ({preds.filter((p) => p.status === t).length})
           </button>
         ))}
+        <div className="ml-auto">
+          <button
+            onClick={() => setCreating(true)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
+            style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7)", color: "white" }}>
+            <Plus size={13} /> Kreye Prediksyon
+          </button>
+        </div>
       </div>
 
       {/* ── Filters ─────────────────────────────────────────────────── */}
@@ -277,7 +482,7 @@ export default function PredictionList({
         </select>
         {(filters.title || filters.category) && (
           <button
-            onClick={() => setFilters({ title: "", category: "", status: "" })}
+            onClick={() => setFilters({ title: "", category: "" })}
             className="px-3 py-2 rounded-lg text-xs font-semibold"
             style={{ color: "#64748b", border: "1px solid #1e2040" }}
           >
@@ -323,15 +528,24 @@ export default function PredictionList({
                   <td className="px-4 py-3 font-semibold text-white">{p.total_votes}</td>
                   <td className="px-4 py-3" style={{ color: "#64748b", whiteSpace: "nowrap" }}>{fmtDate(p.deadline_at)}</td>
                   <td className="px-4 py-3">
-                    {p.status !== "resolved" && (
+                    <div className="flex items-center gap-2">
+                      {/* Edit button — always visible */}
                       <button
-                        onClick={() => setResolving(p)}
+                        onClick={() => setEditing(p)}
                         className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                        style={{ background: `${color}18`, color, border: `1px solid ${color}40` }}
-                      >
-                        <Trophy size={12} /> Rezoud
+                        style={{ background: "rgba(100,116,139,0.12)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.2)" }}>
+                        <Pencil size={11} /> Modifye
                       </button>
-                    )}
+                      {/* Resolve button — only for non-resolved */}
+                      {p.status !== "resolved" && (
+                        <button
+                          onClick={() => setResolving(p)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                          style={{ background: `${color}18`, color, border: `1px solid ${color}40` }}>
+                          <Trophy size={12} /> Rezoud
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

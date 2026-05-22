@@ -752,7 +752,7 @@ class PredictionModel {
   final String? descriptionHt;
   final String optionA;
   final String optionB;
-  final DateTime deadlineAt;
+  final DateTime? deadlineAt;
   final String status;
   final String? winningOption;
   final int totalVotes;
@@ -767,7 +767,7 @@ class PredictionModel {
     this.descriptionHt,
     required this.optionA,
     required this.optionB,
-    required this.deadlineAt,
+    this.deadlineAt,
     required this.status,
     this.winningOption,
     required this.totalVotes,
@@ -777,13 +777,15 @@ class PredictionModel {
 
   factory PredictionModel.fromJson(Map<String, dynamic> j) => PredictionModel(
         id: j['id'],
-        categoryId: j['category_id'],
-        titleHt: j['title_ht'],
+        categoryId: j['category_id'] ?? '',
+        titleHt: j['title_ht'] ?? '',
         titleEn: j['title_en'],
         descriptionHt: j['description_ht'],
-        optionA: j['option_a'],
-        optionB: j['option_b'],
-        deadlineAt: DateTime.parse(j['deadline_at']),
+        optionA: j['option_a'] ?? '',
+        optionB: j['option_b'] ?? '',
+        deadlineAt: j['deadline_at'] != null
+            ? DateTime.tryParse(j['deadline_at'])
+            : null,
         status: j['status'] ?? 'active',
         winningOption: j['winning_option'],
         totalVotes: j['total_votes'] ?? 0,
@@ -797,7 +799,7 @@ class PredictionModel {
   bool get isClosed => status == 'closed' || status == 'resolved';
   bool get hasParticipated => mySelectedOption != null;
 
-  Duration get timeLeft => deadlineAt.difference(DateTime.now());
+  Duration get timeLeft => deadlineAt?.difference(DateTime.now()) ?? Duration.zero;
 }
 
 class NotificationModel {

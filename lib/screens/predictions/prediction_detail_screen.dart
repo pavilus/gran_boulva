@@ -113,6 +113,7 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
 
   String _formatDeadline(PredictionModel p) {
     if (p.isClosed) return 'Fèmen';
+    if (p.deadlineAt == null) return 'Aktif';
     final d = p.timeLeft;
     if (d.isNegative) return 'Ekspire';
     if (d.inDays > 0) return '${d.inDays} jou rete';
