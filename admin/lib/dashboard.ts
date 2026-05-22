@@ -89,11 +89,15 @@ export async function getRecentReports() {
   const supabase = createAdminClient();
   const { data } = await supabase
     .from("reports")
-    .select("id, content_type, reason, reporter:users!reporter_id(username), created_at")
+    .select("id, reported_type, reason, created_at")
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(5);
-  return data ?? [];
+  return (data ?? []).map((report) => ({
+    ...report,
+    content_type: report.reported_type,
+    reporter: null,
+  }));
 }
 
 export async function getActivitySeries() {

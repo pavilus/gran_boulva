@@ -7,6 +7,12 @@ type Report = {
   id: string; status: string; reason: string; created_at: string;
   reporter_user_id?: string; reported_type?: string; reported_id?: string;
   content_type?: string; reporter_id?: string;
+  argument?: {
+    body?: string | null;
+    status?: string | null;
+    matchup?: { title_ht?: string | null } | { title_ht?: string | null }[] | null;
+    user?: { username?: string | null } | { username?: string | null }[] | null;
+  } | null;
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -18,6 +24,10 @@ const TAB_LABELS = { pending: "An Atant", resolved: "Rezoud", dismissed: "Rejte"
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("fr-HT", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function firstRelated<T>(value?: T | T[] | null) {
+  return Array.isArray(value) ? value[0] : value;
 }
 
 async function doAction(id: string, action: string) {
@@ -79,23 +89,26 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
-              {["Tip", "Rezon", "Dat", "Estati", "Aksyon"].map((h) => (
+              {["Tip", "Kontni Rapòte", "Rezon", "Dat", "Estati", "Aksyon"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
               ))}
             </tr>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
               {[
                 ["type", "Filtre tip"],
+                ["content", ""],
                 ["reason", "Filtre rezon"],
                 ["date", "Filtre dat"],
                 ["status", "Filtre estati"],
               ].map(([key, placeholder]) => (
                 <th key={key} className="px-4 pb-3">
-                  <input value={filters[key as keyof typeof filters]}
-                    onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                    style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                  {key === "content" ? null : (
+                    <input value={filters[key as keyof typeof filters]}
+                      onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
+                      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                  )}
                 </th>
               ))}
               <th className="px-4 pb-3">
@@ -107,7 +120,7 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Okenn rapò nan kategori sa</td></tr>
+              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Okenn rapò nan kategori sa</td></tr>
             )}
             {filtered.map((r) => (
               <tr key={r.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -116,6 +129,18 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
                     style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa" }}>
                     {r.reported_type ?? r.content_type ?? "—"}
                   </span>
+                </td>
+                <td className="px-4 py-3" style={{ maxWidth: 360 }}>
+                  {r.argument ? (
+                    <>
+                      <div className="line-clamp-2" style={{ color: "#d1d5db" }}>{r.argument.body ?? "—"}</div>
+                      <div className="truncate text-[11px]" style={{ color: "#64748b" }}>
+                        @{firstRelated(r.argument.user)?.username ?? "—"} · {firstRelated(r.argument.matchup)?.title_ht ?? "Matchup enkoni"}
+                      </div>
+                    </>
+                  ) : (
+                    <span style={{ color: "#64748b" }}>{r.reported_id ?? "—"}</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-white" style={{ maxWidth: 360 }}>
                   <div className="truncate">{r.reason}</div>

@@ -3,6 +3,7 @@ import { Flag, ChevronRight } from "lucide-react";
 type Report = {
   id: string;
   content_type: string | null;
+  reported_type?: string | null;
   reason: string | null;
   reporter: { username: string }[] | { username: string } | null;
   created_at: string;
@@ -65,7 +66,7 @@ export default function ReportsPanel({ reports }: { reports: Report[] }) {
                     fontSize: 10,
                   }}
                 >
-                  {r.content_type ?? "—"}
+                  {r.reported_type ?? r.content_type ?? "—"}
                 </span>
                 {urgent && (
                   <span

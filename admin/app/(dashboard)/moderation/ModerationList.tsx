@@ -6,12 +6,13 @@ import { Trash2, Flag, RotateCcw } from "lucide-react";
 type Argument = {
   id: string; body: string; status: string; like_count: number; dislike_count: number;
   reply_count: number; created_at: string; matchup_id: string;
+  report_count?: number; report_reasons?: string[]; latest_report_at?: string | null;
   matchup?: { title_ht: string } | { title_ht: string }[];
   user?: { username: string; avatar_url?: string } | { username: string; avatar_url?: string }[];
 };
 
-const TABS = ["active", "flagged", "removed"] as const;
-const TAB_LABELS = { active: "Aktif", flagged: "Flagé", removed: "Efase" };
+const TABS = ["reported", "active", "flagged", "removed"] as const;
+const TAB_LABELS = { reported: "Rapòte", active: "Aktif", flagged: "Flagé", removed: "Efase" };
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("fr-HT", { month: "short", day: "numeric" });
@@ -27,7 +28,9 @@ async function doAction(id: string, action: string) {
 
 export default function ModerationList({ args: initial }: { args: Argument[] }) {
   const [args, setArgs] = useState(initial);
-  const [activeTab, setActiveTab] = useState<typeof TABS[number]>("active");
+  const [activeTab, setActiveTab] = useState<typeof TABS[number]>(
+    initial.some((a) => (a.report_count ?? 0) > 0) ? "reported" : "active"
+  );
   const [loading, setLoading] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
@@ -51,7 +54,9 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
   };
 
   const filtered = args.filter((a) => {
-    if (a.status !== activeTab) return false;
+    if (activeTab === "reported") {
+      if ((a.report_count ?? 0) === 0) return false;
+    } else if (a.status !== activeTab) return false;
     const q = search.toLowerCase();
     if (q && !`${getUser(a)} ${a.body} ${getMatchup(a)} ${a.like_count} ${a.dislike_count}`.toLowerCase().includes(q)) return false;
     if (filters.user && !getUser(a).toLowerCase().includes(filters.user.toLowerCase())) return false;
@@ -93,7 +98,7 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
                 color: activeTab === t ? "#a78bfa" : "#475569",
                 border: activeTab === t ? "1px solid rgba(124,58,237,0.4)" : "1px solid transparent",
               }}>
-              {TAB_LABELS[t]} ({args.filter(a => a.status === t).length})
+              {TAB_LABELS[t]} ({args.filter(a => t === "reported" ? (a.report_count ?? 0) > 0 : a.status === t).length})
             </button>
           ))}
         </div>
@@ -103,7 +108,7 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
-              {["Itilizatè", "Agiman", "Matchup", "👍 / 👎", "Dat", "Aksyon"].map((h) => (
+              {["Itilizatè", "Agiman", "Matchup", "👍 / 👎", "Rapò", "Dat", "Aksyon"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
               ))}
             </tr>
@@ -113,14 +118,17 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
                 ["argument", "Filtre agiman"],
                 ["matchup", "Filtre matchup"],
                 ["reactions", "Filtre 👍/👎"],
+                ["reports", ""],
                 ["date", "Filtre dat"],
               ].map(([key, placeholder]) => (
                 <th key={key} className="px-4 pb-3">
-                  <input value={filters[key as keyof typeof filters]}
-                    onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
-                    placeholder={placeholder}
-                    className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                    style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                  {key === "reports" ? null : (
+                    <input value={filters[key as keyof typeof filters]}
+                      onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
+                      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                  )}
                 </th>
               ))}
               <th className="px-4 pb-3">
@@ -132,7 +140,7 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Pa gen agiman</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Pa gen agiman</td></tr>
             )}
             {filtered.map((a) => (
               <tr key={a.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -145,6 +153,16 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>
                   <span style={{ color: "#22c55e" }}>{a.like_count}</span> / <span style={{ color: "#ef4444" }}>{a.dislike_count}</span>
+                </td>
+                <td className="px-4 py-3" style={{ color: "#f59e0b", maxWidth: 190 }}>
+                  {(a.report_count ?? 0) > 0 ? (
+                    <>
+                      <div className="text-xs font-semibold">{a.report_count} rapò</div>
+                      <div className="truncate text-[11px]" style={{ color: "#94a3b8" }}>
+                        {(a.report_reasons ?? []).join(", ")}
+                      </div>
+                    </>
+                  ) : "—"}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>{fmtDate(a.created_at)}</td>
                 <td className="px-4 py-3">
