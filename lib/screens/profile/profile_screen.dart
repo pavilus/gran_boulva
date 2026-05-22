@@ -264,6 +264,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 18),
                           _buildInfluenceStats(),
                           const SizedBox(height: 18),
+                          _buildStreakBanner(),
+                          const SizedBox(height: 18),
                           _buildBadgesSection(),
                           const SizedBox(height: 18),
                           _buildRecentActivitySection(),
@@ -565,6 +567,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStreakBanner() {
+    return GestureDetector(
+      onTap: () => context.push('/streak'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1a0038), Color(0xFF2e0060)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          border: Border.all(
+              color: AppColors.purpleLight.withValues(alpha: 0.35)),
+        ),
+        child: const Row(
+          children: [
+            Text('🔥', style: TextStyle(fontSize: 24)),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Streak mwen',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Wè streak ou ak opsyon retablisman',
+                    style: TextStyle(
+                        color: Color(0xFFBDB3DD), fontSize: 12,
+                        fontFamily: 'Poppins'),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: AppColors.purpleLight, size: 20),
+          ],
+        ),
+      ),
     );
   }
 

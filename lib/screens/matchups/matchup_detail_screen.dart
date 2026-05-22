@@ -87,10 +87,10 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   final _scrollController = ScrollController();
 
   static const _sortTabs = [
-    ('popular', 'Top Agimantasyon'),
+    ('popular', 'Tòp Agiman'),
     ('boosted', 'Boosted'),
     ('recent', 'Resan'),
-    ('following', 'Swiv mwen'),
+    ('following', 'Map Swiv'),
   ];
 
   @override
@@ -1571,7 +1571,8 @@ class _OptionCard extends StatelessWidget {
                         style: TextStyle(
                             color: large ? Colors.white : Colors.white70,
                             fontSize: large ? 22.8 : 12,
-                            fontWeight: large ? FontWeight.w900 : FontWeight.w500,
+                            fontWeight:
+                                large ? FontWeight.w900 : FontWeight.w500,
                             fontFamily: 'Poppins',
                             height: 1)),
                     if (voted) ...[

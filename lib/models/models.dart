@@ -1,4 +1,5 @@
 // All Gran Boulva data models
+import 'package:flutter/material.dart';
 
 class UserModel {
   final String id;
@@ -1299,4 +1300,149 @@ class TopVoiceModel {
     }
     return '$influenceScore';
   }
+}
+
+// ─── Streak Recovery ──────────────────────────────────────────────────────────
+class StreakStatus {
+  final int currentStreak;
+  final int longestStreak;
+  final String? lastClaimDate; // YYYY-MM-DD
+  final bool isRecoveryEligible;
+  final int recoveryCost;
+  final bool alreadyRecovered;
+
+  const StreakStatus({
+    required this.currentStreak,
+    required this.longestStreak,
+    this.lastClaimDate,
+    required this.isRecoveryEligible,
+    required this.recoveryCost,
+    required this.alreadyRecovered,
+  });
+
+  factory StreakStatus.fromJson(Map<String, dynamic> j) => StreakStatus(
+        currentStreak: (j['current_streak'] as num?)?.toInt() ?? 0,
+        longestStreak: (j['longest_streak'] as num?)?.toInt() ?? 0,
+        lastClaimDate: j['last_claim_date'] as String?,
+        isRecoveryEligible: j['is_recovery_eligible'] as bool? ?? false,
+        recoveryCost: (j['recovery_cost'] as num?)?.toInt() ?? 0,
+        alreadyRecovered: j['already_recovered'] as bool? ?? false,
+      );
+}
+
+// ─── Cosmetics ────────────────────────────────────────────────────────────────
+class CosmeticCategory {
+  final String id;
+  final String key;
+  final String nameHt;
+  final String nameEn;
+  final int sortOrder;
+
+  const CosmeticCategory({
+    required this.id,
+    required this.key,
+    required this.nameHt,
+    required this.nameEn,
+    required this.sortOrder,
+  });
+
+  factory CosmeticCategory.fromJson(Map<String, dynamic> j) => CosmeticCategory(
+        id: j['id'] as String,
+        key: j['key'] as String,
+        nameHt: j['name_ht'] as String,
+        nameEn: j['name_en'] as String? ?? '',
+        sortOrder: (j['sort_order'] as num?)?.toInt() ?? 0,
+      );
+}
+
+class CosmeticItem {
+  final String id;
+  final String key;
+  final String categoryKey;
+  final String nameHt;
+  final String nameEn;
+  final String? descriptionHt;
+  final int priceCoins;
+  final String rarity;
+  final String? assetUrl;
+  final String? previewUrl;
+  final bool isOwned;
+  final bool isEquipped;
+
+  const CosmeticItem({
+    required this.id,
+    required this.key,
+    required this.categoryKey,
+    required this.nameHt,
+    required this.nameEn,
+    this.descriptionHt,
+    required this.priceCoins,
+    required this.rarity,
+    this.assetUrl,
+    this.previewUrl,
+    required this.isOwned,
+    required this.isEquipped,
+  });
+
+  factory CosmeticItem.fromJson(Map<String, dynamic> j) => CosmeticItem(
+        id: j['id'] as String,
+        key: j['key'] as String? ?? '',
+        categoryKey: j['category_key'] as String? ?? '',
+        nameHt: j['name_ht'] as String,
+        nameEn: j['name_en'] as String? ?? '',
+        descriptionHt: j['description_ht'] as String?,
+        priceCoins: (j['price_coins'] as num?)?.toInt() ?? 0,
+        rarity: j['rarity'] as String? ?? 'common',
+        assetUrl: j['asset_url'] as String?,
+        previewUrl: j['preview_url'] as String?,
+        isOwned: j['is_owned'] as bool? ?? false,
+        isEquipped: j['is_equipped'] as bool? ?? false,
+      );
+
+  Color get rarityColor {
+    switch (rarity) {
+      case 'rare':
+        return const Color(0xFF60A5FA);
+      case 'epic':
+        return const Color(0xFFA855F7);
+      case 'legendary':
+        return const Color(0xFFFBBF24);
+      case 'founder':
+        return const Color(0xFFEC4899);
+      default:
+        return const Color(0xFF94A3B8);
+    }
+  }
+}
+
+class EquippedCosmetics {
+  final String? profileFrameId;
+  final String? profileFrameKey;
+  final String? usernameEffectId;
+  final String? profileThemeId;
+  final String? cosmeticBadgeId;
+
+  const EquippedCosmetics({
+    this.profileFrameId,
+    this.profileFrameKey,
+    this.usernameEffectId,
+    this.profileThemeId,
+    this.cosmeticBadgeId,
+  });
+
+  // ignore: avoid_unused_constructor_parameters
+  const EquippedCosmetics.empty()
+      : profileFrameId = null,
+        profileFrameKey = null,
+        usernameEffectId = null,
+        profileThemeId = null,
+        cosmeticBadgeId = null;
+
+  factory EquippedCosmetics.fromJson(Map<String, dynamic> j) => EquippedCosmetics(
+        profileFrameId: j['profile_frame_id'] as String?,
+        profileFrameKey: j['profile_frame_key'] as String?,
+        usernameEffectId: j['username_effect_id'] as String?,
+        profileThemeId: j['profile_theme_id'] as String?,
+        cosmeticBadgeId: j['cosmetic_badge_id'] as String?,
+      );
 }

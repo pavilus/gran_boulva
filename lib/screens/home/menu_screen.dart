@@ -416,6 +416,13 @@ class _MenuScreenState extends State<MenuScreen> {
           subtitle: 'Dekouvri ak kolekte badj ou yo',
           onTap: () => context.push('/badges'),
         ),
+        _MenuItemData(
+          icon: Icons.auto_awesome_rounded,
+          color: AppColors.pink,
+          title: 'Boutik Kosmetik',
+          subtitle: 'Kadè pwofil, efè non ak plis',
+          onTap: () => context.push('/cosmetics'),
+        ),
       ];
 
   List<_MenuItemData> _preferencesItems() {

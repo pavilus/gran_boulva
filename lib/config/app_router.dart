@@ -34,6 +34,8 @@ import '../screens/profile/notification_settings_screen.dart';
 import '../screens/profile/help_screen.dart';
 import '../screens/profile/verification_request_screen.dart';
 import '../screens/profile/creator_dashboard_screen.dart';
+import '../screens/profile/streak_recovery_screen.dart';
+import '../screens/cosmetics/cosmetics_store_screen.dart';
 import '../widgets/common/app_interactions.dart';
 import 'app_colors.dart';
 
@@ -188,6 +190,8 @@ GoRouter createRouter() {
       GoRoute(
           path: '/creator-dashboard',
           builder: (_, __) => const CreatorDashboardScreen()),
+      GoRoute(path: '/streak', builder: (_, __) => const StreakRecoveryScreen()),
+      GoRoute(path: '/cosmetics', builder: (_, __) => const CosmeticsStoreScreen()),
     ],
   );
 }

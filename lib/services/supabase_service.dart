@@ -308,6 +308,7 @@ class MatchupService {
       'p_option_id': optionId,
       'p_argument_body': argumentBody,
     });
+    AppSoundService.play(AppSound.vote);
     await BadgeService().recordEvent(
       badgeKey: 'top_voter',
       eventType: 'vote',
@@ -330,8 +331,6 @@ class MatchupService {
       targetType: 'matchup',
       targetId: matchupId,
     );
-    AppSoundService.play(AppSound.vote);
-
     return data is Map ? Map<String, dynamic>.from(data) : {'success': true};
   }
 
@@ -343,6 +342,7 @@ class MatchupService {
       'p_matchup_id': matchupId,
       'p_option_id': newOptionId,
     });
+    AppSoundService.play(AppSound.vote);
     await BadgeService().recordEvent(
       badgeKey: 'top_voter',
       eventType: 'vote_changed',
@@ -354,7 +354,6 @@ class MatchupService {
       targetType: 'matchup',
       targetId: matchupId,
     );
-    AppSoundService.play(AppSound.vote);
   }
 
   Future<Map<String, dynamic>?> getUserVote(String matchupId) async {
@@ -954,6 +953,7 @@ class CoinService {
     final data = await supabase.rpc('claim_daily_coin_reward');
     final result =
         DailyCoinClaimStatus.fromJson(Map<String, dynamic>.from(data as Map));
+    AppSoundService.play(AppSound.coin);
     final now = DateTime.now();
     final dailyKey =
         'daily:${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -971,7 +971,6 @@ class CoinService {
         referenceKey: _weekReferenceKey(now),
       );
     }
-    AppSoundService.play(AppSound.coin);
     return result;
   }
 
@@ -1425,6 +1424,7 @@ class BadgeService {
         final result =
             BadgeEventResult.fromJson(Map<String, dynamic>.from(data));
         if (result.leveledUp) {
+          await AppSoundService.waitForActionSound();
           AppSoundService.play(AppSound.badgeUnlock);
           BadgeUnlockEvents.show(result);
         }
@@ -2187,5 +2187,86 @@ class VerificationService {
       'document_type': documentType,
       'document_url': path,
     });
+  }
+}
+
+// ─── StreakService ────────────────────────────────────────────────────────────
+class StreakService {
+  final _client = Supabase.instance.client;
+
+  Future<StreakStatus?> getStreakStatus() async {
+    try {
+      final result = await _client.rpc('get_streak_recovery_status');
+      if (result == null) return null;
+      final map = result is Map ? result : (result as List).first;
+      return StreakStatus.fromJson(Map<String, dynamic>.from(map as Map));
+    } catch (e) {
+      debugPrint('getStreakStatus error: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>> recoverStreak() async {
+    try {
+      final result = await _client.rpc('recover_streak');
+      return Map<String, dynamic>.from(result as Map);
+    } catch (e) {
+      return {'ok': false, 'error': e.toString()};
+    }
+  }
+}
+
+// ─── CosmeticsService ─────────────────────────────────────────────────────────
+class CosmeticsService {
+  final _client = Supabase.instance.client;
+
+  Future<List<CosmeticItem>> getStore() async {
+    try {
+      final result = await _client.rpc('get_cosmetics_store');
+      if (result == null) return [];
+      return (result as List)
+          .map((e) => CosmeticItem.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (e) {
+      debugPrint('getStore error: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> purchaseCosmetic(String cosmeticItemId) async {
+    try {
+      final result = await _client
+          .rpc('purchase_cosmetic', params: {'p_cosmetic_item_id': cosmeticItemId});
+      return Map<String, dynamic>.from(result as Map);
+    } catch (e) {
+      return {'ok': false, 'error': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> equipCosmetic(
+      String slot, String cosmeticItemId) async {
+    try {
+      final result = await _client.rpc('equip_cosmetic', params: {
+        'p_slot': slot,
+        'p_cosmetic_item_id': cosmeticItemId,
+      });
+      return Map<String, dynamic>.from(result as Map);
+    } catch (e) {
+      return {'ok': false, 'error': e.toString()};
+    }
+  }
+
+  Future<EquippedCosmetics?> getEquippedCosmetics(String userId) async {
+    try {
+      final result = await _client
+          .rpc('get_equipped_cosmetics', params: {'p_user_id': userId});
+      if (result == null) return const EquippedCosmetics.empty();
+      final map = result is Map ? result : (result as List?)?.first;
+      if (map == null) return const EquippedCosmetics.empty();
+      return EquippedCosmetics.fromJson(Map<String, dynamic>.from(map as Map));
+    } catch (e) {
+      debugPrint('getEquippedCosmetics error: $e');
+      return const EquippedCosmetics.empty();
+    }
   }
 }
