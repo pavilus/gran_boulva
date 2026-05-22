@@ -329,6 +329,8 @@ class _NavItem extends StatelessWidget {
                   width: 29,
                   height: 29,
                   fit: BoxFit.contain,
+                  color: color,
+                  colorBlendMode: BlendMode.srcIn,
                 ),
               ],
             ),
