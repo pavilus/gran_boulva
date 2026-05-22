@@ -13,9 +13,16 @@ type Matchup = {
 };
 type Category = { id: string; name_ht: string; name_en: string };
 
-const TABS = ["Tout", "draft", "published", "closed", "archived"] as const;
+const TABS = ["Semèn sa", "Tout", "draft", "published", "closed", "archived"] as const;
 const STATUS_LABELS: Record<string, string> = { draft: "Draft", published: "Pibliye", closed: "Fèmen", archived: "Achive" };
 const STATUS_COLORS: Record<string, string> = { draft: "#a78bfa", published: "#22c55e", closed: "#94a3b8", archived: "#475569" };
+
+function isThisWeek(dateStr: string): boolean {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  return diffMs >= 0 && diffMs <= 7 * 24 * 60 * 60 * 1000;
+}
 
 const VOTE_RANGES = [
   { label: "Tout vòt", value: "" },
@@ -68,7 +75,7 @@ async function doAction(id: string, action: string) {
 
 export default function MatchupList({ matchups: initial, categories }: { matchups: Matchup[]; categories: Category[] }) {
   const [matchups, setMatchups] = useState(initial);
-  const [activeTab, setActiveTab] = useState<typeof TABS[number]>("Tout");
+  const [activeTab, setActiveTab] = useState<typeof TABS[number]>("Semèn sa");
   const [loading, setLoading] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ title: "", category: "", votes: "", status: "" });
@@ -95,7 +102,10 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
     return "";
   };
 
+  const thisWeekCount = matchups.filter((m) => m.status === "published" && isThisWeek(m.created_at)).length;
+
   const filtered = matchups.filter((m) => {
+    if (activeTab === "Semèn sa") return m.status === "published" && isThisWeek(m.created_at);
     if (activeTab !== "Tout" && m.status !== activeTab) return false;
     const q = search.toLowerCase();
     if (q && !`${m.title_ht} ${m.title_en ?? ""} ${catName(m)} ${m.status}`.toLowerCase().includes(q)) return false;
@@ -135,7 +145,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
   return (
     <div className="space-y-4">
       {/* Search + tabs */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -143,27 +153,35 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
           className="px-3 py-2 rounded-lg text-sm text-white outline-none flex-1 max-w-xs"
           style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
         />
-        <div className="flex gap-1">
-          {TABS.map((t) => (
-            <button key={t}
-              onClick={() => setActiveTab(t)}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors capitalize"
-              style={{
-                background: activeTab === t ? "rgba(124,58,237,0.2)" : "transparent",
-                color: activeTab === t ? "#a78bfa" : "#475569",
-                border: activeTab === t ? "1px solid rgba(124,58,237,0.4)" : "1px solid transparent",
-              }}>
-              {t === "Tout" ? `Tout (${matchups.length})` : `${STATUS_LABELS[t]} (${matchups.filter(m => m.status === t).length})`}
-            </button>
-          ))}
+        <div className="flex gap-1 flex-wrap">
+          {TABS.map((t) => {
+            const count = t === "Semèn sa"
+              ? thisWeekCount
+              : t === "Tout"
+              ? matchups.length
+              : matchups.filter((m) => m.status === t).length;
+            const label = t === "Semèn sa" ? `🗓 Semèn sa (${count})` : t === "Tout" ? `Tout (${count})` : `${STATUS_LABELS[t]} (${count})`;
+            const isSemèn = t === "Semèn sa";
+            return (
+              <button key={t}
+                onClick={() => setActiveTab(t)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors capitalize"
+                style={{
+                  background: activeTab === t
+                    ? isSemèn ? "rgba(34,197,94,0.2)" : "rgba(124,58,237,0.2)"
+                    : "transparent",
+                  color: activeTab === t
+                    ? isSemèn ? "#22c55e" : "#a78bfa"
+                    : "#475569",
+                  border: activeTab === t
+                    ? isSemèn ? "1px solid rgba(34,197,94,0.4)" : "1px solid rgba(124,58,237,0.4)"
+                    : "1px solid transparent",
+                }}>
+                {label}
+              </button>
+            );
+          })}
         </div>
-        <button
-          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-white"
-          style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7)" }}
-          onClick={() => alert("Kreye matchup — byento disponib")}
-        >
-          <Plus size={14} /> Kreye
-        </button>
       </div>
 
       {/* Table */}
