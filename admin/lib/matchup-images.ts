@@ -228,6 +228,7 @@ async function optionBackdrop(imageA: Buffer, imageB: Buffer, width: number, hei
       { input: left, left: 0, top: 0 },
       { input: right, left: width - half, top: 0 },
     ])
+    .png()
     .toBuffer();
 }
 
