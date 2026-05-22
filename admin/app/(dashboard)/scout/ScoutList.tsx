@@ -8,6 +8,7 @@ import {
   Save, ExternalLink, Tag, Users, Lightbulb, Zap, Eye,
   Star, Globe,
 } from "lucide-react";
+import DatePicker from "@/components/DatePicker";
 
 type Category = { id: string; name_ht: string; name_en: string };
 
@@ -384,12 +385,10 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                   {isPrediction && (
                     <div>
                       <div className="text-xs mb-1" style={{ color: "#64748b" }}>Dat limit rezilta</div>
-                      <input
-                        type="date"
+                      <DatePicker
                         value={draft.deadline_at ? draft.deadline_at.slice(0, 10) : ""}
-                        onChange={(e) => { set("deadline_at", e.target.value ? `${e.target.value}T00:00:00Z` : null); }}
-                        className="w-full text-xs text-white rounded-lg px-3 py-2"
-                        style={{ background: "#13152a", border: "1px solid #1e2040", outline: "none", colorScheme: "dark" }}
+                        onChange={(val) => set("deadline_at", val ? `${val}T00:00:00Z` : null)}
+                        placeholder="Opsyonèl…"
                       />
                     </div>
                   )}

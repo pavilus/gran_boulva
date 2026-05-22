@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trophy, Bot, Check, X, Loader2, ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
+import DatePicker from "@/components/DatePicker";
 
 type Prediction = {
   id: string; title_ht: string; title_en?: string; option_a: string; option_b: string;
@@ -168,7 +169,7 @@ function EditModal({ p, categories, onClose, onSaved }: {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Dat limit">
-            <input type="date" style={inputStyle()} value={form.deadline_at} onChange={e => setForm(f => ({ ...f, deadline_at: e.target.value }))} />
+            <DatePicker value={form.deadline_at} onChange={val => setForm(f => ({ ...f, deadline_at: val }))} />
           </FormField>
           <FormField label="Estati">
             <select style={inputStyle()} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
@@ -244,7 +245,7 @@ function CreateModal({ categories, onClose, onCreated }: {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Dat limit — opsyonèl">
-            <input type="date" style={inputStyle()} value={form.deadline_at} onChange={e => setForm(f => ({ ...f, deadline_at: e.target.value }))} />
+            <DatePicker value={form.deadline_at} onChange={val => setForm(f => ({ ...f, deadline_at: val }))} placeholder="Opsyonèl…" />
           </FormField>
           <FormField label="Estati">
             <select style={inputStyle()} value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
