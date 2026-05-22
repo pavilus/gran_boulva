@@ -94,7 +94,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
     setLoading(null);
   };
 
-  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "white" };
+  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4" };
 
   return (
     <div className="space-y-4">
@@ -158,7 +158,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={req.user.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
-                    <span style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>
+                    <span style={{ color: "#D4D4D4", fontWeight: "bold", fontSize: 14 }}>
                       {req.user?.username?.[0]?.toUpperCase() ?? "?"}
                     </span>
                   )}
@@ -167,7 +167,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span style={{ color: "white", fontWeight: 700, fontSize: 14 }}>
+                    <span style={{ color: "#D4D4D4", fontWeight: 700, fontSize: 14 }}>
                       @{req.user?.username ?? "—"}
                     </span>
                     <span

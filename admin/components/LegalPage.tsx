@@ -23,7 +23,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 80px" }}>
         {/* Title */}
         <div style={{ marginBottom: 40 }}>
-          <h1 style={{ fontSize: 32, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>{title}</h1>
+          <h1 style={{ fontSize: 32, fontWeight: 800, color: "#D4D4D4", margin: "0 0 8px" }}>{title}</h1>
           {subtitle && <p style={{ color: "#94a3b8", fontSize: 15, margin: "0 0 12px" }}>{subtitle}</p>}
           <p style={{ color: "#475569", fontSize: 13, margin: 0 }}>Dènye mizajou / Last updated: {effectiveDate}</p>
         </div>

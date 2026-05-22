@@ -22,7 +22,7 @@ function EditRow({
   const [form, setForm] = useState(cat);
   const set = (k: keyof Category) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
-  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "white" };
+  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4" };
 
   return (
     <tr style={{ background: "#120d2a", borderBottom: "1px solid #1e2040" }}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, ImagePlus, Loader2, Share2 } from "lucide-react";
+import { Download, ImagePlus, Loader2, Share2, Upload } from "lucide-react";
 
 type GeneratedSet = {
   option_a_image_url: string;
@@ -30,6 +30,9 @@ export default function MatchupImageGenerator({
     share_image_url: initialShare ?? "",
   });
   const [generating, setGenerating] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [shareFile, setShareFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
   async function generate() {
@@ -53,6 +56,36 @@ export default function MatchupImageGenerator({
       setError(err instanceof Error ? err.message : "Jenerasyon echwe");
     } finally {
       setGenerating(false);
+    }
+  }
+
+  async function uploadManualImages() {
+    if (!posterFile || !shareFile) return;
+    setUploading(true);
+    setError("");
+    try {
+      const payload = new FormData();
+      payload.append("matchup_id", matchupId);
+      payload.append("poster", posterFile);
+      payload.append("share", shareFile);
+      const response = await fetch("/api/matchups/images/upload", {
+        method: "POST",
+        body: payload,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Upload echwe");
+      setImages({
+        option_a_image_url: data.option_a_image_url,
+        option_b_image_url: data.option_b_image_url,
+        poster_image_url: data.poster_image_url,
+        share_image_url: data.share_image_url,
+      });
+      setPosterFile(null);
+      setShareFile(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload echwe");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -102,17 +135,25 @@ export default function MatchupImageGenerator({
         <Preview label="Composite" src={images.poster_image_url} ratio="4 / 5" />
       </div>
 
-      {images.poster_image_url && (
+      {(images.option_a_image_url || images.option_b_image_url || images.poster_image_url) && (
         <div className="mt-4 flex flex-wrap gap-2">
-          <a
-            href={images.poster_image_url}
-            download
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-            style={{ color: "#ffffff", border: "1px solid #3a2669" }}
-          >
-            <Download size={13} />
-            Poster 4:5
-          </a>
+          {images.option_a_image_url && (
+            <DownloadLink href={images.option_a_image_url} label="Opsyon A" />
+          )}
+          {images.option_b_image_url && (
+            <DownloadLink href={images.option_b_image_url} label="Opsyon B" />
+          )}
+          {images.poster_image_url && (
+            <a
+              href={images.poster_image_url}
+              download
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+              style={{ color: "#D4D4D4", border: "1px solid #3a2669" }}
+            >
+              <Download size={13} />
+              Poster 4:5
+            </a>
+          )}
           {images.share_image_url && (
             <a
               href={images.share_image_url}
@@ -133,7 +174,83 @@ export default function MatchupImageGenerator({
           </a>
         </div>
       )}
+
+      <div
+        className="mt-4 rounded-xl p-4"
+        style={{ background: "#080916", border: "1px solid #1e2040" }}
+      >
+        <div className="mb-3">
+          <h3 className="text-xs font-semibold text-white">Upload Canva</h3>
+          <p className="mt-1 text-xs leading-relaxed" style={{ color: "#64748b" }}>
+            Telechaje opsyon A/B, fini poster la nan Canva, epi remete poster PNG
+            1080 x 1350 ak share PNG 1200 x 630 la isit la.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <UploadField
+            label="Poster 4:5"
+            value={posterFile}
+            onChange={setPosterFile}
+          />
+          <UploadField
+            label="Share OG"
+            value={shareFile}
+            onChange={setShareFile}
+          />
+        </div>
+        <button
+          onClick={uploadManualImages}
+          disabled={uploading || !posterFile || !shareFile}
+          className="mt-3 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold disabled:opacity-50"
+          style={{ color: "#ffffff", border: "1px solid #3a2669" }}
+        >
+          {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+          {uploading ? "Ap upload..." : "Upload poster ak share"}
+        </button>
+      </div>
     </section>
+  );
+}
+
+function DownloadLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      download
+      className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
+      style={{ color: "#c4b5fd", border: "1px solid #31205b" }}
+    >
+      <Download size={13} />
+      {label}
+    </a>
+  );
+}
+
+function UploadField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: File | null;
+  onChange: (file: File | null) => void;
+}) {
+  return (
+    <label
+      className="block rounded-lg px-3 py-2 text-xs"
+      style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+    >
+      <span className="mb-1 block font-semibold text-white">{label}</span>
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        onChange={(event) => onChange(event.currentTarget.files?.[0] ?? null)}
+        className="block w-full text-xs"
+      />
+      <span className="mt-1 block truncate" style={{ color: "#64748b" }}>
+        {value?.name ?? "PNG, JPEG, oswa WebP"}
+      </span>
+    </label>
   );
 }
 

@@ -84,7 +84,7 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
                   background: "#ec4899",
                   fontSize: 8,
                   fontWeight: 700,
-                  color: "white",
+                  color: "#D4D4D4",
                   padding: unread > 9 ? "0 2px" : 0,
                 }}
               >

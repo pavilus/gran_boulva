@@ -168,7 +168,7 @@ export default function CreatorsClient({
     setLoading(null);
   };
 
-  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "white" };
+  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4" };
 
   return (
     <div className="space-y-4">
@@ -220,11 +220,11 @@ export default function CreatorsClient({
                 <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed,#ec4899)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   {p.user?.avatar_url
                     ? <img src={p.user.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-                    : <span style={{ color: "white", fontWeight: "bold", fontSize: 13 }}>{p.user?.username?.[0]?.toUpperCase()}</span>}
+                    : <span style={{ color: "#D4D4D4", fontWeight: "bold", fontSize: 13 }}>{p.user?.username?.[0]?.toUpperCase()}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span style={{ color: "white", fontWeight: 700, fontSize: 13 }}>@{p.user?.username}</span>
+                    <span style={{ color: "#D4D4D4", fontWeight: 700, fontSize: 13 }}>@{p.user?.username}</span>
                     <span className="px-2 py-0.5 rounded text-xs"
                       style={{ background: "rgba(96,165,250,0.12)", color: "#60a5fa" }}>
                       {p.payout_method ?? "—"}
@@ -310,13 +310,13 @@ export default function CreatorsClient({
                   <div style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, background: "linear-gradient(135deg,#7c3aed,#ec4899)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                     {c.user?.avatar_url
                       ? <img src={c.user.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      : <span style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>{c.user?.username?.[0]?.toUpperCase() ?? "?"}</span>}
+                      : <span style={{ color: "#D4D4D4", fontWeight: "bold", fontSize: 14 }}>{c.user?.username?.[0]?.toUpperCase() ?? "?"}</span>}
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span style={{ color: "white", fontWeight: 700, fontSize: 14 }}>@{c.user?.username ?? "—"}</span>
+                      <span style={{ color: "#D4D4D4", fontWeight: 700, fontSize: 14 }}>@{c.user?.username ?? "—"}</span>
                       <span style={{ fontSize: 14 }}>{tierIcon}</span>
                       <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
                         style={{ background: `${tierColor}20`, color: tierColor }}>
@@ -348,7 +348,7 @@ export default function CreatorsClient({
                         <circle cx="18" cy="18" r="15" fill="none" stroke={tierColor} strokeWidth="3"
                           strokeDasharray={`${(c.creator_score / 100) * 94.2} 94.2`} />
                       </svg>
-                      <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 9, fontWeight: "bold" }}>
+                      <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#D4D4D4", fontSize: 9, fontWeight: "bold" }}>
                         {c.creator_score}
                       </span>
                     </div>
@@ -375,7 +375,7 @@ export default function CreatorsClient({
                         { label: "Deja peye", v: c.total_paid_out_coins },
                       ].map(({ label, v }) => (
                         <div key={label} className="text-center p-2 rounded-lg" style={{ background: "#0a0b18" }}>
-                          <div style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>{v}</div>
+                          <div style={{ color: "#D4D4D4", fontWeight: "bold", fontSize: 14 }}>{v}</div>
                           <div style={{ color: "#64748b", fontSize: 10 }}>{label}</div>
                         </div>
                       ))}
@@ -442,7 +442,7 @@ function _StatCard({ icon, label, value, color }: { icon: React.ReactNode; label
         {icon}
         <span className="text-xs font-semibold">{label}</span>
       </div>
-      <div style={{ color: "white", fontWeight: "bold", fontSize: 20 }}>{value}</div>
+      <div style={{ color: "#D4D4D4", fontWeight: "bold", fontSize: 20 }}>{value}</div>
     </div>
   );
 }

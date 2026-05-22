@@ -172,7 +172,7 @@ export default function Sidebar() {
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: "50%" }}
             />
           ) : (
-            <span style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>{userInitials}</span>
+            <span style={{ color: "#D4D4D4", fontSize: 12, fontWeight: "bold" }}>{userInitials}</span>
           )}
         </div>
 

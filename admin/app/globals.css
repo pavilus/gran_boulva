@@ -16,9 +16,12 @@
 
 body {
   background-color: var(--bg-base);
-  color: #f1f5f9;
+  color: #D4D4D4;
   font-family: Poppins, system-ui, sans-serif;
 }
+
+/* Soften Tailwind's text-white across non-button elements */
+.text-white { color: #D4D4D4; }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: #0e0f1e; }

@@ -58,7 +58,7 @@ function fmtDate(d?: string | null) {
 
 // ─── Shared form fields ───────────────────────────────────────────────────────
 function inputStyle(extra?: React.CSSProperties): React.CSSProperties {
-  return { background: "#0a0b18", border: "1px solid #1e2040", color: "white", borderRadius: 10, padding: "8px 12px", fontSize: 13, width: "100%", outline: "none", ...extra };
+  return { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4", borderRadius: 10, padding: "8px 12px", fontSize: 13, width: "100%", outline: "none", ...extra };
 }
 
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -99,7 +99,7 @@ function ResolveModal({ p, onClose, onResolved }: { p: Prediction; onClose: () =
               style={{
                 background: winner === opt ? "rgba(124,58,237,0.25)" : "#0a0b18",
                 border: winner === opt ? "1px solid #7c3aed" : "1px solid #1e2040",
-                color: winner === opt ? "#a78bfa" : "white",
+                color: winner === opt ? "#a78bfa" : "#D4D4D4",
               }}>
               {opt === "A" ? p.option_a : p.option_b}
             </button>

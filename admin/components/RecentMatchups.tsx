@@ -46,7 +46,7 @@ export default function RecentMatchups({ matchups }: { matchups: Matchup[] }) {
                 width: 36,
                 height: 36,
                 background: "linear-gradient(135deg,#7c3aed,#ec4899)",
-                color: "white",
+                color: "#D4D4D4",
               }}
             >
               {i + 1}
