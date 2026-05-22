@@ -372,6 +372,13 @@ class _MenuScreenState extends State<MenuScreen> {
 
   List<_MenuItemData> _communityItems() => [
         _MenuItemData(
+          imagePath: 'assets/images/predict.png',
+          color: AppColors.purple,
+          title: 'Prediksyon',
+          subtitle: 'Fè pwopozisyon ou, wè si ou gen rezon',
+          onTap: () => context.push('/predictions'),
+        ),
+        _MenuItemData(
           imagePath: 'assets/images/community.png',
           color: const Color(0xFF3B82F6),
           title: 'Abòneman',

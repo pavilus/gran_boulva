@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
+import '../../widgets/common/app_back_button.dart';
 
 class PredictionsFeedScreen extends StatefulWidget {
   const PredictionsFeedScreen({super.key});
@@ -65,7 +66,7 @@ class _PredictionsFeedScreenState extends State<PredictionsFeedScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false,
+        leading: AppBackButton(onTap: () => context.pop()),
         title: ShaderMask(
           shaderCallback: (bounds) =>
               AppColors.primaryGradient.createShader(bounds),

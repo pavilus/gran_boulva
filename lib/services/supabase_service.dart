@@ -1463,7 +1463,31 @@ class PredictionService {
           .inFilter('status', ['active', 'closed', 'resolved']).order(
               'deadline_at');
       debugPrint('getPredictions: ${(data as List).length} rows');
-      return data.map((j) => PredictionModel.fromJson(j)).toList();
+
+      // Fetch the user's votes to mark participated predictions
+      Map<String, String> myVotes = {};
+      try {
+        final user = await UserService().getProfile();
+        if (user != null) {
+          final votes = await supabase
+              .from('prediction_votes')
+              .select('prediction_id, selected_option')
+              .eq('user_id', user.id);
+          for (final v in votes as List) {
+            myVotes[v['prediction_id'] as String] =
+                v['selected_option'] as String;
+          }
+        }
+      } catch (_) {}
+
+      return data.map((j) {
+        final map = Map<String, dynamic>.from(j as Map);
+        final predId = map['id'] as String? ?? '';
+        if (myVotes.containsKey(predId)) {
+          map['my_selected_option'] = myVotes[predId];
+        }
+        return PredictionModel.fromJson(map);
+      }).toList();
     } catch (e) {
       debugPrint('getPredictions ERROR: $e');
       return [];
@@ -1515,8 +1539,9 @@ class PredictionService {
       String predictionId) async {
     final data = await supabase
         .from('prediction_votes')
-        .select('selected_option')
-        .eq('prediction_id', predictionId);
+        .select('selected_option, created_at')
+        .eq('prediction_id', predictionId)
+        .order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(data);
   }
 }

@@ -655,11 +655,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      Image.asset('assets/images/prediction.png',
-                          width: 36, height: 36,
-                          errorBuilder: (_, __, ___) => const Icon(
-                              Icons.bar_chart_rounded,
-                              color: AppColors.purple, size: 36)),
+                      Image.asset('assets/images/predict.png',
+                          width: 36, height: 36),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
