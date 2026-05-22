@@ -156,6 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverToBoxAdapter(child: _buildCategoryChips()),
               SliverToBoxAdapter(child: _buildHeroBanner()),
               SliverToBoxAdapter(child: _buildTopVoicesSection()),
+              SliverToBoxAdapter(child: _buildPredictionsEntry()),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 sliver: _loading
@@ -627,6 +628,68 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPredictionsEntry() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      child: GestureDetector(
+        onTap: () => context.push('/predictions'),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Stack(
+            children: [
+              Container(
+                height: 70,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF1A0533), Color(0xFF3B0764)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Image.asset('assets/images/prediction.png',
+                          width: 36, height: 36,
+                          errorBuilder: (_, __, ___) => const Icon(
+                              Icons.bar_chart_rounded,
+                              color: AppColors.purple, size: 36)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text('Prediksyon',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Poppins')),
+                            Text('Fè pwopozisyon ou, wè si ou gen rezon',
+                                style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 11,
+                                    fontFamily: 'Poppins')),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded,
+                          color: AppColors.purpleLight, size: 14),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
