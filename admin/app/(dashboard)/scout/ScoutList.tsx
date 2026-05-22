@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bot, RefreshCw, Check, X, ChevronDown, ChevronUp,
-  Loader2, TrendingUp, Flame, Shield, Upload, ImageIcon,
+  Loader2, TrendingUp, Flame, Shield,
   Save, ExternalLink, Tag, Users, Lightbulb, Zap, Eye,
   Star, Globe,
 } from "lucide-react";
@@ -84,97 +84,6 @@ function Chip({ label, color = "#475569", bg = "#1e2040" }: { label: string; col
   );
 }
 
-function ImagePicker({ label, current, onChange }: { label: string; current: string | null; onChange: (url: string | null) => void }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(current);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setError(null);
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Imaj la twò gwo. Maksimòm lan se 10 MB.");
-      e.target.value = "";
-      return;
-    }
-    setPreview(URL.createObjectURL(file));
-    setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    try {
-      const res = await fetch("/api/scout/upload", { method: "POST", body: fd });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.url) throw new Error(data.error ?? "Upload failed");
-      onChange(data.url);
-    } catch (err) {
-      setPreview(current);
-      setError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
-      e.target.value = "";
-    }
-  }
-
-  function cancelImage() {
-    setPreview(null);
-    setError(null);
-    onChange(null);
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="text-xs font-medium" style={{ color: "#64748b" }}>{label}</div>
-      <div
-        className="relative rounded-xl overflow-hidden cursor-pointer flex items-center justify-center"
-        style={{ height: 110, background: "#13152a", border: "1px dashed #1e2040" }}
-        onClick={() => inputRef.current?.click()}
-      >
-        {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt={label} className="w-full h-full object-cover" />
-        ) : (
-          <div className="flex flex-col items-center gap-1.5">
-            <ImageIcon size={20} color="#334155" />
-            <span style={{ color: "#334155", fontSize: 11 }}>Klike pou chwazi</span>
-          </div>
-        )}
-        {uploading && (
-          <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(7,8,15,0.7)" }}>
-            <Loader2 size={20} color="#a78bfa" className="animate-spin" />
-          </div>
-        )}
-        {preview && !uploading && (
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity" style={{ background: "rgba(7,8,15,0.55)" }}>
-            <Upload size={16} color="white" />
-          </div>
-        )}
-      </div>
-      <div className="flex items-center justify-between">
-        <span style={{ color: error ? "#f87171" : "#334155", fontSize: 10 }}>{error ?? "JPG / PNG / WebP · maks 10 MB"}</span>
-        <span
-          className="px-2 py-0.5 rounded font-mono text-xs"
-          style={{ background: "rgba(124,58,237,0.1)", color: "#a78bfa", fontSize: 10 }}
-        >
-          800 × 900 px
-        </span>
-      </div>
-      {preview && !uploading && (
-        <button
-          type="button"
-          onClick={cancelImage}
-          className="self-start px-2 py-1 rounded-md text-xs font-semibold"
-          style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
-        >
-          Retire imaj
-        </button>
-      )}
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-    </div>
-  );
-}
-
 function Field({ label, value, onChange, multiline = false }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean }) {
   const shared = {
     value,
@@ -208,8 +117,6 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
     draft.option_a !== initial.option_a ||
     draft.option_b !== initial.option_b ||
     draft.description_ht !== initial.description_ht ||
-    draft.image_url_a !== initial.image_url_a ||
-    draft.image_url_b !== initial.image_url_b ||
     draft.category_id !== initial.category_id ||
     draft.deadline_at !== initial.deadline_at;
 
@@ -235,8 +142,6 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
         option_a: draft.option_a,
         option_b: draft.option_b,
         description_ht: draft.description_ht,
-        image_url_a: draft.image_url_a,
-        image_url_b: draft.image_url_b,
         category_id: draft.category_id,
         deadline_at: draft.deadline_at,
       }),
@@ -351,10 +256,6 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
           {/* Edit tab */}
           {tab === "edit" && (
             <div className="p-4 space-y-4">
-              <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
-                <ImagePicker key={`a-${draft.image_url_a ?? "empty"}`} label={`Imaj — ${draft.option_a || "Opsyon A"}`} current={draft.image_url_a} onChange={(url) => set("image_url_a", url)} />
-                <ImagePicker key={`b-${draft.image_url_b ?? "empty"}`} label={`Imaj — ${draft.option_b || "Opsyon B"}`} current={draft.image_url_b} onChange={(url) => set("image_url_b", url)} />
-              </div>
               <div className="grid gap-3" style={{ gridTemplateColumns: "2fr 1fr" }}>
                 <Field label="Tit (Kreyòl)" value={draft.title_ht} onChange={(v) => set("title_ht", v)} />
                 <Field label="Tit (Angle)" value={draft.title_en ?? ""} onChange={(v) => set("title_en", v)} />
