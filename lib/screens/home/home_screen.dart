@@ -460,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   hintText: _homeTab == 0
                       ? 'Chèche matchups, kategori,...'
                       : 'Chèche prediksyon...',
-                  hintStyle: TextStyle(
+                  hintStyle: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 14,
                     fontFamily: 'Poppins',
@@ -732,12 +732,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
+                            const Row(
                               children: [
-                                const Text('🔮',
+                                Text('🔮',
                                     style: TextStyle(fontSize: 18)),
-                                const SizedBox(width: 6),
-                                const Text(
+                                SizedBox(width: 6),
+                                Text(
                                   'Tòp Pwofèt',
                                   style: TextStyle(
                                     color: AppColors.textPrimary,

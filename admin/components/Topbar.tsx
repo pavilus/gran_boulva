@@ -3,7 +3,6 @@
 import { Bell, Calendar, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 interface TopbarProps {
   title: string;
@@ -28,12 +27,12 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
   const weekRange = currentWeekRange();
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from("notifications")
-      .select("*", { count: "exact", head: true })
-      .eq("is_read", false)
-      .then(({ count }) => { if (count != null) setUnread(count); });
+    // Fetch via API route (uses service-role client) so RLS doesn't
+    // limit the count to the logged-in admin's own notifications only.
+    fetch("/api/notifications/unread-count")
+      .then((r) => r.json())
+      .then(({ count }) => { if (typeof count === "number") setUnread(count); })
+      .catch(() => {});
   }, []);
 
   return (
