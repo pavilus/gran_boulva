@@ -248,9 +248,9 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget _buildStatsRow() {
     final p = _profile;
     final stats = [
-      ('🔥', _fmt(p?.participationCount ?? 0), 'Patisipasyon'),
-      ('🏆', _fmt(p?.victoryCount ?? 0), 'Viktwa'),
-      ('⭐', _fmt(p?.followersCount ?? 0), 'Abònen'),
+      ('assets/images/fire.png',            AppColors.error,   _fmt(p?.participationCount ?? 0), 'Patisipasyon'),
+      ('assets/images/trophy.png',          AppColors.warning, _fmt(p?.victoryCount ?? 0),       'Viktwa'),
+      ('assets/images/follower.png',         AppColors.purple,  _fmt(p?.followersCount ?? 0),     'Abònen'),
     ];
 
     return Container(
@@ -262,10 +262,14 @@ class _MenuScreenState extends State<MenuScreen> {
       ),
       child: Row(
         children: stats.map((entry) {
-          final (emoji, value, label) = entry;
+          final (img, color, value, label) = entry;
           return Expanded(
             child: Column(children: [
-              Text(emoji, style: const TextStyle(fontSize: 18)),
+              Image.asset(img,
+                  width: 22,
+                  height: 22,
+                  color: color,
+                  colorBlendMode: BlendMode.srcIn),
               const SizedBox(height: 4),
               Text(value,
                   style: const TextStyle(
@@ -375,7 +379,7 @@ class _MenuScreenState extends State<MenuScreen> {
           onTap: () => context.push('/subscriptions'),
         ),
         _MenuItemData(
-          imagePath: 'assets/images/topvote.png',
+          imagePath: 'assets/images/top.png',
           color: const Color(0xFFF59E0B),
           title: 'Tòp Vwa',
           subtitle: 'Kreyatè ki pi enfliyans yo',
@@ -392,7 +396,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   List<_MenuItemData> _financeItems() => [
         _MenuItemData(
-          imagePath: 'assets/images/coin.png',
+          imagePath: 'assets/images/coins.png',
           color: AppColors.success,
           title: 'Boulva Coins',
           subtitle: 'Balans, acha ak tranzaksyon',
@@ -418,7 +422,7 @@ class _MenuScreenState extends State<MenuScreen> {
         onTap: () => context.go('/notifications'),
       ),
       _MenuItemData(
-        imagePath: 'assets/images/icon_front/Sekirite.png',
+        imagePath: 'assets/images/anviwonman.png',
         color: AppColors.textMuted,
         title: 'Anviwònman',
         subtitle: 'Preferans kont ak sekirite',
@@ -451,7 +455,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   List<_MenuItemData> _supportItems() => [
         _MenuItemData(
-          imagePath: 'assets/images/Kijan.png',
+          imagePath: 'assets/images/help.png',
           color: const Color(0xFF14B8A6),
           title: 'Èd ak Sipò',
           subtitle: 'FAQ, kontak ak asistans',

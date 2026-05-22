@@ -7,6 +7,7 @@ import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
+import '../../widgets/common/app_interactions.dart';
 import '../../widgets/common/grad_button.dart';
 import '../../widgets/common/user_avatar.dart';
 import '../../widgets/common/verification_badge.dart';
@@ -86,9 +87,10 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   final _scrollController = ScrollController();
 
   static const _sortTabs = [
-    ('popular', 'Pi popilè'),
-    ('recent', 'Pi resan'),
-    ('following', 'Mwen swiv'),
+    ('popular', 'Top Agimantasyon'),
+    ('boosted', 'Boosted'),
+    ('recent', 'Resan'),
+    ('following', 'Swiv mwen'),
   ];
 
   @override
@@ -182,7 +184,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            next ? 'Matchup la sovgad.' : 'Matchup la retire nan Sovgad.',
+            next ? 'Matchup la sovgade.' : 'Matchup la retire nan Sovgad.',
             style: const TextStyle(fontFamily: 'Poppins'),
           ),
           backgroundColor: AppColors.card,
@@ -225,6 +227,10 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
           .toList();
       if (_argumentSort == 'popular') {
         list.sort((a, b) => b.finalRankingScore.compareTo(a.finalRankingScore));
+      } else if (_argumentSort == 'boosted') {
+        list
+          ..removeWhere((arg) => !arg.isBoosted)
+          ..sort((a, b) => b.finalRankingScore.compareTo(a.finalRankingScore));
       }
       if (mounted) {
         setState(() {
@@ -466,7 +472,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      toolbarHeight: 76,
+      toolbarHeight: 56,
       backgroundColor: _matchupPageBg,
       surfaceTintColor: Colors.transparent,
       leading: AppBackButton.matchupStyle(
@@ -866,8 +872,10 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
                 left: width * 0.21,
                 right: width * 0.21,
                 top: height * 0.54,
-                child: GestureDetector(
+                child: AppPressable(
                   onTap: _openArgumentSheet,
+                  haptic: AppHaptic.medium,
+                  pressedScale: 0.985,
                   child: Container(
                     height: 41,
                     decoration: BoxDecoration(
@@ -1312,8 +1320,10 @@ class _PreVoteOptionCard extends StatelessWidget {
         : '?';
     final imageSource = _optionImageSource(option);
 
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
+      pressedScale: 0.985,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         height: 164,
@@ -1436,8 +1446,10 @@ class _HeaderCircleAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
+      pressedScale: 0.9,
       child: Container(
         width: 36,
         height: 36,
@@ -1484,8 +1496,10 @@ class _OptionCard extends StatelessWidget {
             : AppColors.border;
     final imageSource = _optionImageSource(option);
 
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
+      pressedScale: 0.985,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         height: large ? 128 : 104,
@@ -1546,27 +1560,30 @@ class _OptionCard extends StatelessWidget {
               left: 12,
               right: 12,
               bottom: 10,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('${percent.toStringAsFixed(0)}%',
-                      style: TextStyle(
-                          color: large ? Colors.white : Colors.white70,
-                          fontSize: large ? 24 : 12,
-                          fontWeight: large ? FontWeight.w900 : FontWeight.w500,
-                          fontFamily: 'Poppins',
-                          height: 1)),
-                  if (voted)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 3),
-                      child: Icon(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('${percent.toStringAsFixed(0)}%',
+                        style: TextStyle(
+                            color: large ? Colors.white : Colors.white70,
+                            fontSize: large ? 22.8 : 12,
+                            fontWeight: large ? FontWeight.w900 : FontWeight.w500,
+                            fontFamily: 'Poppins',
+                            height: 1)),
+                    if (voted) ...[
+                      const SizedBox(width: 5),
+                      const Icon(
                         Icons.check_circle_rounded,
                         color: AppColors.success,
                         size: 15,
                       ),
-                    ),
-                ],
+                    ],
+                  ],
+                ),
               ),
             ),
           ]),
@@ -1780,12 +1797,20 @@ class _ArgumentCardState extends State<_ArgumentCard> {
                       fontFamily: 'Poppins')),
             ),
           ],
-          const SizedBox(width: 4),
-          GestureDetector(
-            onTap: _reportArgument,
-            child: const Icon(Icons.more_horiz,
-                color: AppColors.textMuted, size: 18),
-          ),
+          if (!isOwnCard) ...[
+            const SizedBox(width: 4),
+            AppPressable(
+              onTap: _reportArgument,
+              haptic: AppHaptic.warning,
+              pressedScale: 0.88,
+              child: Image.asset(
+                'assets/images/report.png',
+                width: 18,
+                height: 18,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ],
         ]),
         const SizedBox(height: 10),
         // Body
@@ -1843,8 +1868,9 @@ class _ArgumentCardState extends State<_ArgumentCard> {
             onTap: () => widget.onReaction('dislike'),
           ),
           const SizedBox(width: 12),
-          GestureDetector(
+          AppPressable(
             onTap: widget.onReply,
+            haptic: AppHaptic.selection,
             child: const Text('Reponn',
                 style: TextStyle(
                     color: AppColors.textMuted,
@@ -1853,8 +1879,9 @@ class _ArgumentCardState extends State<_ArgumentCard> {
           ),
           if (arg.replyCount > 0) ...[
             const SizedBox(width: 10),
-            GestureDetector(
+            AppPressable(
               onTap: widget.onReadReplies,
+              haptic: AppHaptic.selection,
               child: Text('Li ${_fmt(arg.replyCount)} repons ▾',
                   style: const TextStyle(
                       color: AppColors.purpleLight,
@@ -1864,8 +1891,9 @@ class _ArgumentCardState extends State<_ArgumentCard> {
           ],
           const Spacer(),
           if (!isOwnCard)
-            GestureDetector(
+            AppPressable(
               onTap: widget.onSupport,
+              haptic: AppHaptic.medium,
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -1885,8 +1913,9 @@ class _ArgumentCardState extends State<_ArgumentCard> {
             ),
           if (isOwnCard) ...[
             const SizedBox(width: 8),
-            GestureDetector(
+            AppPressable(
               onTap: widget.onBoost,
+              haptic: AppHaptic.medium,
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -1922,8 +1951,10 @@ class _ReactionBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: active ? AppHaptic.selection : AppHaptic.light,
+      pressedScale: 0.9,
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Text(icon, style: const TextStyle(fontSize: 15)),
         const SizedBox(width: 3),
@@ -2079,8 +2110,9 @@ class _SupportBottomSheetState extends State<_SupportBottomSheet> {
             runSpacing: 10,
             children: _amounts.map((amount) {
               final selected = amount == _selected;
-              return GestureDetector(
+              return AppPressable(
                 onTap: () => setState(() => _selected = amount),
+                haptic: AppHaptic.selection,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 160),
                   width: 74,
@@ -2114,8 +2146,9 @@ class _SupportBottomSheetState extends State<_SupportBottomSheet> {
             iconAsset: 'assets/images/fire.png',
           ),
           const SizedBox(height: 10),
-          GestureDetector(
+          AppPressable(
             onTap: () => Navigator.pop(context),
+            haptic: AppHaptic.selection,
             child: const Text('Anile',
                 style: TextStyle(
                     color: AppColors.textMuted,
@@ -2286,8 +2319,9 @@ class _SheetOptionBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         height: 54,
@@ -2328,8 +2362,10 @@ class _VoteSubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: active && !loading ? onTap : null,
+      haptic: AppHaptic.medium,
+      pressedScale: 0.985,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         height: 54,
@@ -2634,8 +2670,9 @@ class _ChangeVoteOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         height: 64,

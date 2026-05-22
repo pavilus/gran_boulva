@@ -459,6 +459,10 @@ class ArgumentModel {
   final bool isBoosted;
   final int supportCount;
   final int supportCoins;
+  final int shareCount;
+  final int saveCount;
+  final int viewCount;
+  final double finalScore;
 
   const ArgumentModel({
     required this.id,
@@ -479,30 +483,44 @@ class ArgumentModel {
     this.isBoosted = false,
     this.supportCount = 0,
     this.supportCoins = 0,
+    this.shareCount = 0,
+    this.saveCount = 0,
+    this.viewCount = 0,
+    this.finalScore = 0,
   });
 
-  factory ArgumentModel.fromJson(Map<String, dynamic> j) => ArgumentModel(
-        id: j['id'],
-        userId: j['user_id'],
-        matchupId: j['matchup_id'],
-        optionId: j['option_id'],
-        body: j['body'],
-        likeCount: j['like_count'] ?? 0,
-        dislikeCount: j['dislike_count'] ?? 0,
-        replyCount: j['reply_count'] ?? 0,
-        boostExpiresAt: j['boost_expires_at'] != null
-            ? DateTime.parse(j['boost_expires_at'])
-            : null,
-        visibilityScore: j['visibility_score'] ?? 0,
-        status: j['status'] ?? 'active',
-        createdAt: DateTime.parse(j['created_at']),
-        user: j['user'],
-        option: j['option'],
-        myReaction: j['my_reaction'],
-        isBoosted: j['is_boosted'] ?? false,
-        supportCount: j['support_count'] ?? j['supporter_count'] ?? 0,
-        supportCoins: j['support_coins'] ?? j['total_support_coins'] ?? 0,
-      );
+  factory ArgumentModel.fromJson(Map<String, dynamic> j) {
+    final boostExpiresAt = j['boost_expires_at'] != null
+        ? DateTime.tryParse(j['boost_expires_at'].toString())
+        : null;
+    final activeBoost =
+        boostExpiresAt != null && boostExpiresAt.isAfter(DateTime.now());
+
+    return ArgumentModel(
+      id: j['id'],
+      userId: j['user_id'],
+      matchupId: j['matchup_id'],
+      optionId: j['option_id'],
+      body: j['body'],
+      likeCount: j['like_count'] ?? 0,
+      dislikeCount: j['dislike_count'] ?? 0,
+      replyCount: j['reply_count'] ?? 0,
+      boostExpiresAt: boostExpiresAt,
+      visibilityScore: j['visibility_score'] ?? 0,
+      status: j['status'] ?? 'active',
+      createdAt: DateTime.parse(j['created_at']),
+      user: j['user'],
+      option: j['option'],
+      myReaction: j['my_reaction'],
+      isBoosted: (j['is_boosted'] ?? false) == true || activeBoost,
+      supportCount: j['support_count'] ?? j['supporter_count'] ?? 0,
+      supportCoins: j['support_coins'] ?? j['total_support_coins'] ?? 0,
+      shareCount: j['share_count'] ?? 0,
+      saveCount: j['save_count'] ?? 0,
+      viewCount: j['view_count'] ?? 0,
+      finalScore: double.tryParse(j['final_score']?.toString() ?? '0') ?? 0,
+    );
+  }
 
   String get username => user?['username'] ?? 'Itilizatè';
   String? get userAvatar => user?['avatar_url'];
@@ -514,6 +532,8 @@ class ArgumentModel {
   String get optionName => option?['option_name'] ?? '';
 
   double get finalRankingScore {
+    if (finalScore > 0) return finalScore;
+
     final age = DateTime.now().difference(createdAt);
     final recencyScore = age.inHours < 2
         ? 15
@@ -524,11 +544,19 @@ class ArgumentModel {
                 : 0;
     final boostScore = isBoosted ? 60 : 0;
     final supportScore = supportCoins * 0.3;
+    final engagementRateScore = viewCount > 0
+        ? (((likeCount + replyCount + shareCount + saveCount) / viewCount) *
+                100)
+            .clamp(0, 100)
+        : 0;
     return visibilityScore +
         boostScore +
         (likeCount * 2) +
         (replyCount * 5) +
+        (shareCount * 8) +
+        (saveCount * 6) +
         supportScore +
+        engagementRateScore +
         recencyScore;
   }
 }

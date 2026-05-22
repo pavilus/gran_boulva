@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../config/app_colors.dart';
+import 'app_interactions.dart';
 
 class AppBackButton extends StatelessWidget {
   final VoidCallback? onTap;
@@ -52,8 +53,9 @@ class AppBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
       child: Container(
         width: size,
         height: size,

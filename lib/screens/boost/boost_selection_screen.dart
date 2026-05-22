@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/app_colors.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
+import '../../widgets/common/app_interactions.dart';
 import '../../widgets/common/grad_button.dart';
 
 class BoostSelectionScreen extends StatefulWidget {
@@ -71,6 +72,7 @@ class _BoostSelectionScreenState extends State<BoostSelectionScreen> {
           useFreCredit: true,
         );
         if (mounted) {
+          AppHaptics.tap(AppHaptic.success);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Boost gratis aktive!')),
           );
@@ -109,6 +111,7 @@ class _BoostSelectionScreenState extends State<BoostSelectionScreen> {
           coinCost: cost,
         );
         if (!mounted) return;
+        AppHaptics.tap(AppHaptic.success);
         setState(
             () => _coinBalance = _coinBalance > cost ? _coinBalance - cost : 0);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -265,8 +268,10 @@ class _TierCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
+      pressedScale: 0.985,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 12),
@@ -335,8 +340,10 @@ class _FreeTierCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
+      pressedScale: 0.985,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),

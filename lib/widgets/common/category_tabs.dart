@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_interactions.dart';
+
 class CategoryItem {
   final String label;
   final String icon;
@@ -10,10 +12,15 @@ class CategoryItem {
 const List<CategoryItem> kCategories = [
   CategoryItem(label: 'Popilè', icon: '🔥', asset: 'assets/images/fire.png'),
   CategoryItem(label: 'Tout', icon: '⭐', asset: 'assets/images/star.png'),
-  CategoryItem(label: 'Sosyete', icon: '👥', asset: 'assets/images/society.png'),
-  CategoryItem(label: 'Divètisman', icon: '🎬', asset: 'assets/images/entertainment.png'),
+  CategoryItem(
+      label: 'Sosyete', icon: '👥', asset: 'assets/images/society.png'),
+  CategoryItem(
+      label: 'Divètisman',
+      icon: '🎬',
+      asset: 'assets/images/entertainment.png'),
   CategoryItem(label: 'Sport', icon: '⚽', asset: 'assets/images/sport.png'),
-  CategoryItem(label: 'Politik', icon: '🏛️', asset: 'assets/images/politics.png'),
+  CategoryItem(
+      label: 'Politik', icon: '🏛️', asset: 'assets/images/politics.png'),
 ];
 
 class CategoryTabs extends StatelessWidget {
@@ -53,8 +60,9 @@ class _ActiveTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
       child: Container(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -75,7 +83,8 @@ class _ActiveTab extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (cat.asset != null)
-                Image.asset(cat.asset!, width: 15, height: 15, fit: BoxFit.contain)
+                Image.asset(cat.asset!,
+                    width: 15, height: 15, fit: BoxFit.contain)
               else
                 Text(cat.icon, style: const TextStyle(fontSize: 13)),
               const SizedBox(width: 5),
@@ -104,8 +113,9 @@ class _InactiveTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(

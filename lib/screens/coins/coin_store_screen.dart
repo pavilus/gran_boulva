@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../config/app_colors.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
+import '../../widgets/common/app_interactions.dart';
 
 class CoinStoreScreen extends StatefulWidget {
   const CoinStoreScreen({super.key});
@@ -131,6 +132,7 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
         _dailyClaim = result;
         _balance += result.amount;
       });
+      AppHaptics.tap(AppHaptic.success);
       _showSnack('Ou resevwa ${result.amount} Boulva Coins!');
     } catch (e) {
       if (mounted) _showSnack('Erè: ${e.toString()}');
@@ -348,8 +350,10 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
           ]),
         ),
         const SizedBox(width: 10),
-        GestureDetector(
+        AppPressable(
           onTap: canClaim ? _claimDailyReward : null,
+          haptic: AppHaptic.medium,
+          pressedScale: 0.94,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 160),
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
@@ -401,8 +405,10 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
         ..._packs.asMap().entries.map((e) {
           final isSelected = _selectedPack == e.key;
           final pack = e.value;
-          return GestureDetector(
+          return AppPressable(
             onTap: () => setState(() => _selectedPack = e.key),
+            haptic: AppHaptic.selection,
+            pressedScale: 0.985,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.only(bottom: 10),
@@ -610,8 +616,9 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
             final isSelected = _selectedPayment == i;
             final m = methods[i];
             return Expanded(
-              child: GestureDetector(
+              child: AppPressable(
                 onTap: () => setState(() => _selectedPayment = i),
+                haptic: AppHaptic.selection,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   margin:
@@ -662,8 +669,10 @@ class _CoinStoreScreenState extends State<CoinStoreScreen> {
   }
 
   Widget _buildContinueButton() {
-    return GestureDetector(
+    return AppPressable(
       onTap: _proceeding ? null : _proceed,
+      haptic: AppHaptic.medium,
+      pressedScale: 0.985,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),

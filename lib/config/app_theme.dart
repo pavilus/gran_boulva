@@ -16,6 +16,13 @@ class AppTheme {
           onSecondary: Colors.white,
           onSurface: AppColors.textPrimary,
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          },
+        ),
         fontFamily: 'Poppins',
         textTheme: const TextTheme(
           displayLarge: TextStyle(

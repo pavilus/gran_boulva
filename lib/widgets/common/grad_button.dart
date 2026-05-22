@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../config/app_colors.dart';
 import 'app_back_button.dart';
+import 'app_interactions.dart';
 
 class GradButton extends StatelessWidget {
   final String label;
@@ -26,8 +27,10 @@ class GradButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: loading ? null : onTap,
+      haptic: AppHaptic.medium,
+      pressedScale: 0.985,
       child: Container(
         height: height,
         width: width ?? double.infinity,
@@ -112,7 +115,7 @@ class GlassCard extends StatelessWidget {
       child: child,
     );
     if (onTap != null) {
-      return GestureDetector(onTap: onTap, child: card);
+      return AppPressable(onTap: onTap, child: card);
     }
     return card;
   }
@@ -178,8 +181,9 @@ class CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      haptic: AppHaptic.selection,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),

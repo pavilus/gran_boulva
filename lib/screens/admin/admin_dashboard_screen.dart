@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
 import '../../services/supabase_service.dart';
@@ -299,6 +299,42 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       _showSnack('Demann verifikasyon rejte', AppColors.warning);
     } catch (_) {
       _showSnack('Pa kapab rejte demann nan', AppColors.error);
+    }
+  }
+
+  Future<void> _revokeVerification(VerificationRequestModel request) async {
+    final user = request.user;
+    if (user == null) {
+      _showSnack('Pa gen itilizatè pou demann sa', AppColors.error);
+      return;
+    }
+    final reason = await _askText(
+      title: 'Retire verifikasyon',
+      hint: 'Rezon pou retire badj la',
+    );
+    if (reason == null) return;
+    try {
+      await AdminService().revokeVerification(user, reason: reason);
+      await _loadVerificationRequests();
+      await _loadUsers();
+      _showSnack('Verifikasyon retire', AppColors.warning);
+    } catch (_) {
+      _showSnack('Pa kapab retire verifikasyon an', AppColors.error);
+    }
+  }
+
+  Future<void> _openVerificationDocument(
+      VerificationDocumentModel document) async {
+    try {
+      final url = await AdminService()
+          .createVerificationDocumentUrl(document.documentUrl);
+      final opened = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!opened) _showSnack('Pa kapab ouvri dokiman an', AppColors.error);
+    } catch (_) {
+      _showSnack('Pa kapab ouvri dokiman an', AppColors.error);
     }
   }
 
@@ -959,6 +995,30 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   _adminMeta('Lyen', request.socialLinks!),
                 if (request.proofNotes?.isNotEmpty == true)
                   _adminMeta('Prèv', request.proofNotes!),
+                if (request.documents.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (var d = 0; d < request.documents.length; d++)
+                        OutlinedButton.icon(
+                          onPressed: () =>
+                              _openVerificationDocument(request.documents[d]),
+                          icon: const Icon(Icons.lock_open_rounded, size: 16),
+                          label: Text('Dokiman ${d + 1}'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.purpleLight,
+                            side: BorderSide(
+                              color:
+                                  AppColors.purpleLight.withValues(alpha: 0.5),
+                            ),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
                 if (request.rejectionReason?.isNotEmpty == true)
                   _adminMeta('Rezon rejè', request.rejectionReason!),
                 if (canReview) ...[
@@ -989,6 +1049,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                         ),
                       ),
                     ],
+                  ),
+                ],
+                if (request.status == 'approved' && request.user != null) ...[
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => _revokeVerification(request),
+                      icon:
+                          const Icon(Icons.remove_moderator_outlined, size: 18),
+                      label: const Text('Retire badj verifikasyon'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.warning,
+                        side: const BorderSide(color: AppColors.warning),
+                      ),
+                    ),
                   ),
                 ],
               ],

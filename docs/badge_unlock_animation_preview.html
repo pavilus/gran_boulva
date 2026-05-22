@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="ht">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Badge Unlock Animation Preview</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 20%, #21153b 0, #0b0a19 42%, #05060d 100%);
+        color: #fff;
+        font-family: Poppins, Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .stage {
+        position: relative;
+        width: min(100vw, 420px);
+        min-height: 720px;
+        display: grid;
+        place-items: center;
+        isolation: isolate;
+      }
+
+      .page {
+        position: absolute;
+        inset: 0;
+        padding: 56px 24px;
+        opacity: 0.68;
+      }
+
+      .page-line {
+        height: 14px;
+        margin-bottom: 14px;
+        border-radius: 7px;
+        background: #232548;
+      }
+
+      .page-line:nth-child(1) {
+        width: 38%;
+        height: 24px;
+        background: #3b2565;
+      }
+
+      .page-line:nth-child(2) {
+        width: 88%;
+      }
+
+      .page-line:nth-child(3) {
+        width: 72%;
+      }
+
+      .page-card {
+        height: 180px;
+        margin-top: 32px;
+        border: 1px solid #24274f;
+        border-radius: 16px;
+        background: #11132a;
+      }
+
+      .veil {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: rgba(3, 4, 11, 0.74);
+        opacity: 0;
+        animation: veil 4.4s ease-in-out infinite;
+      }
+
+      .unlock {
+        position: relative;
+        z-index: 2;
+        width: 320px;
+        min-height: 420px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .burst {
+        position: relative;
+        width: 230px;
+        height: 230px;
+        display: grid;
+        place-items: center;
+        transform: scale(0);
+        animation: burst 4.4s cubic-bezier(0.2, 1.05, 0.25, 1) infinite;
+      }
+
+      .ring,
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      .glow {
+        inset: 36px;
+        background:
+          radial-gradient(circle, rgba(250, 204, 21, 0.45), rgba(236, 72, 153, 0.28) 35%, rgba(168, 85, 247, 0) 72%);
+        filter: blur(7px);
+        animation: glow 4.4s ease-out infinite;
+      }
+
+      .ring {
+        inset: 24px;
+        border: 2px solid rgba(250, 204, 21, 0);
+        animation: ring 4.4s ease-out infinite;
+      }
+
+      .ring.secondary {
+        inset: 10px;
+        animation-delay: 70ms;
+      }
+
+      .badge-frame {
+        position: relative;
+        width: 142px;
+        height: 142px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 28px;
+        background:
+          linear-gradient(145deg, rgba(168, 85, 247, 0.34), rgba(236, 72, 153, 0.24)),
+          #120c28;
+        box-shadow:
+          0 18px 50px rgba(168, 85, 247, 0.42),
+          inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      }
+
+      .badge {
+        width: 108px;
+        height: 108px;
+        object-fit: contain;
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.42));
+      }
+
+      .spark {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: #facc15;
+        box-shadow: 0 0 18px #facc15;
+        opacity: 0;
+        --x: 0px;
+        --y: 0px;
+        animation: spark 4.4s ease-out infinite;
+      }
+
+      .spark:nth-child(1) { --x: -104px; --y: -74px; animation-delay: 20ms; }
+      .spark:nth-child(2) { --x: -126px; --y: 14px; width: 6px; height: 6px; background: #f472b6; }
+      .spark:nth-child(3) { --x: -70px; --y: 112px; animation-delay: 60ms; }
+      .spark:nth-child(4) { --x: 20px; --y: -128px; width: 7px; height: 7px; background: #c084fc; }
+      .spark:nth-child(5) { --x: 112px; --y: -78px; animation-delay: 85ms; background: #f472b6; }
+      .spark:nth-child(6) { --x: 132px; --y: 12px; width: 6px; height: 6px; }
+      .spark:nth-child(7) { --x: 82px; --y: 112px; animation-delay: 45ms; background: #c084fc; }
+      .spark:nth-child(8) { --x: -4px; --y: 138px; width: 6px; height: 6px; }
+
+      .copy {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: copy 4.4s ease-out infinite;
+      }
+
+      .eyebrow {
+        margin-top: -6px;
+        color: #facc15;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 8px 0 4px;
+        font-size: 30px;
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0;
+        color: #d8d5ef;
+        font-size: 15px;
+      }
+
+      .continue {
+        margin-top: 22px;
+        border: 0;
+        border-radius: 14px;
+        padding: 14px 28px;
+        color: #fff;
+        background: linear-gradient(120deg, #a855f7, #ec4899);
+        box-shadow: 0 12px 28px rgba(168, 85, 247, 0.36);
+      }
+
+      .replay {
+        position: absolute;
+        right: 18px;
+        bottom: 24px;
+        z-index: 3;
+        border: 1px solid #343863;
+        border-radius: 12px;
+        padding: 10px 14px;
+        color: #d8d5ef;
+        background: #101226;
+      }
+
+      .restart * {
+        animation: none !important;
+      }
+
+      @keyframes veil {
+        0%, 10%, 96%, 100% { opacity: 0; }
+        18%, 88% { opacity: 1; }
+      }
+
+      @keyframes burst {
+        0%, 16% { opacity: 0; transform: scale(0.16); }
+        28% { opacity: 1; transform: scale(1.16); }
+        35%, 86% { opacity: 1; transform: scale(1); }
+        96%, 100% { opacity: 0; transform: scale(0.94); }
+      }
+
+      @keyframes ring {
+        0%, 18% { opacity: 0; transform: scale(0.4); border-color: rgba(250, 204, 21, 0); }
+        26% { opacity: 1; border-color: rgba(250, 204, 21, 0.75); }
+        52%, 100% { opacity: 0; transform: scale(1.28); border-color: rgba(168, 85, 247, 0); }
+      }
+
+      @keyframes glow {
+        0%, 16% { opacity: 0; transform: scale(0.55); }
+        28% { opacity: 1; transform: scale(1.2); }
+        50%, 88% { opacity: 0.8; transform: scale(1); }
+        100% { opacity: 0; }
+      }
+
+      @keyframes spark {
+        0%, 20% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+        27% { opacity: 1; }
+        46% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1); }
+        100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0.5); }
+      }
+
+      @keyframes copy {
+        0%, 31% { opacity: 0; transform: translateY(18px); }
+        42%, 86% { opacity: 1; transform: translateY(0); }
+        96%, 100% { opacity: 0; transform: translateY(8px); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage" id="stage">
+      <section class="page" aria-hidden="true">
+        <div class="page-line"></div>
+        <div class="page-line"></div>
+        <div class="page-line"></div>
+        <div class="page-card"></div>
+      </section>
+
+      <div class="veil"></div>
+
+      <section class="unlock" aria-label="Badge unlock animation preview">
+        <div class="burst">
+          <div class="glow"></div>
+          <div class="ring"></div>
+          <div class="ring secondary"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="spark"></div>
+          <div class="badge-frame">
+            <img class="badge" src="../assets/images/grandebate.png" alt="Gran Debate badge" />
+          </div>
+        </div>
+
+        <div class="copy">
+          <div class="eyebrow">Badj Debloke!</div>
+          <h1>Gran Debatè</h1>
+          <p>Nivo 1</p>
+          <button class="continue" type="button">Kontinye</button>
+        </div>
+      </section>
+
+      <button class="replay" type="button" onclick="replay()">Replay</button>
+    </main>
+
+    <script>
+      function replay() {
+        const stage = document.getElementById("stage");
+        stage.classList.add("restart");
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => stage.classList.remove("restart"));
+        });
+      }
+    </script>
+  </body>
+</html>

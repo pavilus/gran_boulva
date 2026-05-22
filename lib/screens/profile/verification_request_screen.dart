@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
@@ -23,11 +24,13 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
   final _organizationEmailCtrl = TextEditingController();
   final _socialLinksCtrl = TextEditingController();
   final _proofNotesCtrl = TextEditingController();
+  final _picker = ImagePicker();
 
   String _type = 'standard';
   bool _submitting = false;
   bool _loading = true;
   List<VerificationRequestModel> _requests = [];
+  List<XFile> _selectedDocuments = [];
 
   @override
   void initState() {
@@ -65,7 +68,7 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _submitting = true);
     try {
-      await VerificationService().submitRequest(
+      final request = await VerificationService().submitRequest(
         verificationType: _type,
         displayName: _clean(_displayNameCtrl.text),
         legalName: _clean(_legalNameCtrl.text),
@@ -75,6 +78,13 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
         socialLinks: _clean(_socialLinksCtrl.text),
         proofNotes: _clean(_proofNotesCtrl.text),
       );
+      for (final document in _selectedDocuments) {
+        await VerificationService().uploadDocument(
+          requestId: request.id,
+          bytes: await document.readAsBytes(),
+          fileName: document.name,
+        );
+      }
       if (!mounted) return;
       _displayNameCtrl.clear();
       _legalNameCtrl.clear();
@@ -83,6 +93,7 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
       _organizationEmailCtrl.clear();
       _socialLinksCtrl.clear();
       _proofNotesCtrl.clear();
+      setState(() => _selectedDocuments = []);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Demann verifikasyon an voye.')),
       );
@@ -95,6 +106,21 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  Future<void> _pickDocuments() async {
+    final images = await _picker.pickMultiImage(imageQuality: 82);
+    if (images.isEmpty) return;
+    setState(() {
+      _selectedDocuments = [
+        ..._selectedDocuments,
+        ...images,
+      ].take(5).toList();
+    });
+  }
+
+  void _removeDocument(int index) {
+    setState(() => _selectedDocuments.removeAt(index));
   }
 
   String? _clean(String value) {
@@ -208,6 +234,8 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
               required: true,
               maxLines: 4,
             ),
+            const SizedBox(height: 12),
+            _buildDocumentPicker(),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -237,6 +265,78 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildDocumentPicker() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.bg1,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Dokiman / foto prèv',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: _selectedDocuments.length >= 5 || _submitting
+                    ? null
+                    : _pickDocuments,
+                icon: const Icon(Icons.upload_file_rounded, size: 18),
+                label: const Text('Ajoute'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Ajoute jiska 5 imaj: ID, screenshot sosyal, dokiman òganizasyon, oswa lòt prèv.',
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 11,
+              height: 1.35,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          if (_selectedDocuments.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (var i = 0; i < _selectedDocuments.length; i++)
+                  InputChip(
+                    label: Text(
+                      _selectedDocuments[i].name,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    onDeleted: _submitting ? null : () => _removeDocument(i),
+                    backgroundColor: AppColors.card,
+                    labelStyle: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 11,
+                      fontFamily: 'Poppins',
+                    ),
+                    deleteIconColor: AppColors.textMuted,
+                  ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -304,7 +404,8 @@ class _VerificationRequestScreenState extends State<VerificationRequestScreen> {
                   ),
                 ),
                 Text(
-                  _statusLabel(request.status),
+                  '${_statusLabel(request.status)}'
+                  '${request.documents.isEmpty ? '' : ' · ${request.documents.length} dokiman'}',
                   style: TextStyle(
                     color: _statusColor(request.status),
                     fontSize: 12,

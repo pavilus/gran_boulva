@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'app_sound_service.dart';
 import '../models/models.dart';
 
 final supabase = Supabase.instance.client;
@@ -323,6 +324,7 @@ class MatchupService {
       targetType: 'matchup',
       targetId: matchupId,
     );
+    AppSoundService.play(AppSound.vote);
 
     return data is Map ? Map<String, dynamic>.from(data) : {'success': true};
   }
@@ -346,6 +348,7 @@ class MatchupService {
       targetType: 'matchup',
       targetId: matchupId,
     );
+    AppSoundService.play(AppSound.vote);
   }
 
   Future<Map<String, dynamic>?> getUserVote(String matchupId) async {
@@ -470,7 +473,7 @@ class ArgumentService {
     required int page,
     required bool fetchAll,
   }) async {
-    final orderCol = sort == 'recent' ? 'created_at' : 'visibility_score';
+    final orderCol = sort == 'recent' ? 'created_at' : 'final_score';
     try {
       final query = supabase
           .from('arguments')
@@ -962,6 +965,7 @@ class CoinService {
         referenceKey: _weekReferenceKey(now),
       );
     }
+    AppSoundService.play(AppSound.coin);
     return result;
   }
 
@@ -1264,7 +1268,7 @@ class BadgeService {
       'name_en': 'Top Voter',
       'description_ht': 'Vote sou matchups pou monte nivo ou.',
       'description_en': 'Vote on matchups to level up.',
-      'icon_asset': 'assets/images/topvotè.png',
+      'icon_asset': 'assets/images/topvote.png',
       'color_hex': '#A855F7',
       'sort_order': 1,
     },
@@ -1286,7 +1290,7 @@ class BadgeService {
       'name_en': 'Debater',
       'description_ht': 'Ekri agiman ki fè diskisyon an pi rich.',
       'description_en': 'Post arguments that strengthen the debate.',
-      'icon_asset': 'assets/images/grandebatè.png',
+      'icon_asset': 'assets/images/grandebate.png',
       'color_hex': '#3B82F6',
       'sort_order': 3,
     },
@@ -1412,7 +1416,12 @@ class BadgeService {
         },
       );
       if (data is Map) {
-        return BadgeEventResult.fromJson(Map<String, dynamic>.from(data));
+        final result =
+            BadgeEventResult.fromJson(Map<String, dynamic>.from(data));
+        if (result.leveledUp) {
+          AppSoundService.play(AppSound.badgeUnlock);
+        }
+        return result;
       }
     } catch (_) {
       // Badge progress is nice-to-have and should not block core actions.
@@ -1584,6 +1593,7 @@ class BoostService {
         targetType: 'argument',
         targetId: argumentId,
       );
+      AppSoundService.play(AppSound.boost);
       return Map<String, dynamic>.from(res.data as Map);
     } catch (_) {
       final data = await supabase.rpc('boost_argument', params: {
@@ -1598,6 +1608,7 @@ class BoostService {
         targetType: 'argument',
         targetId: argumentId,
       );
+      AppSoundService.play(AppSound.boost);
       return Map<String, dynamic>.from(data as Map);
     }
   }

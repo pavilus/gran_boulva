@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
+import '../common/app_interactions.dart';
 
 class MatchupCard extends StatelessWidget {
   final MatchupModel matchup;
@@ -22,8 +23,9 @@ class MatchupCard extends StatelessWidget {
     final imageB = _imageForOption(optB);
     final hasImage = imageA != null || imageB != null;
 
-    return GestureDetector(
+    return AppPressable(
       onTap: onTap,
+      pressedScale: 0.985,
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         color: Colors.transparent,
@@ -201,7 +203,8 @@ class _PopularBadge extends StatelessWidget {
         border: Border.all(color: const Color(0xFF4A1A7A), width: 1),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Image.asset('assets/images/fire.png', width: 13, height: 13, fit: BoxFit.contain),
+        Image.asset('assets/images/fire.png',
+            width: 13, height: 13, fit: BoxFit.contain),
         const SizedBox(width: 3),
         const Text('Popilè',
             style: TextStyle(
@@ -377,7 +380,7 @@ class _VsSide extends StatelessWidget {
                 Text('${percent.toStringAsFixed(0)}%',
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: compact ? 9 : 11,
+                        fontSize: compact ? 9 : 10,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Poppins')),
                 if (!micro) ...[
@@ -459,11 +462,13 @@ class _CardFooterState extends State<_CardFooter> {
               icon: Icons.group_outlined,
               value: _fmt(widget.matchup.totalVotes)),
           const Spacer(),
-          GestureDetector(
+          AppPressable(
             onTap: () {
               setState(() => _saved = !_saved);
               widget.onSave?.call(_saved);
             },
+            haptic: AppHaptic.selection,
+            pressedScale: 0.86,
             child: Icon(
               _saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
               color: _saved ? AppColors.purple : AppColors.textMuted,

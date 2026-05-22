@@ -34,6 +34,7 @@ import '../screens/profile/notification_settings_screen.dart';
 import '../screens/profile/help_screen.dart';
 import '../screens/profile/verification_request_screen.dart';
 import '../screens/profile/creator_dashboard_screen.dart';
+import '../widgets/common/app_interactions.dart';
 import 'app_colors.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -310,8 +311,10 @@ class _NavItem extends StatelessWidget {
     final color = isActive ? activeColor : inactiveColor;
     final asset = isActive ? activeAsset : inactiveAsset;
 
-    return GestureDetector(
+    return AppPressable(
       onTap: () => onTap(index),
+      haptic: isActive ? AppHaptic.selection : AppHaptic.light,
+      pressedScale: 0.92,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         width: 64,
