@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, Archive, Trash2, Plus, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { CheckCircle, Archive, Trash2, Plus, X, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
 
 type Option = { id: string; option_label: string; option_name: string; vote_count: number };
@@ -73,6 +73,107 @@ async function doAction(id: string, action: string) {
   });
 }
 
+const inputStyle: React.CSSProperties = {
+  background: "#0e0f1e", border: "1px solid #1e2040", color: "#e2e8f0",
+  borderRadius: 8, padding: "8px 12px", fontSize: 13, width: "100%", outline: "none",
+};
+
+function CreateModal({ categories, onClose, onCreate }: {
+  categories: Category[];
+  onClose: () => void;
+  onCreate: (m: Matchup) => void;
+}) {
+  const [form, setForm] = useState({ title_ht: "", title_en: "", description_ht: "", category_id: "", option_a_name: "", option_b_name: "" });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
+  const set = (k: keyof typeof form, v: string) => setForm(p => ({ ...p, [k]: v }));
+
+  const save = async () => {
+    if (!form.title_ht.trim() || !form.category_id || !form.option_a_name.trim() || !form.option_b_name.trim()) {
+      setErr("Tit, kategorì, ak de opsyon yo obligatwa."); return;
+    }
+    setSaving(true); setErr("");
+    const res = await fetch("/api/matchups/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "create", ...form }),
+    });
+    const json = await res.json();
+    if (!res.ok) { setErr(json.error ?? "Erè"); setSaving(false); return; }
+    onCreate({
+      id: json.matchup.id,
+      title_ht: form.title_ht,
+      title_en: form.title_en || undefined,
+      status: "draft",
+      total_votes: 0,
+      created_at: json.matchup.created_at ?? new Date().toISOString(),
+      category_id: form.category_id,
+      category: categories.find(c => c.id === form.category_id)
+        ? { name_ht: categories.find(c => c.id === form.category_id)!.name_ht }
+        : undefined,
+      options: [
+        { id: "", option_label: "A", option_name: form.option_a_name, vote_count: 0 },
+        { id: "", option_label: "B", option_name: form.option_b_name, vote_count: 0 },
+      ],
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)" }} onClick={onClose}>
+      <div className="rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4" style={{ background: "#0a0b18", border: "1px solid #1e2040" }} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-base font-semibold text-white">Kreye Matchup</h2>
+          <button onClick={onClose}><X size={16} style={{ color: "#64748b" }} /></button>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Tit (Kreyòl) *</label>
+            <input style={inputStyle} placeholder="ex: Messi vs Ronaldo" value={form.title_ht} onChange={e => set("title_ht", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Tit (Angle)</label>
+            <input style={inputStyle} placeholder="English title (optional)" value={form.title_en} onChange={e => set("title_en", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Kategorì *</label>
+            <select style={{ ...inputStyle, appearance: "none" as const }} value={form.category_id} onChange={e => set("category_id", e.target.value)}>
+              <option value="">— chwazi kategorì —</option>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name_ht}</option>)}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold mb-1" style={{ color: "#a855f7" }}>Opsyon A *</label>
+              <input style={inputStyle} placeholder="ex: Messi" value={form.option_a_name} onChange={e => set("option_a_name", e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1" style={{ color: "#ec4899" }}>Opsyon B *</label>
+              <input style={inputStyle} placeholder="ex: Ronaldo" value={form.option_b_name} onChange={e => set("option_b_name", e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Deskripsyon</label>
+            <textarea style={{ ...inputStyle, resize: "vertical", minHeight: 72 }} placeholder="Kontèks oswa règ (opsyonèl)" value={form.description_ht} onChange={e => set("description_ht", e.target.value)} />
+          </div>
+        </div>
+
+        {err && <p className="text-xs" style={{ color: "#ef4444" }}>{err}</p>}
+
+        <div className="flex justify-end gap-2 pt-1">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm" style={{ color: "#64748b", border: "1px solid #1e2040" }}>Anile</button>
+          <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5"
+            style={{ background: "rgba(168,85,247,0.2)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.4)", opacity: saving ? 0.6 : 1 }}>
+            <Plus size={13} />{saving ? "Ap kreye…" : "Kreye"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MatchupList({ matchups: initial, categories }: { matchups: Matchup[]; categories: Category[] }) {
   const [matchups, setMatchups] = useState(initial);
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>("Semèn sa");
@@ -80,6 +181,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({ title: "", category: "", votes: "", status: "" });
   const [sort, setSort] = useState<{ col: string; dir: "asc" | "desc" } | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
 
   const setFilter = (key: keyof typeof filters, value: string) =>
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -144,6 +246,14 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
 
   return (
     <div className="space-y-4">
+      {showCreate && (
+        <CreateModal
+          categories={categories}
+          onClose={() => setShowCreate(false)}
+          onCreate={(m) => setMatchups(prev => [m, ...prev])}
+        />
+      )}
+
       {/* Search + tabs */}
       <div className="flex items-center gap-3 flex-wrap">
         <input
@@ -153,6 +263,13 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
           className="px-3 py-2 rounded-lg text-sm text-white outline-none flex-1 max-w-xs"
           style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
         />
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold shrink-0"
+          style={{ background: "rgba(168,85,247,0.15)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.35)" }}
+        >
+          <Plus size={13} /> Kreye Matchup
+        </button>
         <div className="flex gap-1 flex-wrap">
           {TABS.map((t) => {
             const count = t === "Semèn sa"
