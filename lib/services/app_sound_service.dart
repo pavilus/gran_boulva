@@ -8,6 +8,16 @@ enum AppSound { vote, coin, boost, badgeUnlock }
 class AppSoundService {
   const AppSoundService._();
 
+  static const Map<AppSound, Duration> _durations = {
+    AppSound.vote: Duration(milliseconds: 164),
+    AppSound.coin: Duration(milliseconds: 204),
+    AppSound.boost: Duration(milliseconds: 245),
+  };
+
+  static const _badgeUnlockAsset = 'assets/sounds/sunovia-level-up-289723.mp3';
+
+  static DateTime? _activeActionSoundUntil;
+
   static final Map<AppSound, Uint8List> _sounds = {
     AppSound.vote: _wave([
       const _Tone(523.25, 55),
@@ -23,12 +33,6 @@ class AppSoundService {
       const _Tone(523.25, 52),
       const _Tone(783.99, 115),
     ]),
-    AppSound.badgeUnlock: _wave([
-      const _Tone(659.25, 60),
-      const _Tone(830.61, 60),
-      const _Tone(987.77, 72),
-      const _Tone(1318.51, 150),
-    ]),
   };
 
   static Future<void> play(AppSound sound) async {
@@ -36,19 +40,35 @@ class AppSoundService {
       final player = AudioPlayer();
       player.onPlayerComplete.listen((_) => player.dispose());
       await player.setVolume(0.72);
-      await player.play(
-        BytesSource(_sounds[sound]!, mimeType: 'audio/wav'),
-      );
+
+      if (sound == AppSound.badgeUnlock) {
+        await player.play(AssetSource(_badgeUnlockAsset.replaceFirst('assets/', '')));
+      } else {
+        _activeActionSoundUntil =
+            DateTime.now().add(_durations[sound] ?? Duration.zero);
+        await player.play(
+          BytesSource(_sounds[sound]!, mimeType: 'audio/wav'),
+        );
+      }
     } catch (error) {
       debugPrint('AppSoundService play error: $error');
       // Sound is polish. It must not block the product action.
     }
   }
 
+  static Future<void> waitForActionSound() async {
+    final until = _activeActionSoundUntil;
+    if (until == null) return;
+
+    final delay = until.difference(DateTime.now());
+    if (!delay.isNegative) {
+      await Future<void>.delayed(delay + const Duration(milliseconds: 70));
+    }
+  }
+
+  // ─── Generic sequential-tone wave (used by vote / coin / boost) ─────────────
   static Uint8List _wave(List<_Tone> tones) {
     const sampleRate = 22050;
-    const sampleBytes = 2;
-    const channels = 1;
     const amplitude = 11200;
     const silenceMs = 12;
     final samples = <int>[];
@@ -64,8 +84,16 @@ class AppSoundService {
       samples.addAll(List.filled(sampleRate * silenceMs ~/ 1000, 0));
     }
 
+    return _buildWav(samples, 22050);
+  }
+
+  // ─── WAV container builder ───────────────────────────────────────────────────
+  static Uint8List _buildWav(List<int> samples, int sampleRate) {
+    const sampleBytes = 2;
+    const channels = 1;
     final dataSize = samples.length * sampleBytes;
     final bytes = ByteData(44 + dataSize);
+
     _ascii(bytes, 0, 'RIFF');
     bytes.setUint32(4, 36 + dataSize, Endian.little);
     _ascii(bytes, 8, 'WAVE');

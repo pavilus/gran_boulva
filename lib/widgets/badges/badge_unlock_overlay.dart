@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/app_colors.dart';
 import '../../models/models.dart';
+import '../../services/app_sound_service.dart';
 import '../../services/badge_unlock_events.dart';
 import '../common/app_interactions.dart';
 
@@ -18,6 +20,9 @@ class BadgeUnlockOverlayHost extends StatefulWidget {
 }
 
 class _BadgeUnlockOverlayHostState extends State<BadgeUnlockOverlayHost> {
+  static const _previewOnLaunch =
+      bool.fromEnvironment('BADGE_UNLOCK_PREVIEW');
+
   StreamSubscription<BadgeEventResult>? _subscription;
   BadgeEventResult? _badge;
 
@@ -27,8 +32,24 @@ class _BadgeUnlockOverlayHostState extends State<BadgeUnlockOverlayHost> {
     _subscription = BadgeUnlockEvents.stream.listen((badge) {
       if (!mounted) return;
       AppHaptics.tap(AppHaptic.success);
+      AppSoundService.play(AppSound.badgeUnlock);
       setState(() => _badge = badge);
     });
+    if (kDebugMode && _previewOnLaunch) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        BadgeUnlockEvents.show(
+          const BadgeEventResult(
+            badgeKey: 'debater',
+            badgeName: 'Gran Debatè',
+            xp: 7,
+            oldLevel: 0,
+            level: 1,
+            leveledUp: true,
+            insertedEvent: true,
+          ),
+        );
+      });
+    }
   }
 
   @override
@@ -118,7 +139,6 @@ class _BadgeUnlockOverlayState extends State<_BadgeUnlockOverlay>
             (((time * 3.6) - 1.05) / 0.65).clamp(0, 1).toDouble(),
           );
           final floatY = math.sin(time * math.pi * 2) * -12;
-          final glow = 18 + ((math.sin(time * math.pi * 4) + 1) * 18);
           return Stack(
             fit: StackFit.expand,
             children: [
@@ -166,28 +186,16 @@ class _BadgeUnlockOverlayState extends State<_BadgeUnlockOverlay>
                                     scale: 0.2 + (entrance * 0.8),
                                     child: Opacity(
                                       opacity: entrance.clamp(0, 1),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: theme.glowColor
-                                                  .withValues(alpha: 0.72),
-                                              blurRadius: glow,
-                                              spreadRadius: glow * 0.16,
-                                            ),
-                                          ],
-                                        ),
-                                        child: Image.asset(
-                                          image,
-                                          width: 300,
-                                          height: 300,
-                                          fit: BoxFit.contain,
-                                          errorBuilder: (_, __, ___) =>
-                                              const Icon(
-                                            Icons.workspace_premium_rounded,
-                                            color: AppColors.warning,
-                                            size: 180,
-                                          ),
+                                      child: Image.asset(
+                                        image,
+                                        width: 300,
+                                        height: 300,
+                                        fit: BoxFit.contain,
+                                        errorBuilder: (_, __, ___) =>
+                                            const Icon(
+                                          Icons.workspace_premium_rounded,
+                                          color: AppColors.warning,
+                                          size: 180,
                                         ),
                                       ),
                                     ),
@@ -210,6 +218,7 @@ class _BadgeUnlockOverlayState extends State<_BadgeUnlockOverlay>
                                     color: theme.titleColor,
                                     fontSize: 34,
                                     fontWeight: FontWeight.w900,
+                                    fontFamily: 'Poppins',
                                     letterSpacing: 2,
                                     shadows: [
                                       Shadow(
@@ -575,12 +584,22 @@ String _badgeAsset(String key) {
 }
 
 String _subtitle(BadgeEventResult badge) {
-  if (badge.badgeKey == 'founder' ||
-      badge.badgeKey == 'founding_member' ||
-      badge.badgeKey == 'fondate') {
+  // Per-key display names (Haitian Creole, with correct accents)
+  const names = {
+    'hot_streak':        'San Kanpe',
+    'top_voter':         'Top Votè',
+    'debater':           'Gran Debatè',
+    'consistent':        'Konsistan',
+    'community':         'Gran Sipotè',
+    'founder':           null,  // handled separately below
+    'founding_member':   null,
+    'fondate':           null,
+  };
+
+  if (names[badge.badgeKey] == null) {
     return 'Ou se yon Manm Fondatè';
   }
-  final name =
-      badge.badgeName.trim().isEmpty ? 'yon nouvo badj' : badge.badgeName;
+  final name = names[badge.badgeKey] ??
+      (badge.badgeName.trim().isEmpty ? 'yon nouvo badj' : badge.badgeName);
   return 'Ou debloke $name - Nivo ${badge.level}';
 }
