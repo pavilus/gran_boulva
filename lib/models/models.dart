@@ -795,7 +795,7 @@ class PredictionModel {
         mySelectedOption: j['my_selected_option'],
       );
 
-  bool get isActive => status == 'active' || status == 'open';
+  bool get isActive => status == 'active';
   bool get isClosed => status == 'closed' || status == 'resolved';
   bool get hasParticipated => mySelectedOption != null;
 

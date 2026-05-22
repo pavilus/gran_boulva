@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app_sound_service.dart';
+import 'badge_unlock_events.dart';
 import '../models/models.dart';
 
 final supabase = Supabase.instance.client;
@@ -1420,6 +1421,7 @@ class BadgeService {
             BadgeEventResult.fromJson(Map<String, dynamic>.from(data));
         if (result.leveledUp) {
           AppSoundService.play(AppSound.badgeUnlock);
+          BadgeUnlockEvents.show(result);
         }
         return result;
       }
@@ -1453,7 +1455,7 @@ class PredictionService {
     final data = await supabase
         .from('predictions')
         .select('*, category:categories(*)')
-        .inFilter('status', ['active', 'open', 'closed', 'resolved']).order(
+        .inFilter('status', ['active', 'closed', 'resolved']).order(
             'deadline_at');
     return (data as List).map((j) => PredictionModel.fromJson(j)).toList();
   }
