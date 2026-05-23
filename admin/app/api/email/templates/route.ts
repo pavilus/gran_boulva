@@ -12,12 +12,25 @@ export async function POST(req: Request) {
   }
 
   const supabase = createAdminClient();
-  const payload = { name, subject, body_html, body_text, signature_html };
+  const payload = { name, subject, body_html, body_text, signature_html, updated_at: new Date().toISOString() };
   const query = id
     ? supabase.from("email_templates").update(payload).eq("id", id).select().single()
-    : supabase.from("email_templates").insert(payload).select().single();
+    : supabase.from("email_templates").insert({ name, subject, body_html, body_text, signature_html }).select().single();
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
+}
+
+export async function DELETE(req: Request) {
+  const forbidden = await requireAdmin();
+  if (forbidden) return forbidden;
+
+  const { id } = await req.json();
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("email_templates").delete().eq("id", id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }
