@@ -628,30 +628,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── DOWNLOAD CTA ─────────────────────────────────────────────────── */}
-      <section style={{ padding: "120px 32px", position: "relative", overflow: "hidden", borderTop: "1px solid rgba(168,85,247,0.1)" }}>
-        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 1000, height: 500, background: "radial-gradient(ellipse, rgba(168,85,247,0.18) 0%, transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
-          <p style={{ color: "#a855f7", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>Download Now</p>
-          <h2 style={{ fontSize: "clamp(32px, 5vw, 54px)", fontWeight: 900, color: "#fff", margin: "0 0 20px", letterSpacing: "-1.5px", lineHeight: 1.05 }}>
-            Pare pou w fè tande w?
-          </h2>
-          <p style={{ fontSize: 16, color: "#94a3b8", marginBottom: 40, lineHeight: 1.75 }}>
-            Gran Boulva is live on iOS now. Download and join the community that&apos;s already debating, voting, and making noise.
-          </p>
-          <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="https://apps.apple.com/app/gran-boulva" target="_blank" rel="noopener noreferrer"
-              style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "linear-gradient(135deg,#a855f7,#7c3aed)", color: "#fff", padding: "14px 28px", borderRadius: 14, fontWeight: 700, fontSize: 15, textDecoration: "none", boxShadow: "0 8px 30px rgba(168,85,247,0.4)" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg>
-              Download on App Store
-            </a>
-            <a href="#" style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", padding: "14px 28px", borderRadius: 14, fontWeight: 600, fontSize: 15, textDecoration: "none" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.28.15.6.16.89.04l13.12-7.33-2.88-2.89-11.13 10.18zm16.4-9.29L16.44 12l3.14-2.47 3.28 1.83c.94.52.94 1.76 0 2.28l-3.28 1.83zM2.08.28C1.74.54 1.5.99 1.5 1.58v20.84c0 .59.24 1.04.58 1.3L14.3 12 2.08.28zm11.26 11.4L3.18.24c-.29-.12-.61-.11-.89.04l11.13 10.19-2.08 1.21z" /></svg>
-              Google Play — Coming Soon
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* ── DOWNLOAD CTA (hidden) ────────────────────────────────────────── */}
+      {/* <section style={{ padding: "120px 32px", position: "relative", overflow: "hidden", borderTop: "1px solid rgba(168,85,247,0.1)" }}>
+        ...
+      </section> */}
 
       {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer style={{ borderTop: "1px solid rgba(168,85,247,0.15)", padding: "60px 32px 32px" }}>
