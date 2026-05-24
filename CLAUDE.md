@@ -34,11 +34,20 @@ flutter run -d iphone
 # Boot a specific simulator by UDID if needed
 xcrun simctl boot 90DD1705-B0B6-42A0-A7A8-4DF82E6C671A  # iPhone 17 Pro
 
-# Deploy to real iPhone — required for: push notifications, Apple permissions,
-# deep links, camera/avatar upload, Stripe/payments, Agora video, real performance
+# Deploy to real iPhone (debug — cannot launch from home screen on iOS 14+)
 flutter install --device-id 00008030-001A41513A88C02E
 
+# Deploy to real iPhone as RELEASE (stays after unplug, launchable from home screen)
+# IMPORTANT: always build first, then install — flutter install --release alone fails silently
+flutter build ios --release
+flutter install --device-id 00008030-001A41513A88C02E --release
+
+# Hot reload on real iPhone (attach to already-running debug build)
+# 1. flutter install (debug, above)  2. Tap icon via Xcode or flutter run  3. attach:
+flutter attach -d 00008030-001A41513A88C02E
+
 # Run on real iPhone with live reload (foreground only — do NOT background this)
+# WARNING: often hangs on "Installing and launching..." — prefer flutter install + attach
 flutter run -d 00008030-001A41513A88C02E
 
 # Run with Agora App ID (required for battle video — no-op if empty string)
@@ -216,6 +225,8 @@ All 12 service classes live in a single file. Services use an **RPC-first patter
 - `is_username_available(text)` — callable by `anon`/`authenticated`; validates format + uniqueness
 - `calculate_creator_score(user_id)` — returns 0–100 score (badges 30pts, engagement 20pts, followers 20pts, consistency 15pts, reputation 10pts, debate performance 5pts)
 - `refresh_creator_tier(user_id)` — recalculates score, auto-upgrades tiers 0→1→2, notifies user in Haitian Creole
+- `lock_coins_for_battle(p_user_id, p_amount)` — atomic coin deduction; returns `true` if succeeded, `false` if insufficient balance (no race condition)
+- `credit_coins(p_user_id, p_amount)` — atomic coin credit (used for battle prizes and refunds)
 
 ---
 
@@ -389,9 +400,10 @@ Current applied migrations (in order):
 20260522001100_waitlist_table
 20260522001200_debate_battles                             — debate_battles + round_log + audience/extension votes tables
 20260522001300_battle_notification_types                  — battle_challenge, battle_accepted, battle_result enum values
+20260522001400_atomic_coin_ops                            — lock_coins_for_battle() + credit_coins() atomic RPCs
 ```
 
-**Next migration timestamp to use: `20260522001400_...`**
+**Next migration timestamp to use: `20260522001500_...`**
 
 ---
 
@@ -515,6 +527,7 @@ AWS_S3_REGION=...                                            # pending
 - **Battle recordings:** Agora Cloud Recording writes directly to S3. Bucket has a 24h lifecycle rule — AWS deletes files automatically. `recording_expires_at` in DB tracks expiry for UI; the URL goes dead when S3 deletes the file.
 - **Battle challenge topic:** `BattleChallengeScreen` loads 5 popular matchups as selectable topics. Tapping one pre-fills the topic; free-text field activates if nothing is selected.
 - **Battle notifications:** In-app only (DB rows). No push notification integration yet. User B must open the Notifications tab and pull-to-refresh to see a challenge.
+- **Battle security hardening (done):** `end-battle` edge function rejects anonymous callers (requires valid JWT or service_role key). Coin deductions use atomic `lock_coins_for_battle()` RPC — no read-modify-write race condition. Entry fee capped at 10,000 coins. Topic length capped at 200 chars.
 - **App Store revenue cut:** Apple/Google take 30% of all in-app coin purchases. This is the largest cost driver. Design coin flows to maximize off-store circulation (transfers, bonuses, rewards) where no cut applies.
 - **MonCash payouts:** Haitian mobile money payout for creators. Currently sandbox. `coinToUsdRate: 0.001` (1,000 coins = $1 USD). Minimum payout: 1,000 coins.
 
@@ -564,6 +577,15 @@ To fix "Installing and launching..." hang on real device:
 flutter install --device-id 00008030-001A41513A88C02E
 # Then tap the app icon manually on the phone.
 ```
+
+**iOS 14+ debug build limitation:** Debug builds cannot be launched from the home screen — iOS shows
+"In iOS 14+, debug mode Flutter apps can only be launched from Flutter tooling...".
+Use `flutter run` (keeps tooling attached) or build release for standalone use.
+
+**Release build blank screen (silent failure):** `flutter install --release` can silently fail if
+there is no pre-built artifact. Always run `flutter build ios --release` first, then install.
+Diagnosing a release blank screen: wrap `main()` in `runZonedGuarded` to surface the error as
+on-screen text, install release, tap icon, read the message.
 
 ---
 
