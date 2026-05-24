@@ -159,50 +159,6 @@ export default function LandingPage() {
 
         <div className="hero-inner" style={{ maxWidth: 1200, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
           <div className="hero-text">
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 99, padding: "6px 14px", marginBottom: 28 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#a855f7", display: "inline-block", animation: "pulse 2s infinite" }} />
-              <span style={{ fontSize: 12, color: "#a855f7", fontWeight: 600, letterSpacing: 0.5 }}>{t.hero.badge}</span>
-            </div>
-
-            {/* ── Launch countdown ───────────────────────────────── */}
-            <div style={{ marginBottom: 32 }}>
-              {countdown.launched ? (
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.35)", borderRadius: 14, padding: "10px 20px" }}>
-                  <span style={{ fontSize: 13, color: "#10b981", fontWeight: 700 }}>🚀 Gran Boulva is live!</span>
-                </div>
-              ) : (
-                <div>
-                  <p style={{ fontSize: 11, color: "#64748b", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", margin: "0 0 10px" }}>
-                    🚀 Soft Launch — November 18, 2026
-                  </p>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    {[
-                      { v: countdown.days,    label: "DAYS" },
-                      { v: countdown.hours,   label: "HRS" },
-                      { v: countdown.minutes, label: "MIN" },
-                      { v: countdown.seconds, label: "SEC" },
-                    ].map(({ v, label }, i) => (
-                      <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <div style={{
-                          minWidth: 64, padding: "10px 8px",
-                          background: "rgba(168,85,247,0.08)",
-                          border: "1px solid rgba(168,85,247,0.25)",
-                          borderRadius: 12,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          boxShadow: i === 3 ? "0 0 14px rgba(168,85,247,0.2)" : "none",
-                        }}>
-                          <span style={{ fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "-1px", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
-                            {String(v).padStart(2, "0")}
-                          </span>
-                        </div>
-                        <span style={{ fontSize: 9, color: "#475569", fontWeight: 700, letterSpacing: 1.5, marginTop: 5 }}>{label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
             <h1 style={{ fontSize: "clamp(30px, 4.5vw, 58px)", fontWeight: 900, color: "#fff", margin: "0 0 20px", letterSpacing: "-2px", lineHeight: 1.07 }}>
               {t.hero.h1a}{" "}
               <span style={{ background: "linear-gradient(90deg,#a855f7,#ec4899)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
