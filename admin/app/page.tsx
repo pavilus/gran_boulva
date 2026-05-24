@@ -55,6 +55,27 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
 
+  // ── Soft-launch countdown ─────────────────────────────────────────────────
+  const LAUNCH_DATE = new Date("2026-11-18T00:00:00");
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, launched: false });
+  useEffect(() => {
+    function tick() {
+      const diff = LAUNCH_DATE.getTime() - Date.now();
+      if (diff <= 0) { setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0, launched: true }); return; }
+      setCountdown({
+        days:    Math.floor(diff / 86_400_000),
+        hours:   Math.floor((diff % 86_400_000) / 3_600_000),
+        minutes: Math.floor((diff % 3_600_000)  / 60_000),
+        seconds: Math.floor((diff % 60_000)      / 1_000),
+        launched: false,
+      });
+    }
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Waitlist
   const [wName, setWName] = useState("");
   const [wEmail, setWEmail] = useState("");
@@ -141,6 +162,45 @@ export default function LandingPage() {
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.3)", borderRadius: 99, padding: "6px 14px", marginBottom: 28 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#a855f7", display: "inline-block", animation: "pulse 2s infinite" }} />
               <span style={{ fontSize: 12, color: "#a855f7", fontWeight: 600, letterSpacing: 0.5 }}>{t.hero.badge}</span>
+            </div>
+
+            {/* ── Launch countdown ───────────────────────────────── */}
+            <div style={{ marginBottom: 32 }}>
+              {countdown.launched ? (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.35)", borderRadius: 14, padding: "10px 20px" }}>
+                  <span style={{ fontSize: 13, color: "#10b981", fontWeight: 700 }}>🚀 Gran Boulva is live!</span>
+                </div>
+              ) : (
+                <div>
+                  <p style={{ fontSize: 11, color: "#64748b", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", margin: "0 0 10px" }}>
+                    🚀 Soft Launch — November 18, 2026
+                  </p>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    {[
+                      { v: countdown.days,    label: "DAYS" },
+                      { v: countdown.hours,   label: "HRS" },
+                      { v: countdown.minutes, label: "MIN" },
+                      { v: countdown.seconds, label: "SEC" },
+                    ].map(({ v, label }, i) => (
+                      <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <div style={{
+                          minWidth: 64, padding: "10px 8px",
+                          background: "rgba(168,85,247,0.08)",
+                          border: "1px solid rgba(168,85,247,0.25)",
+                          borderRadius: 12,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          boxShadow: i === 3 ? "0 0 14px rgba(168,85,247,0.2)" : "none",
+                        }}>
+                          <span style={{ fontSize: 28, fontWeight: 900, color: "#fff", letterSpacing: "-1px", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+                            {String(v).padStart(2, "0")}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: 9, color: "#475569", fontWeight: 700, letterSpacing: 1.5, marginTop: 5 }}>{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <h1 style={{ fontSize: "clamp(30px, 4.5vw, 58px)", fontWeight: 900, color: "#fff", margin: "0 0 20px", letterSpacing: "-2px", lineHeight: 1.07 }}>
@@ -239,6 +299,50 @@ export default function LandingPage() {
           <div style={{ textAlign: "center", marginTop: 56 }}>
             <p style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 8 }}>{t.vision.quote}</p>
             <p style={{ fontSize: 13, color: "#475569" }}>{t.vision.quoteSub}</p>
+          </div>
+
+          {/* ── Launch countdown ───────────────────────────────────────────── */}
+          <div style={{ marginTop: 64, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+            {countdown.launched ? (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 99, padding: "12px 28px" }}>
+                <span style={{ fontSize: 15, color: "#10b981", fontWeight: 800 }}>🚀 Gran Boulva is live!</span>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: 11, color: "#64748b", fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
+                  🚀 Soft Launch — November 18, 2026
+                </p>
+                <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                  {[
+                    { v: countdown.days,    label: "DAYS" },
+                    { v: countdown.hours,   label: "HRS" },
+                    { v: countdown.minutes, label: "MIN" },
+                    { v: countdown.seconds, label: "SEC" },
+                  ].map(({ v, label }, i) => (
+                    <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                      <div style={{
+                        width: 80, height: 80,
+                        background: "rgba(168,85,247,0.08)",
+                        border: "1px solid rgba(168,85,247,0.3)",
+                        borderRadius: 16,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        boxShadow: i === 3 ? "0 0 20px rgba(168,85,247,0.25), inset 0 1px 0 rgba(255,255,255,0.05)" : "inset 0 1px 0 rgba(255,255,255,0.05)",
+                      }}>
+                        <span style={{ fontSize: 34, fontWeight: 900, color: "#fff", letterSpacing: "-1px", fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
+                          {String(v).padStart(2, "0")}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: 2 }}>{label}</span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => smoothScroll("waitlist")}
+                  style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#a855f7,#7c3aed)", color: "#fff", padding: "12px 28px", borderRadius: 99, fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer", boxShadow: "0 6px 24px rgba(168,85,247,0.4)" }}>
+                  Rezève plas ou →
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -521,6 +625,7 @@ export default function LandingPage() {
       {/* ── Global styles ─────────────────────────────────────────────────── */}
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes countFlip { 0%{transform:translateY(-4px);opacity:0.6} 100%{transform:translateY(0);opacity:1} }
         @keyframes slideBackPhone  { 0%{opacity:0;transform:rotate(5deg) translateX(-80px)}  100%{opacity:1;transform:rotate(5deg) translateX(0)} }
         @keyframes phonefloat { 0%,100%{transform:rotate(-3deg) translateY(0)} 50%{transform:rotate(-3deg) translateY(-10px)} }
         .back-phone  { animation: slideBackPhone 0.7s ease-out 0.1s both; }
