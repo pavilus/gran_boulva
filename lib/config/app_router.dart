@@ -36,6 +36,13 @@ import '../screens/profile/verification_request_screen.dart';
 import '../screens/profile/creator_dashboard_screen.dart';
 import '../screens/profile/streak_recovery_screen.dart';
 import '../screens/cosmetics/cosmetics_store_screen.dart';
+import '../screens/battles/battle_screen.dart';
+import '../screens/battles/battle_challenge_screen.dart';
+import '../screens/battles/battle_incoming_screen.dart';
+import '../screens/battles/battle_lobby_screen.dart';
+import '../screens/battles/battle_live_screen.dart';
+import '../screens/battles/battle_result_screen.dart';
+import '../screens/battles/battle_replay_screen.dart';
 import '../widgets/common/app_interactions.dart';
 import 'app_colors.dart';
 
@@ -192,6 +199,45 @@ GoRouter createRouter() {
           builder: (_, __) => const CreatorDashboardScreen()),
       GoRoute(path: '/streak', builder: (_, __) => const StreakRecoveryScreen()),
       GoRoute(path: '/cosmetics', builder: (_, __) => const CosmeticsStoreScreen()),
+
+      // ── Battle routes ──────────────────────────────────────────────────────
+      // /battle/:id       — smart dispatcher (status + role → correct sub-screen)
+      GoRoute(
+        path: '/battle/:id',
+        builder: (_, s) => BattleScreen(battleId: s.pathParameters['id']!),
+      ),
+      // Deep-link sub-routes (used by Realtime navigation and notifications)
+      GoRoute(
+        path: '/battle/:id/incoming',
+        builder: (_, s) =>
+            BattleIncomingScreen(battleId: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/battle/:id/lobby',
+        builder: (_, s) =>
+            BattleLobbyScreen(battleId: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/battle/:id/live',
+        builder: (_, s) =>
+            BattleLiveScreen(battleId: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/battle/:id/result',
+        builder: (_, s) =>
+            BattleResultScreen(battleId: s.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/battle/:id/replay',
+        builder: (_, s) =>
+            BattleReplayScreen(battleId: s.pathParameters['id']!),
+      ),
+      // Challenge entry point: /challenge/:opponentId
+      GoRoute(
+        path: '/challenge/:opponentId',
+        builder: (_, s) => BattleChallengeScreen(
+            opponentId: s.pathParameters['opponentId']!),
+      ),
     ],
   );
 }

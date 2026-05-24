@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gran Boulva — Brand, Strategy &amp; Investor Narrative</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  :root {
+    --purple: #A855F7;
+    --gold: #F59E0B;
+    --orange: #F97316;
+    --dark: #0a0a0f;
+    --navy: #0f0f2a;
+    --white: #ffffff;
+    --gray: #6B7280;
+    --light-gray: #f8f8f8;
+    --border: #e5e7eb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #1a1a2e;
+    background: #ffffff;
+  }
+
+  /* Cover Page */
+  .cover {
+    page-break-after: always;
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 50%, #0a0a2f 100%);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 60px;
+    position: relative;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 30% 30%, rgba(168,85,247,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 70%, rgba(245,158,11,0.15) 0%, transparent 60%);
+  }
+
+  .cover-content { position: relative; z-index: 1; }
+
+  .cover .flag { font-size: 48pt; margin-bottom: 24px; }
+
+  .cover h1 {
+    font-size: 36pt;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+
+  .cover .subtitle {
+    font-size: 14pt;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+
+  .cover .divider {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #A855F7, #F59E0B);
+    margin: 32px auto;
+    border-radius: 2px;
+  }
+
+  .cover .meta {
+    font-size: 10pt;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 8px;
+  }
+
+  .cover .tagline {
+    font-size: 13pt;
+    color: rgba(255,255,255,0.9);
+    font-style: italic;
+    margin-top: 32px;
+  }
+
+  .cover .stats {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    margin-top: 48px;
+  }
+
+  .cover .stat { text-align: center; }
+  .cover .stat-num { font-size: 20pt; font-weight: 800; color: #A855F7; }
+  .cover .stat-label { font-size: 8pt; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  .cover .confidential {
+    position: absolute;
+    bottom: 40px;
+    right: 60px;
+    font-size: 8pt;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* TOC */
+  .toc-page {
+    page-break-after: always;
+    padding: 60px 72px;
+  }
+
+  .toc-page h2 {
+    font-size: 20pt;
+    font-weight: 800;
+    color: #0a0a0f;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 3px solid #A855F7;
+  }
+
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px dotted #e5e7eb;
+    font-size: 11pt;
+  }
+
+  .toc-item a { text-decoration: none; color: #1a1a2e; font-weight: 500; }
+  .toc-item .toc-page-num { color: #A855F7; font-weight: 700; font-size: 10pt; }
+
+  /* Main content */
+  .content {
+    padding: 48px 72px;
+    max-width: 850px;
+    margin: 0 auto;
+  }
+
+  .section {
+    page-break-before: always;
+    padding-top: 8px;
+  }
+
+  .section:first-child { page-break-before: auto; }
+
+  /* Section headers */
+  h1.section-title {
+    font-size: 22pt;
+    font-weight: 900;
+    color: #0a0a0f;
+    margin-bottom: 8px;
+    padding-bottom: 16px;
+    border-bottom: 4px solid #A855F7;
+    line-height: 1.2;
+  }
+
+  .section-number {
+    display: inline-block;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: white;
+    font-size: 9pt;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  h2 {
+    font-size: 15pt;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin: 32px 0 12px;
+    padding-left: 12px;
+    border-left: 4px solid #A855F7;
+  }
+
+  h3 {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #A855F7;
+    margin: 24px 0 8px;
+  }
+
+  h4 {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #374151;
+    margin: 16px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    margin-bottom: 14px;
+    color: #374151;
+    line-height: 1.75;
+  }
+
+  /* Blockquote — Mission/Vision */
+  blockquote {
+    background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(236,72,153,0.04));
+    border-left: 4px solid #A855F7;
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-style: italic;
+    font-size: 12pt;
+    color: #1a1a2e;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 10pt;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+
+  thead tr {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: white;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tbody tr { border-bottom: 1px solid #f3f4f6; }
+  tbody tr:nth-child(even) { background: #fafafa; }
+  tbody tr:hover { background: rgba(168,85,247,0.04); }
+
+  td {
+    padding: 10px 16px;
+    color: #374151;
+    vertical-align: top;
+  }
+
+  td:first-child { font-weight: 600; color: #1a1a2e; }
+
+  /* Value cards */
+  .value-card {
+    background: #f8f8ff;
+    border: 1px solid rgba(168,85,247,0.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+
+  .value-card h4 {
+    color: #A855F7;
+    font-size: 12pt;
+    margin-bottom: 8px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .value-card p { color: #4B5563; margin-bottom: 0; }
+
+  /* Highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: white;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+
+  .highlight-box p { color: white; margin-bottom: 0; font-size: 12pt; font-weight: 500; }
+
+  /* Gold box — investor */
+  .gold-box {
+    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(249,115,22,0.08));
+    border: 2px solid rgba(245,158,11,0.4);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+
+  .gold-box h3 { color: #D97706; }
+  .gold-box p { color: #374151; margin-bottom: 8px; }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .stat-card {
+    background: #f8f8ff;
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-card .stat-value {
+    font-size: 22pt;
+    font-weight: 900;
+    color: #A855F7;
+    line-height: 1;
+  }
+
+  .stat-card .stat-label {
+    font-size: 9pt;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+  }
+
+  /* Competitor card */
+  .competitor-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    background: #fafafa;
+  }
+
+  .competitor-card h3 {
+    color: #1a1a2e;
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 13pt;
+  }
+
+  .competitor-card .advantage {
+    background: rgba(168,85,247,0.08);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 10pt;
+    color: #5B21B6;
+    font-weight: 600;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: 12px 0 16px 24px;
+    color: #374151;
+  }
+
+  li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+
+  /* Roadmap items */
+  .roadmap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 10.5pt;
+  }
+
+  .roadmap-badge {
+    flex-shrink: 0;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-done { background: #D1FAE5; color: #065F46; }
+  .badge-progress { background: #FEF3C7; color: #92400E; }
+  .badge-planned { background: #EDE9FE; color: #5B21B6; }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 2px solid #e5e7eb;
+    text-align: center;
+    font-size: 9pt;
+    color: #9CA3AF;
+  }
+
+  .creole-quote {
+    text-align: center;
+    font-size: 16pt;
+    font-weight: 700;
+    color: #A855F7;
+    margin: 32px 0 8px;
+    font-style: italic;
+  }
+
+  .creole-sub {
+    text-align: center;
+    font-size: 10pt;
+    color: #6B7280;
+    margin-bottom: 32px;
+  }
+
+  /* Print */
+  @media print {
+    .section { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+    body { font-size: 10.5pt; }
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .highlight-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section-number { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="cover-content">
+    <div class="flag">🇭🇹</div>
+    <h1>Gran Boulva</h1>
+    <div class="subtitle">Brand, Strategy &amp; Investor Narrative</div>
+    <div class="divider"></div>
+    <div class="tagline">"Where Haitian Culture, Creators, and Influence Go Live."</div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">1,200+</div>
+        <div class="stat-label">Creators on Waitlist</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3,400+</div>
+        <div class="stat-label">Early Supporters</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">28</div>
+        <div class="stat-label">Countries</div>
+      </div>
+    </div>
+
+    <div class="meta" style="margin-top: 48px;">May 2026 · Version 1.0</div>
+    <div class="meta">iOS Early Access · Android Coming Soon</div>
+  </div>
+  <div class="confidential">Confidential — Not for Distribution</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+<!-- SECTION 1 -->
+<div class="section">
+  <div class="section-number">01</div>
+  <h1 class="section-title">Executive Summary</h1>
+
+  <p>Gran Boulva is the first Haitian creator economy and social influence platform — a digital home where Haitian creators, communities, and voices go live. At its core, Gran Boulva is a culture-first technology company building the infrastructure for Haitian and Caribbean digital engagement: live debates, creator battles, community predictions, influence rankings, and multi-stream monetization.</p>
+
+  <p>Haiti and its diaspora represent a cultural force of over <strong>12 million people in Haiti</strong> and an additional <strong>3–4 million diaspora members</strong> across the United States, Canada, France, and the Caribbean. This community has generated world-class musicians, athletes, politicians, thinkers, and artists for generations. Yet no single digital platform has been built specifically for them, by them.</p>
+
+  <div class="highlight-box">
+    <p>Gran Boulva changes that — combining live debates, creator battles, predictions, coin economy, AI-powered content scouting, and a recommendation engine purpose-built for the Haitian community and its diaspora.</p>
+  </div>
+
+  <h2>Key Traction (Early Access)</h2>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">1,200+</div>
+      <div class="stat-label">Creators on Waitlist</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">3,400+</div>
+      <div class="stat-label">Early Supporters</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">28</div>
+      <div class="stat-label">Countries Represented</div>
+    </div>
+  </div>
+
+  <ul>
+    <li>✅ iOS app live in early access</li>
+    <li>✅ Full technical platform built and operational (Flutter + Supabase + Stripe + OpenAI)</li>
+    <li>✅ Coin economy with 8 purchase tiers, live and transacting via Stripe</li>
+    <li>✅ AI content scout generating debate topics autonomously from Haitian news</li>
+    <li>✅ Recommendation engine v1 live with behavior tracking</li>
+    <li>✅ Multi-language support: English, Haitian Creole, French</li>
+    <li>✅ Full admin dashboard for platform management</li>
+  </ul>
+</div>
+
+<!-- SECTION 2 -->
+<div class="section">
+  <div class="section-number">02</div>
+  <h1 class="section-title">Mission, Vision &amp; Core Values</h1>
+
+  <h2>2.1 Mission Statement</h2>
+  <blockquote>"To build the digital home where Haitian culture, creators, and influence go live — empowering every voice in the community to debate, grow, earn, and be heard."</blockquote>
+
+  <p>Gran Boulva's mission is to close the gap between Haiti's immense cultural energy and its underrepresentation in the digital creator economy. We build tools that give Haitian creators economic power, give the community a platform it owns, and give the diaspora a living connection to their culture.</p>
+
+  <h2>2.2 Vision Statement</h2>
+  <blockquote>"A world where Haitian culture defines its own digital narrative — where every creator, debater, and voice from Haiti and its diaspora has the platform, the audience, and the income they deserve."</blockquote>
+
+  <p>Gran Boulva envisions becoming the dominant social platform for the Haitian and broader Caribbean creator economy — a product that bridges geography, generates real wealth for creators, and elevates Haitian culture on the global stage. In five years, Gran Boulva will be to Haitian culture what Naver is to Korea or WeChat is to China — essential digital infrastructure built by the community, for the community.</p>
+
+  <h2>2.3 Core Values</h2>
+
+  <div class="value-card">
+    <h4>🇭🇹 Kilti Anvan — Culture First</h4>
+    <p>Every product decision starts with: <em>does this serve Haitian culture authentically?</em> We do not borrow templates from platforms that were not built for us. Gran Boulva's design, language (Haitian Creole primary), content categories, and community norms are rooted in who we are.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>🎤 Vwa Konte — Every Voice Counts</h4>
+    <p>From the loudest creator to the quietest community member, every voice has power on Gran Boulva. Our debate, vote, and argument systems are engineered to let the community — not algorithms — decide what rises.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>💰 Pwopriyetè Kreyatè — Creator Ownership</h4>
+    <p>We believe creators should own their audience, their income, and their influence. Gran Boulva's multi-stream monetization model is designed to keep the maximum value in the hands of those who create it.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>🌍 Dyaspora Konekte — Diaspora Connected</h4>
+    <p>The Haitian diaspora is one of the most economically and culturally powerful diaspora communities in the world. Gran Boulva is the bridge — a place where Haitians in Port-au-Prince, New York, Miami, Montréal, and Paris are part of the same conversation.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>🏆 Ekselans San Eskiz — Excellence Without Apology</h4>
+    <p>We build world-class technology — not "good enough for a Haitian app." Gran Boulva competes with the best products in the world and wins by understanding our community better than any outsider ever could.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>🔒 Entegrite ak Transparans — Integrity &amp; Transparency</h4>
+    <p>Our coin economy, platform rules, and moderation standards are public. We operate with transparency toward our creators and community. Promises made to founding supporters are kept for life.</p>
+  </div>
+</div>
+
+<!-- SECTION 3 -->
+<div class="section">
+  <div class="section-number">03</div>
+  <h1 class="section-title">Brand Identity</h1>
+
+  <h2>3.1 Brand Positioning</h2>
+  <p>Gran Boulva sits at the intersection of four powerful cultural forces:</p>
+
+  <table>
+    <thead><tr><th>Force</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Social Media</td><td>Creator profiles, follower systems, influence rankings</td></tr>
+      <tr><td>Live Entertainment</td><td>Debates, battles, livestreams, real-time audience reaction</td></tr>
+      <tr><td>Prediction Markets</td><td>Community-driven predictions on culture, events, and outcomes</td></tr>
+      <tr><td>Creator Economy</td><td>Multi-stream monetization, tipping, subscriptions, rewards</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote>"Gran Boulva is the only platform built by and for the Haitian community that combines social debate, creator battles, community predictions, and full creator monetization — turning Haitian cultural energy into economic power."</blockquote>
+
+  <h2>3.2 Brand Personality</h2>
+
+  <p><strong>Energetic &amp; Bold</strong> — Gran Boulva shows up with confidence, cinematic visuals, and a presence that commands attention. Like the Haitian culture it represents: loud, proud, and impossible to ignore.</p>
+
+  <p><strong>Culturally Rooted</strong> — Every visual, every word, every feature carries the DNA of Haitian culture. The brand is modern but never loses its roots.</p>
+
+  <p><strong>Empowering</strong> — Gran Boulva lifts creators up. The brand always communicates possibility, upward mobility, and ownership.</p>
+
+  <p><strong>Community-First</strong> — The platform exists because of its community. The brand honors that by always centering the people, not the company.</p>
+
+  <p><strong>Premium but Accessible</strong> — Gran Boulva looks and feels premium — dark modern UI, cinematic visuals, sharp typography — but is built to welcome every member of the community, regardless of income or technical sophistication.</p>
+
+  <h2>3.3 Brand Archetypes</h2>
+  <p>Gran Boulva embodies two primary archetypes:</p>
+  <p><strong>The Hero</strong> — Gran Boulva is fighting for a community that has historically been underserved by technology and media. We are here to win that fight.</p>
+  <p><strong>The Creator</strong> — We celebrate creation, expression, debate, and influence. The platform is a stage; every user is both audience and performer.</p>
+</div>
+
+<!-- SECTION 4 -->
+<div class="section">
+  <div class="section-number">04</div>
+  <h1 class="section-title">Logo System &amp; Visual Guidelines</h1>
+
+  <h2>4.1 Logo Concept</h2>
+  <p>The Gran Boulva name itself is the brand. "Gran Boulva" in Haitian Creole means <strong>"Grand Boulevard"</strong> — evoking a main stage, a public square, a place where everyone gathers, performs, and is seen. The logo system reflects this: open, central, unmissable.</p>
+
+  <ul>
+    <li><strong>Primary Logo:</strong> Wordmark — "Gran Boulva" in bold sans-serif with a crown or stylized "GB" monogram mark</li>
+    <li><strong>Icon Mark:</strong> Crown (👑) or GB monogram in circular badge for app icon and favicon</li>
+    <li><strong>Logomark Variations:</strong> Full color (dark), White/monochrome, Gold gradient (premium), Compact icon-only</li>
+  </ul>
+
+  <h2>4.2 Primary Color Palette</h2>
+
+  <table>
+    <thead><tr><th>Color</th><th>Hex</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td>Deep Black</td><td>#0a0a0f</td><td>Primary background, dominant space</td></tr>
+      <tr><td>Electric Purple</td><td>#A855F7</td><td>Primary accent, CTAs, highlights, active states</td></tr>
+      <tr><td>Royal Gold</td><td>#F59E0B</td><td>Premium contexts, founding supporters, rewards, badges</td></tr>
+      <tr><td>Warm Orange</td><td>#F97316</td><td>Energy accents, notifications, live indicators</td></tr>
+      <tr><td>Deep Navy</td><td>#0f0f2a</td><td>Secondary background, card surfaces</td></tr>
+      <tr><td>Pure White</td><td>#FFFFFF</td><td>Body text, icons on dark backgrounds</td></tr>
+      <tr><td>Muted Gray</td><td>#6B7280</td><td>Secondary text, captions, placeholders</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.3 Typography</h2>
+
+  <table>
+    <thead><tr><th>Role</th><th>Typeface</th><th>Weight</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td>Headlines</td><td>Inter Bold / Clash Display</td><td>700–900</td><td>Hero text, section titles, CTAs</td></tr>
+      <tr><td>Body Copy</td><td>Inter Regular / Medium</td><td>400–500</td><td>Descriptions, UI text, paragraphs</td></tr>
+      <tr><td>Creole Accent</td><td>Georgia (serif)</td><td>Regular / Italic</td><td>Haitian Creole quotes, cultural callouts</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.4 UI Design Principles</h2>
+  <ul>
+    <li><strong>Dark First:</strong> All interfaces default to dark mode</li>
+    <li><strong>Glassmorphism:</strong> Frosted glass cards with backdrop blur and subtle border highlights</li>
+    <li><strong>Neon Accents:</strong> Thin glow effects on CTAs and interactive elements</li>
+    <li><strong>Mobile-First:</strong> Every layout is designed for 375px–430px screens first</li>
+    <li><strong>Breathing Room:</strong> Generous padding, clear visual hierarchy</li>
+  </ul>
+
+  <h2>4.5 Gradient System</h2>
+  <ul>
+    <li><strong>Primary Gradient:</strong> Purple → Pink (#A855F7 → #EC4899) — hero headlines, major CTAs</li>
+    <li><strong>Gold Gradient:</strong> Amber → Orange (#F59E0B → #F97316) — founding supporter, premium tier</li>
+    <li><strong>Caribbean Gradient:</strong> Teal → Blue (#06B6D4 → #3B82F6) — diaspora/community contexts</li>
+  </ul>
+</div>
+
+<!-- SECTION 5 -->
+<div class="section">
+  <div class="section-number">05</div>
+  <h1 class="section-title">Tone of Voice</h1>
+
+  <h2>5.1 Voice Dimensions</h2>
+
+  <div class="value-card">
+    <h4>Bold, Never Arrogant</h4>
+    <p>We say things with confidence. We don't hedge or qualify. But we never talk down to our community — we stand beside them.<br><br>
+    <em>Instead of:</em> "Gran Boulva may potentially help creators monetize their content."<br>
+    <em>We say:</em> "Build your audience. Own your influence. Gran Boulva pays you for it."</p>
+  </div>
+
+  <div class="value-card">
+    <h4>Culturally Fluent</h4>
+    <p>We weave Haitian Creole into our English and French copy — not as translation, but as cultural signal. <em>"Fè tande vwa w."</em> (Make your voice heard.) — used without translation, because our audience understands.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>Empowering, Not Pitying</h4>
+    <p>We never position Haiti as a country to be saved or helped. We position Haitian culture as the powerhouse it is — one that finally has the platform it deserves.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>Community-Celebrating</h4>
+    <p>We celebrate creators by name. We honor the community. We recognize the diaspora's journey. Our copy always makes readers feel like insiders.</p>
+  </div>
+
+  <h2>5.2 Language Policy</h2>
+  <table>
+    <thead><tr><th>Context</th><th>Primary Language</th><th>Secondary</th></tr></thead>
+    <tbody>
+      <tr><td>Platform UI</td><td>Haitian Creole</td><td>French, English</td></tr>
+      <tr><td>Marketing (global)</td><td>English</td><td>Haitian Creole</td></tr>
+      <tr><td>Community content</td><td>Haitian Creole</td><td>French</td></tr>
+      <tr><td>Legal/Terms</td><td>English</td><td>French</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5.3 Copy Examples by Context</h2>
+  <table>
+    <thead><tr><th>Context</th><th>Tone</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Hero Headline</td><td>Epic, cinematic</td><td>"Where Haitian Culture, Creators, and Influence Go Live."</td></tr>
+      <tr><td>Feature Description</td><td>Clear, energetic</td><td>"Users battle ideas live while the community votes in real time."</td></tr>
+      <tr><td>Waitlist Success</td><td>Warm, celebratory</td><td>"You're on the list! Gran Boulva ap vini!"</td></tr>
+      <tr><td>Push Notification</td><td>Punchy, action-oriented</td><td>"🔥 New debate just dropped. Who's right?"</td></tr>
+      <tr><td>Error Message</td><td>Human, helpful</td><td>"Hmm, something went wrong. Try again — your voice matters."</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 6 -->
+<div class="section">
+  <div class="section-number">06</div>
+  <h1 class="section-title">Slogan &amp; Taglines</h1>
+
+  <h2>6.1 Primary Tagline</h2>
+  <div class="highlight-box">
+    <p style="font-size: 16pt; text-align: center; font-weight: 800;">"Where Haitian Culture, Creators, and Influence Go Live."</p>
+  </div>
+  <p>This is the master brand statement. It answers three questions in one line: <em>What is it? Who is it for? What happens there?</em></p>
+
+  <h2>6.2 Secondary Taglines</h2>
+  <blockquote>For creators: "Build Your Audience. Own Your Influence."</blockquote>
+  <blockquote>For community: "The digital home for Haitian debates, creators, and culture."</blockquote>
+  <blockquote>In Haitian Creole: "Fè tande vwa w." — Make your voice heard.</blockquote>
+  <blockquote>Cultural statement: "Sa se pou pèp Ayisyen an." — This is for the Haitian people.</blockquote>
+  <blockquote>Competitive framing: "They built platforms for everyone. We built one for us."</blockquote>
+
+  <h2>6.3 Campaign Slogans</h2>
+  <table>
+    <thead><tr><th>Campaign</th><th>Slogan</th></tr></thead>
+    <tbody>
+      <tr><td>Launch</td><td>"Gran Boulva ap vini — are you on the list?"</td></tr>
+      <tr><td>Creator Recruitment</td><td>"Your culture deserves your stage."</td></tr>
+      <tr><td>Founding Supporter</td><td>"Be the reason it exists."</td></tr>
+      <tr><td>Diaspora</td><td>"Wherever you are, you're home on Gran Boulva."</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 7 -->
+<div class="section">
+  <div class="section-number">07</div>
+  <h1 class="section-title">Platform Categories &amp; Features</h1>
+
+  <h2>7.1 The Six Core Pillars</h2>
+
+  <h3>🎙️ 1. Live Debates (Matchups)</h3>
+  <p>The heartbeat of Gran Boulva. Two positions face off — the community reads arguments, votes, and tips their preferred side. Arguments are voter-gated (only visible after voting — preventing bandwagon bias). The AI Scout automatically surfaces trending Haitian news to generate debate topics within hours of breaking news.</p>
+
+  <h3>🥊 2. Creator Battles</h3>
+  <p>Head-to-head creator competitions decided by community votes and engagement scores. Creators build followings through consistent battle performance. The Tòp Vwa (Top Voices) ranking leaderboard rewards consistent excellence.</p>
+
+  <h3>🔮 3. Predictions</h3>
+  <p>Users predict outcomes of real-world events — political elections, sports results, music chart positions, cultural trends. Prediction markets are deadline-tracked with coin rewards for correct predictions.</p>
+
+  <h3>📈 4. Influence Rankings</h3>
+  <p>Dynamic leaderboards reward creators and community members who consistently engage. Ten-level badge system based on XP, with the recommendation engine surfacing rising voices organically.</p>
+
+  <h3>💰 5. Creator Monetization</h3>
+  <p>Multiple revenue streams: coin tips to argument authors, boost revenue (paid promotion), follower/subscription system, daily coin rewards, signup bonus. Phase 2 adds creator subscriptions and gifting during live events.</p>
+
+  <h3>🤝 6. Community Power</h3>
+  <p>The community is the algorithm. Behavior-signal-based recommendation engine, community moderation, follow system — no external algorithmic manipulation. The community decides what rises.</p>
+
+  <h2>7.2 Platform Roadmap</h2>
+  <table>
+    <thead><tr><th>Phase</th><th>Milestone</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 0</td><td>Core debate/vote/argument system</td><td>✅ Complete</td></tr>
+      <tr><td>Phase 0</td><td>Coin economy + Stripe payments</td><td>✅ Complete</td></tr>
+      <tr><td>Phase 0</td><td>Follow/subscriber system</td><td>✅ Complete</td></tr>
+      <tr><td>Phase 0</td><td>AI content scout</td><td>✅ Complete</td></tr>
+      <tr><td>Phase 0</td><td>iOS early access</td><td>✅ Live</td></tr>
+      <tr><td>Phase 1</td><td>Recommendation engine v1</td><td>✅ Complete</td></tr>
+      <tr><td>Phase 1</td><td>Creator analytics dashboard</td><td>🔄 In Progress</td></tr>
+      <tr><td>Phase 2</td><td>Creator battles (head-to-head)</td><td>📅 Planned</td></tr>
+      <tr><td>Phase 2</td><td>Android app</td><td>📅 Planned</td></tr>
+      <tr><td>Phase 2</td><td>Livestream integration</td><td>📅 Planned</td></tr>
+      <tr><td>Phase 3</td><td>Prediction markets expansion</td><td>📅 Planned</td></tr>
+      <tr><td>Phase 3</td><td>Creator subscriptions</td><td>📅 Planned</td></tr>
+      <tr><td>Phase 3</td><td>Full web experience</td><td>📅 Planned</td></tr>
+      <tr><td>Phase 4</td><td>Regional Caribbean expansion</td><td>📅 Planned</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 8 -->
+<div class="section">
+  <div class="section-number">08</div>
+  <h1 class="section-title">Target Audience Segments</h1>
+
+  <h2>8.1 Primary Segments</h2>
+
+  <div class="competitor-card">
+    <h3>Segment 1: The Haitian Diaspora Creator (Core)</h3>
+    <p><strong>Who:</strong> Haitian creators aged 18–35 in US, Canada, France, or Caribbean — building presence on TikTok/Instagram but feeling culturally displaced.</p>
+    <p><strong>Size:</strong> Estimated 300,000–600,000 active Haitian content creators in the diaspora.</p>
+    <p><strong>Pain Points:</strong> Algorithms don't surface Haitian content to Haitian audiences; no culture-specific platform; monetization inaccessible at small follower counts.</p>
+    <div class="advantage">Gran Boulva Value: Platform where content is native, audience already exists, monetization starts day one.</div>
+  </div>
+
+  <div class="competitor-card">
+    <h3>Segment 2: The Community Debater &amp; Opinion Leader</h3>
+    <p><strong>Who:</strong> Engaged community members aged 22–45 who love political/cultural debate — active in Facebook groups, WhatsApp, Twitter/X.</p>
+    <p><strong>Size:</strong> Tens of millions of Haitians are active in online political and cultural debate.</p>
+    <p><strong>Pain Points:</strong> Facebook groups are unstructured chaos; no platform rewards debaters or tracks influence over time.</p>
+    <div class="advantage">Gran Boulva Value: Structured, rewarding debate system where arguments earn coins, build reputation, and create measurable influence.</div>
+  </div>
+
+  <div class="competitor-card">
+    <h3>Segment 3: The Founding Supporter (Patron)</h3>
+    <p><strong>Who:</strong> Haitian diaspora members aged 28–50 with disposable income — professionals in NY, FL, MA, Montréal who are proud of their heritage.</p>
+    <p><strong>Size:</strong> ~150,000 high-income Haitian diaspora members in the US alone.</p>
+    <div class="advantage">Gran Boulva Value: Opportunity to be a founding member of Haiti's first major creator economy platform with lifetime recognition and perks.</div>
+  </div>
+
+  <div class="competitor-card">
+    <h3>Segment 4: Caribbean &amp; Pan-African Audience (Expansion)</h3>
+    <p><strong>Who:</strong> Non-Haitian Caribbean creators and communities — Jamaican, Dominican, Trinidadian — who share cultural energy and content ecosystems.</p>
+    <p><strong>Size:</strong> Hundreds of millions in the broader Caribbean and pan-African digital community.</p>
+    <div class="advantage">Gran Boulva Value: Premium platform that understands Caribbean culture at a depth no global platform can match.</div>
+  </div>
+
+  <h2>8.2 Audience Sizing</h2>
+  <table>
+    <thead><tr><th>Segment</th><th>Est. Addressable Users</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td>Haitian diaspora (global)</td><td>3.5M+</td><td>Primary</td></tr>
+      <tr><td>Active Haitian creators</td><td>300K–600K</td><td>Primary</td></tr>
+      <tr><td>Haiti-resident digital users</td><td>1.5M+</td><td>Primary</td></tr>
+      <tr><td>Caribbean expansion</td><td>50M+</td><td>Phase 2</td></tr>
+      <tr><td>Pan-African digital</td><td>200M+</td><td>Phase 3</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 9 -->
+<div class="section">
+  <div class="section-number">09</div>
+  <h1 class="section-title">Monetization Strategy</h1>
+
+  <h2>9.1 Coin Economy (Core Revenue Engine)</h2>
+  <p>Users purchase coin packages via Stripe in-app. Coins are spent on argument boosts, creator support (tipping), vote spending, and predictions. Platform earns 100% of coin purchase revenue plus transfer fees.</p>
+
+  <table>
+    <thead><tr><th>Package</th><th>Coins</th><th>Price (USD)</th></tr></thead>
+    <tbody>
+      <tr><td>Starter</td><td>100</td><td>$0.99</td></tr>
+      <tr><td>Small</td><td>250</td><td>$1.99</td></tr>
+      <tr><td>Medium</td><td>550</td><td>$3.99</td></tr>
+      <tr><td>Popular</td><td>1,200</td><td>$7.99</td></tr>
+      <tr><td>Large</td><td>2,500</td><td>$14.99</td></tr>
+      <tr><td>XL</td><td>5,000</td><td>$24.99</td></tr>
+      <tr><td>XXL</td><td>10,000</td><td>$44.99</td></tr>
+      <tr><td>Ultimate</td><td>25,000</td><td>$99.99</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9.2 Founding Supporter Revenue</h2>
+  <table>
+    <thead><tr><th>Tier</th><th>Target Price</th><th>Key Perks</th></tr></thead>
+    <tbody>
+      <tr><td>Supporter</td><td>$25</td><td>Badge, early access, newsletter, Discord</td></tr>
+      <tr><td>Ambassador</td><td>$75</td><td>+ Permanent badge, founder wall, feature voting</td></tr>
+      <tr><td>Founding Creator</td><td>$199</td><td>+ Priority verification, early creator tools, direct feedback channel</td></tr>
+      <tr><td>Founding Partner</td><td>$500</td><td>+ Gold badge, roadmap input, founding call, lifetime perks</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9.3 Revenue Streams Summary</h2>
+  <table>
+    <thead><tr><th>Revenue Stream</th><th>Stage</th><th>Model</th></tr></thead>
+    <tbody>
+      <tr><td>Coin purchases</td><td>Now</td><td>Direct (Stripe, 100% margin)</td></tr>
+      <tr><td>Founding supporter tiers</td><td>Now</td><td>One-time payment</td></tr>
+      <tr><td>Creator subscriptions</td><td>Phase 2</td><td>Revenue share (80% creator / 20% platform)</td></tr>
+      <tr><td>Prediction market rake</td><td>Phase 2</td><td>% of prediction pool</td></tr>
+      <tr><td>Brand partnerships</td><td>Phase 3</td><td>CPM / flat rate sponsored content</td></tr>
+      <tr><td>Premium features</td><td>Phase 2+</td><td>Subscription tiers</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9.4 MRR Projections (Conservative)</h2>
+  <table>
+    <thead><tr><th>MAU</th><th>Paying Users (10–20%)</th><th>Avg ARPU</th><th>MRR</th></tr></thead>
+    <tbody>
+      <tr><td>10,000</td><td>1,000</td><td>$5/mo</td><td>$5,000</td></tr>
+      <tr><td>50,000</td><td>7,500</td><td>$6/mo</td><td>$45,000</td></tr>
+      <tr><td>150,000</td><td>22,500</td><td>$6/mo</td><td>$135,000</td></tr>
+      <tr><td>500,000</td><td>100,000</td><td>$7/mo</td><td>$700,000</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 10 -->
+<div class="section">
+  <div class="section-number">10</div>
+  <h1 class="section-title">Creator Economy Strategy</h1>
+
+  <h2>10.1 Philosophy</h2>
+  <p>Gran Boulva is fundamentally a creator economy platform. Unlike social platforms that monetize creators' attention on behalf of advertisers, Gran Boulva is designed so that <strong>creator success = platform success</strong>. Every feature is built to grow creator income and creator-audience relationships.</p>
+
+  <h2>10.2 Creator Acquisition Funnel</h2>
+  <ol>
+    <li><strong>Waitlist → Founding Creator:</strong> High-value creators recruited with exclusive perks — priority verification, early creator tools, permanent founding badge.</li>
+    <li><strong>Onboarding → First Debate:</strong> Structured flow: create profile → post first argument → earn first coins. Path to first earning designed for under 10 minutes.</li>
+    <li><strong>Engagement → Rankings:</strong> Tòp Vwa (Top Voices) ranking rewards consistent, high-quality engagement. Rising up the leaderboard brings organic discovery.</li>
+    <li><strong>Monetization → Multi-Stream:</strong> Coin support, boost revenue, subscription income (Phase 2) as audiences grow.</li>
+    <li><strong>Retention → Community:</strong> Follow/subscriber system, notification engine, and recommendation algorithm lock in creator-audience relationships.</li>
+  </ol>
+
+  <h2>10.3 Creator Support Infrastructure</h2>
+  <table>
+    <thead><tr><th>Feature</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Coin support (tipping) from audience</td><td>✅ Live</td></tr>
+      <tr><td>Boost tools (paid argument promotion)</td><td>✅ Live</td></tr>
+      <tr><td>Follower / notification system</td><td>✅ Live</td></tr>
+      <tr><td>Influence ranking leaderboard</td><td>✅ Live</td></tr>
+      <tr><td>Creator analytics dashboard</td><td>🔄 In Progress</td></tr>
+      <tr><td>Creator subscriptions (revenue share)</td><td>📅 Phase 2</td></tr>
+      <tr><td>Creator battle scheduling</td><td>📅 Phase 2</td></tr>
+      <tr><td>Brand partnership marketplace</td><td>📅 Phase 3</td></tr>
+      <tr><td>Creator fund (guaranteed minimums)</td><td>📅 Phase 3</td></tr>
+    </tbody>
+  </table>
+
+  <h2>10.4 Creator Success Targets (Year 1)</h2>
+  <table>
+    <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Active creators</td><td>5,000</td></tr>
+      <tr><td>Avg creator earnings / month</td><td>$50–$240</td></tr>
+      <tr><td>Creator monthly retention rate</td><td>70%+</td></tr>
+      <tr><td>Top creator earnings (top 1%)</td><td>$1,000+/month</td></tr>
+      <tr><td>Creator NPS score</td><td>8.0+</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 11 -->
+<div class="section">
+  <div class="section-number">11</div>
+  <h1 class="section-title">Competitive Landscape</h1>
+
+  <div class="competitor-card">
+    <h3>Twitter / X</h3>
+    <p><strong>Strengths:</strong> Massive scale, political/cultural discourse, creator monetization (subscriptions, tipping).</p>
+    <p><strong>Critical Weaknesses:</strong> Algorithms suppress non-English content; no Haitian Creole interface; toxic moderation for marginalized communities; creator monetization requires 500+ followers.</p>
+    <div class="advantage">Our Advantage: Built for Haitian culture, Creole-first UI, structured debate (not chaotic threads), community-controlled recommendations.</div>
+  </div>
+
+  <div class="competitor-card">
+    <h3>TikTok</h3>
+    <p><strong>Strengths:</strong> Massive young audience, strong monetization, viral discovery engine, deep creator economy.</p>
+    <p><strong>Critical Weaknesses:</strong> Algorithm actively suppresses Haitian and Caribbean content (documented); no community-ownership model; no debate/prediction features; U.S. regulatory risk.</p>
+    <div class="advantage">Our Advantage: Community-controlled recommendations, Haitian-specific categories, no risk of cultural suppression, no regulatory uncertainty.</div>
+  </div>
+
+  <div class="competitor-card">
+    <h3>Twitch</h3>
+    <p><strong>Strengths:</strong> Live interaction model, strong creator income, loyal gaming communities.</p>
+    <p><strong>Critical Weaknesses:</strong> Dominated by gaming content; no debate or prediction features; near-zero Haitian creator presence or discoverability.</p>
+    <div class="advantage">Our Advantage: Caribbean cultural context, debate + prediction + live integrated, built for our content types.</div>
+  </div>
+
+  <div class="competitor-card">
+    <h3>FanDuel / DraftKings</h3>
+    <p><strong>Strengths:</strong> Deep engagement through financial stakes, strong prediction retention.</p>
+    <p><strong>Critical Weaknesses:</strong> Real-money gambling (heavy regulatory complexity); no creator economy layer; no Haitian context.</p>
+    <div class="advantage">Our Advantage: Prediction engagement without gambling risk, combined with full social + creator economy.</div>
+  </div>
+
+  <div class="competitor-card">
+    <h3>Facebook Groups (Primary Incumbent)</h3>
+    <p>The dominant platform for Haitian community debate today. Massive but unstructured, no monetization, algorithm not optimized for community engagement, no creator ranking system.</p>
+    <div class="advantage">Our Advantage: Structured debate format, coin economy, creator rankings, no algorithm suppression, monetization built in.</div>
+  </div>
+
+  <h2>11.1 Competitive Feature Matrix</h2>
+  <table>
+    <thead><tr><th>Feature</th><th>Gran Boulva</th><th>Twitter/X</th><th>TikTok</th><th>Discord</th></tr></thead>
+    <tbody>
+      <tr><td>Haitian Creole UI</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Structured debates</td><td>✅</td><td>Partial</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Prediction markets</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Coin economy</td><td>✅</td><td>❌</td><td>✅</td><td>❌</td></tr>
+      <tr><td>Creator rankings</td><td>✅</td><td>Partial</td><td>✅</td><td>❌</td></tr>
+      <tr><td>Community-controlled algo</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Diaspora bridge</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+      <tr><td>AI content scouting</td><td>✅</td><td>Partial</td><td>✅</td><td>❌</td></tr>
+      <tr><td>Multi-language (HT/FR/EN)</td><td>✅</td><td>Partial</td><td>❌</td><td>❌</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION 12 -->
+<div class="section">
+  <div class="section-number">12</div>
+  <h1 class="section-title">Unique Differentiators</h1>
+
+  <h2>The Gran Boulva Moat</h2>
+
+  <div class="value-card">
+    <h4>1. Cultural Authenticity — Impossible to Replicate Quickly</h4>
+    <p>Gran Boulva is not a feature — it is a community. Built by Haitians, with Haitian Creole as the primary language, content categories tuned to Haitian culture, and community norms that reflect Haitian values. No global platform can replicate this authenticity in less than years of community trust-building.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>2. The Structured Debate System</h4>
+    <p>Unlike chaotic social platforms: arguments are voter-gated (you must vote before seeing others' arguments); arguments are ranked by community support, not chronology; coin boost system surfaces the best arguments; AI Scout generates relevant topics from real Haitian news within hours of breaking news.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>3. The Closed-Loop Coin Economy</h4>
+    <p>Users earn coins (daily rewards, signup bonus) → Users spend coins (boosts, support, votes) → Creators receive coins (tips, boost revenue) → Platform earns on coin purchases and transfer fees. Creator income is tied directly to community appreciation, not brand spending.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>4. Diaspora Network Effects</h4>
+    <p>Content created in Haiti is instantly relevant to Haitians in New York, Miami, Montréal, and Paris. This cross-border cultural relevance creates organic growth vectors — content goes viral across continents through shared culture, not shared algorithm.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>5. AI-Powered Content Pipeline</h4>
+    <p>The <code>run-scout</code> system continuously monitors Haitian news sources and generates debate topics using GPT-4. Gran Boulva is always first to the cultural conversation — topics trending in Haitian news become platform debates within hours, not days.</p>
+  </div>
+
+  <div class="value-card">
+    <h4>6. Predictions Without Gambling Risk</h4>
+    <p>Gran Boulva's prediction system captures the engagement dynamics of platforms like FanDuel using coins — not real money. Deep engagement without regulatory and legal complexity of real-money prediction markets.</p>
+  </div>
+</div>
+
+<!-- SECTION 13 -->
+<div class="section">
+  <div class="section-number">13</div>
+  <h1 class="section-title">Investor Narrative</h1>
+
+  <h2>13.1 The Opportunity</h2>
+  <div class="highlight-box">
+    <p>Haiti and its diaspora are one of the world's most culturally underserved digital markets. 12M+ Haitians in Haiti + 4M+ diaspora = 16M people with deep digital habits, a powerful cultural identity, and no platform built for them. The global creator economy will reach $480B by 2027 (Goldman Sachs, 2023). The Caribbean creator market is almost entirely unaddressed.</p>
+  </div>
+
+  <h2>13.2 Why Now</h2>
+  <ol>
+    <li><strong>Creator economy infrastructure is now affordable:</strong> Stripe, Supabase, OpenAI, Flutter made this product buildable by a small team in 2026. Two years ago, it required 10× the investment.</li>
+    <li><strong>Platform fatigue is real:</strong> TikTok and Instagram creators face monetization squeeze, algorithm opacity, and cultural erasure. The moment for a community-first alternative is now.</li>
+    <li><strong>Haitian diaspora financial power is growing:</strong> Increasingly second-generation, professional-class, and actively seeking to invest in Haitian culture and technology. $3.8B in annual remittances to Haiti from the US alone.</li>
+  </ol>
+
+  <h2>13.3 Proven Traction</h2>
+  <ul>
+    <li>✅ Full technical platform built and operational</li>
+    <li>✅ iOS early access app live and tested on real device</li>
+    <li>✅ Coin economy with 8 purchase tiers, transacting via Stripe</li>
+    <li>✅ AI content scout generating debate topics autonomously</li>
+    <li>✅ Recommendation engine v1 live with behavior signal tracking</li>
+    <li>✅ 1,200+ creators on waitlist across 28 countries</li>
+    <li>✅ 3,400+ early supporters identified</li>
+    <li>✅ Multi-language landing page (EN / HT / FR) live at granboulva.com</li>
+    <li>✅ Admin dashboard for full platform management and AI content review</li>
+  </ul>
+
+  <h2>13.4 Financial Projections</h2>
+  <table>
+    <thead><tr><th>Metric</th><th>Year 1</th><th>Year 2</th><th>Year 3</th></tr></thead>
+    <tbody>
+      <tr><td>Monthly Active Users</td><td>25,000</td><td>150,000</td><td>500,000</td></tr>
+      <tr><td>Paying Users</td><td>10%</td><td>15%</td><td>20%</td></tr>
+      <tr><td>Avg ARPU (paying)</td><td>$5/mo</td><td>$6/mo</td><td>$7/mo</td></tr>
+      <tr><td>MRR (coins)</td><td>$12,500</td><td>$135,000</td><td>$700,000</td></tr>
+      <tr><td>Creator subscriptions</td><td>—</td><td>$50,000</td><td>$200,000</td></tr>
+      <tr><td><strong>Total ARR</strong></td><td><strong>$150,000</strong></td><td><strong>$2.2M</strong></td><td><strong>$10.8M</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h2>13.5 Use of Funds — $500K Founding Round</h2>
+  <table>
+    <thead><tr><th>Category</th><th>Allocation</th><th>Details</th></tr></thead>
+    <tbody>
+      <tr><td>Engineering</td><td>40% ($200K)</td><td>Android app, creator tools, livestream, web platform</td></tr>
+      <tr><td>Creator Acquisition</td><td>25% ($125K)</td><td>Founding creator program, creator fund, community events</td></tr>
+      <tr><td>Marketing</td><td>20% ($100K)</td><td>Diaspora social, PR, influencer partnerships</td></tr>
+      <tr><td>Operations</td><td>10% ($50K)</td><td>Servers, legal, accounting, team</td></tr>
+      <tr><td>Reserve</td><td>5% ($25K)</td><td>Buffer for unforeseen opportunities</td></tr>
+    </tbody>
+  </table>
+
+  <h2>13.6 Five-Year Vision</h2>
+
+  <div class="gold-box">
+    <h3>🏆 Gran Boulva at Year 5</h3>
+    <p><strong>2M+ MAU</strong> — Dominant social platform for Haitian and Caribbean culture</p>
+    <p><strong>50,000+ active creators</strong> — Earning real, meaningful income on the platform</p>
+    <p><strong>Regional expansion</strong> — Serving the full Caribbean, pan-African diaspora, global Haitian community</p>
+    <p><strong>Media layer</strong> — Live events, creator battles, cultural programming</p>
+    <p><strong>Infrastructure layer</strong> — The identity and engagement API for Haitian digital culture</p>
+    <p style="margin-top: 16px;"><strong>Exit:</strong> Acquisition by a major social platform (Meta, Snap, ByteDance) seeking the Caribbean/diaspora market — or a standalone IPO as the first Haitian-founded public technology company.</p>
+  </div>
+
+  <h2>13.7 The Ask</h2>
+  <div class="highlight-box">
+    <p>We are raising a <strong>$500,000 founding round</strong> from aligned investors who believe in the cultural moment, the team's execution speed, and the long-term vision for Haitian digital infrastructure.</p>
+  </div>
+  <p>Contact: <strong>g.pavilus@gmail.com</strong></p>
+</div>
+
+<!-- CLOSING -->
+<div style="margin-top: 64px; padding: 48px; background: #0a0a0f; border-radius: 16px; text-align: center;">
+  <div class="creole-quote" style="color: #A855F7;">"Sa se pou pèp Ayisyen an."</div>
+  <div class="creole-sub" style="color: rgba(255,255,255,0.6);">This is for the Haitian people. 🇭🇹</div>
+  <p style="color: rgba(255,255,255,0.4); font-size: 9pt; margin-top: 24px;">— Gran Boulva Team, 2026</p>
+</div>
+
+<div class="doc-footer">
+  <p>Gran Boulva is currently available on iOS in early access. Android and full web experience in development.</p>
+  <p>All financial projections are forward-looking estimates and subject to change. This document is confidential.</p>
+  <p style="margin-top: 16px; font-weight: 600;">© 2026 Gran Boulva. All rights reserved.</p>
+</div>
+
+</div><!-- end content -->
+</body>
+</html>

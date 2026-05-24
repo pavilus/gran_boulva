@@ -160,7 +160,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
     final matchup = _matchup;
     if (matchup == null) return;
     final text =
-        'Vwa ou konte sou Gran Boulva: ${matchup.titleHt}\nhttps://www.granboulva.com/matchup/${matchup.id}';
+        'Vwa ou konte sou Gran Boulva: ${matchup.titleHt}\nhttps://www.granboulva.com/matchup/${matchup.id}\n Vin di saw panse.';
     try {
       // Provide a non-zero origin so iOS share sheet anchors correctly
       final box = context.findRenderObject() as RenderBox?;

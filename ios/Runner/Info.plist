@@ -29,7 +29,9 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Gran Boulva bezwen aksè foto pou ou ka mete foto pwofil ou.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Gran Boulva bezwen kamera pou ou ka pran foto pwofil ou.</string>
+	<string>Gran Boulva bezwen kamera ou pou batay debat la ak foto pwofil ou.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Gran Boulva bezwen mikwofòn ou pou batay debat la.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Gran Boulva bezwen aksè pou sove foto.</string>
 	<key>UIApplicationSceneManifest</key>

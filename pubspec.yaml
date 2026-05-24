@@ -46,6 +46,8 @@ dependencies:
   http: ^1.2.1
 
   cupertino_icons: ^1.0.8
+  agora_rtc_engine: ^6.5.4
+  video_player: ^2.11.1
 
 dev_dependencies:
   flutter_test:

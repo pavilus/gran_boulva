@@ -4,16 +4,16 @@ const T = {
   en: {
     nav: {
       links: [
-        { label: "Features",   href: "#features" },
-        { label: "Vision",     href: "#vision" },
-        { label: "Creators",   href: "#creators" },
+        { label: "Features", href: "#features" },
+        { label: "Vision", href: "#vision" },
+        { label: "Creators", href: "#creators" },
         { label: "Supporters", href: "#supporters" },
-        { label: "FAQ",        href: "#faq" },
+        { label: "FAQ", href: "#faq" },
       ],
       cta: "Join the Waitlist",
     },
     hero: {
-      badge: "Available on iOS · Android Coming Soon",
+      badge: "Available on iOS(beta) · Android Coming Soon",
       h1a: "Where Haitian Culture,",
       h1b: "Creators, and Influence",
       h1c: "Go Live.",
@@ -24,7 +24,7 @@ const T = {
       proof: [
         { num: "1,200+", label: "Creators on Waitlist" },
         { num: "3,400+", label: "Early Supporters" },
-        { num: "28",     label: "Countries" },
+        { num: "28", label: "Countries" },
       ],
     },
     features: {
@@ -32,12 +32,12 @@ const T = {
       h2: "Everything the Haitian community deserves",
       sub: "One platform. Six pillars of culture, competition, and community.",
       items: [
-        { title: "Live Debates",         desc: "Users battle ideas live while the community votes in real time." },
-        { title: "Creator Battles",      desc: "Influencers compete for rankings, visibility, and rewards." },
-        { title: "Predictions",          desc: "Predict outcomes of events, debates, trends, and competitions." },
+        { title: "Live Debates", desc: "Users battle ideas live while the community votes in real time." },
+        { title: "Creator Battles", desc: "Influencers compete for rankings, visibility, and rewards." },
+        { title: "Predictions", desc: "Predict outcomes of events, debates, trends, and competitions." },
         { title: "Creator Monetization", desc: "Tips, subscriptions, gifts, and supporter badges — earn from your influence." },
-        { title: "Influence Rankings",   desc: "Dynamic leaderboards for creators and communities — rise to the top." },
-        { title: "Community Power",      desc: "The audience decides what trends, creators, and conversations rise." },
+        { title: "Influence Rankings", desc: "Dynamic leaderboards for creators and communities — rise to the top." },
+        { title: "Community Power", desc: "The audience decides what trends, creators, and conversations rise." },
       ],
     },
     vision: {
@@ -46,9 +46,9 @@ const T = {
       sub: "It is the digital infrastructure for Haitian and Caribbean culture.",
       body: "For too long, the Haitian community has built culture without owning the platforms it runs on. Gran Boulva changes that — giving creators, communities, and voices the tools to define their own narrative, build real income, and shape the world's perception of Haiti.",
       points: [
-        { icon: "🌍", title: "Diaspora Connection",       desc: "Bridging Haitians across Haiti, the US, Canada, France, and the Caribbean." },
-        { icon: "💡", title: "Creator Empowerment",       desc: "Giving creators the tools and economy to turn influence into income." },
-        { icon: "🏆", title: "Community Ownership",       desc: "The community shapes what rises — not algorithms controlled by outsiders." },
+        { icon: "🌍", title: "Diaspora Connection", desc: "Bridging Haitians across Haiti, the US, Canada, France, and the Caribbean." },
+        { icon: "💡", title: "Creator Empowerment", desc: "Giving creators the tools and economy to turn influence into income." },
+        { icon: "🏆", title: "Community Ownership", desc: "The community shapes what rises — not algorithms controlled by outsiders." },
         { icon: "🚀", title: "Culture-Driven Technology", desc: "Tech built for and by our culture, not adapted from something else." },
       ],
       quote: '"Sa se pou pèp Ayisyen an."',
@@ -58,9 +58,9 @@ const T = {
       tag: "How it works",
       h2: "3 simple steps to make your voice heard",
       steps: [
-        { title: "READ & ARGUE",      desc: "Read topics, share your argument with the community." },
-        { title: "VOTE",              desc: "Vote for the position you believe is strongest." },
-        { title: "MAKE AN IMPACT",    desc: "Earn points, climb the rankings, and tip the balance." },
+        { title: "READ & ARGUE", desc: "Read topics, share your argument with the community." },
+        { title: "VOTE", desc: "Vote for the position you believe is strongest." },
+        { title: "MAKE AN IMPACT", desc: "Earn points, climb the rankings, and tip the balance." },
       ],
     },
     creators: {
@@ -79,8 +79,8 @@ const T = {
       cta: "Apply as a Creator →",
       stats: [
         { label: "Avg. creator earnings / month", value: "$240", sub: "from tips + badges + boosts" },
-        { label: "Top creator ranking",           value: "#1 Vwa", sub: "on leaderboard this week" },
-        { label: "Community engagement rate",     value: "34%",    sub: "vs 3% on legacy platforms" },
+        { label: "Top creator ranking", value: "#1 Vwa", sub: "on leaderboard this week" },
+        { label: "Community engagement rate", value: "34%", sub: "vs 3% on legacy platforms" },
       ],
     },
     supporters: {
@@ -141,11 +141,11 @@ const T = {
   ht: {
     nav: {
       links: [
-        { label: "Fonksyon",  href: "#features" },
-        { label: "Vizyon",    href: "#vision" },
-        { label: "Kreyatè",  href: "#creators" },
-        { label: "Sipòtè",   href: "#supporters" },
-        { label: "FAQ",       href: "#faq" },
+        { label: "Fonksyon", href: "#features" },
+        { label: "Vizyon", href: "#vision" },
+        { label: "Kreyatè", href: "#creators" },
+        { label: "Sipòtè", href: "#supporters" },
+        { label: "FAQ", href: "#faq" },
       ],
       cta: "Rejwenn Lis Datant",
     },
@@ -161,7 +161,7 @@ const T = {
       proof: [
         { num: "1 200+", label: "Kreyatè sou Lis" },
         { num: "3 400+", label: "Sipòtè Bonè" },
-        { num: "28",     label: "Peyi" },
+        { num: "28", label: "Peyi" },
       ],
     },
     features: {
@@ -169,12 +169,12 @@ const T = {
       h2: "Tout sa kominote ayisyen an merite",
       sub: "Yon platfòm. Sis pilye kilti, konpetisyon, ak kominote.",
       items: [
-        { title: "Deba an Dirèk",        desc: "Itilizatè yo batay lide an dirèk pandan kominote a vote an tan reyèl." },
-        { title: "Batay Kreyatè",        desc: "Enfliyanisè yo konpete pou klasman, vizibilite, ak rekonpans." },
-        { title: "Prediksyon",           desc: "Predi rezilta evènman, deba, tandans, ak konpetisyon." },
+        { title: "Deba an Dirèk", desc: "Itilizatè yo batay lide an dirèk pandan kominote a vote an tan reyèl." },
+        { title: "Batay Kreyatè", desc: "Enfliyanisè yo konpete pou klasman, vizibilite, ak rekonpans." },
+        { title: "Prediksyon", desc: "Predi rezilta evènman, deba, tandans, ak konpetisyon." },
         { title: "Monetizasyon Kreyatè", desc: "Tip, abònman, kado, ak badge sipòtè — touche lajan ak enflyans ou." },
-        { title: "Klasman Enflyans",     desc: "Tablo klasman dinamik pou kreyatè ak kominote — monte anlè." },
-        { title: "Pouvwa Kominote",      desc: "Piblik la deside kisa ki monte — pa algoritm etranje." },
+        { title: "Klasman Enflyans", desc: "Tablo klasman dinamik pou kreyatè ak kominote — monte anlè." },
+        { title: "Pouvwa Kominote", desc: "Piblik la deside kisa ki monte — pa algoritm etranje." },
       ],
     },
     vision: {
@@ -183,10 +183,10 @@ const T = {
       sub: "Se enfrastrikti dijital pou kilti ayisyen ak karayibeyen.",
       body: "Pandan twòp tan, kominote ayisyen an te bati kilti san posede platfòm li kouri sou yo. Gran Boulva chanje sa — bay kreyatè, kominote, ak vwa yo zouti pou defini pwòp narasyon yo, bati yon revni reyèl, epi fòme pèsepsyon mond lan sou Ayiti.",
       points: [
-        { icon: "🌍", title: "Koneksyon Dyaspora",   desc: "Pon ant Ayisyen nan Ayiti, Etazini, Kanada, Lafrans, ak Karayib la." },
-        { icon: "💡", title: "Enpòtman Kreyatè",     desc: "Bay kreyatè yo zouti ak ekonomi pou transfòme enflyans an revni." },
-        { icon: "🏆", title: "Pwopriyete Kominote",  desc: "Kominote a fòme kisa ki monte — pa algoritm ki kontwole pa etranje." },
-        { icon: "🚀", title: "Teknoloji Kiltirel",   desc: "Teknoloji bati pou ak pa kilti nou, pa adapte de yon lòt bagay." },
+        { icon: "🌍", title: "Koneksyon Dyaspora", desc: "Pon ant Ayisyen nan Ayiti, Etazini, Kanada, Lafrans, ak Karayib la." },
+        { icon: "💡", title: "Enpòtman Kreyatè", desc: "Bay kreyatè yo zouti ak ekonomi pou transfòme enflyans an revni." },
+        { icon: "🏆", title: "Pwopriyete Kominote", desc: "Kominote a fòme kisa ki monte — pa algoritm ki kontwole pa etranje." },
+        { icon: "🚀", title: "Teknoloji Kiltirel", desc: "Teknoloji bati pou ak pa kilti nou, pa adapte de yon lòt bagay." },
       ],
       quote: '"Sa se pou pèp Ayisyen an."',
       quoteSub: "Sa se pou pèp Ayisyen an.",
@@ -196,8 +196,8 @@ const T = {
       h2: "3 etap senp pou fè tande vwa w",
       steps: [
         { title: "LI epi AGIMANTE", desc: "Li sijè yo, pataje agiman ou ak kominote a." },
-        { title: "VOTE",            desc: "Vote pou pozisyon ou kwè ki pi solid." },
-        { title: "ENPAKTE",         desc: "Ranmase pwen, monte rank, epi peze nan balans lan." },
+        { title: "VOTE", desc: "Vote pou pozisyon ou kwè ki pi solid." },
+        { title: "ENPAKTE", desc: "Ranmase pwen, monte rank, epi peze nan balans lan." },
       ],
     },
     creators: {
@@ -215,9 +215,9 @@ const T = {
       ],
       cta: "Aplike kòm Kreyatè →",
       stats: [
-        { label: "Mwayèn revni kreyatè / mwa",  value: "$240",    sub: "soti nan tip + badge + boost" },
-        { label: "Pi bon klasman kreyatè",        value: "#1 Vwa",  sub: "sou tablo klasman semèn sa" },
-        { label: "To angajman kominote",          value: "34%",     sub: "kont 3% sou platfòm tradisyonèl" },
+        { label: "Mwayèn revni kreyatè / mwa", value: "$240", sub: "soti nan tip + badge + boost" },
+        { label: "Pi bon klasman kreyatè", value: "#1 Vwa", sub: "sou tablo klasman semèn sa" },
+        { label: "To angajman kominote", value: "34%", sub: "kont 3% sou platfòm tradisyonèl" },
       ],
     },
     supporters: {
@@ -279,10 +279,10 @@ const T = {
     nav: {
       links: [
         { label: "Fonctionnalités", href: "#features" },
-        { label: "Vision",          href: "#vision" },
-        { label: "Créateurs",       href: "#creators" },
-        { label: "Supporters",      href: "#supporters" },
-        { label: "FAQ",             href: "#faq" },
+        { label: "Vision", href: "#vision" },
+        { label: "Créateurs", href: "#creators" },
+        { label: "Supporters", href: "#supporters" },
+        { label: "FAQ", href: "#faq" },
       ],
       cta: "Rejoindre la Liste",
     },
@@ -298,7 +298,7 @@ const T = {
       proof: [
         { num: "1 200+", label: "Créateurs inscrits" },
         { num: "3 400+", label: "Supporters précoces" },
-        { num: "28",     label: "Pays" },
+        { num: "28", label: "Pays" },
       ],
     },
     features: {
@@ -306,12 +306,12 @@ const T = {
       h2: "Tout ce que la communauté haïtienne mérite",
       sub: "Une plateforme. Six piliers de culture, compétition et communauté.",
       items: [
-        { title: "Débats en Direct",          desc: "Les utilisateurs s'affrontent en direct pendant que la communauté vote en temps réel." },
-        { title: "Battles de Créateurs",      desc: "Les influenceurs se disputent classements, visibilité et récompenses." },
-        { title: "Prédictions",               desc: "Prédisez les résultats d'événements, débats, tendances et compétitions." },
-        { title: "Monétisation Créateurs",    desc: "Pourboires, abonnements, cadeaux et badges — gagnez grâce à votre influence." },
-        { title: "Classements d'Influence",   desc: "Classements dynamiques pour créateurs et communautés — montez au sommet." },
-        { title: "Pouvoir Communautaire",     desc: "L'audience décide ce qui monte — pas des algorithmes contrôlés par des étrangers." },
+        { title: "Débats en Direct", desc: "Les utilisateurs s'affrontent en direct pendant que la communauté vote en temps réel." },
+        { title: "Battles de Créateurs", desc: "Les influenceurs se disputent classements, visibilité et récompenses." },
+        { title: "Prédictions", desc: "Prédisez les résultats d'événements, débats, tendances et compétitions." },
+        { title: "Monétisation Créateurs", desc: "Pourboires, abonnements, cadeaux et badges — gagnez grâce à votre influence." },
+        { title: "Classements d'Influence", desc: "Classements dynamiques pour créateurs et communautés — montez au sommet." },
+        { title: "Pouvoir Communautaire", desc: "L'audience décide ce qui monte — pas des algorithmes contrôlés par des étrangers." },
       ],
     },
     vision: {
@@ -320,10 +320,10 @@ const T = {
       sub: "C'est l'infrastructure numérique de la culture haïtienne et caribéenne.",
       body: "Trop longtemps, la communauté haïtienne a construit une culture sans posséder les plateformes sur lesquelles elle fonctionne. Gran Boulva change cela — donnant aux créateurs, communautés et voix les outils pour définir leur propre récit, construire de vrais revenus, et façonner la perception mondiale d'Haïti.",
       points: [
-        { icon: "🌍", title: "Connexion Diaspora",          desc: "Relier les Haïtiens à travers Haïti, les États-Unis, le Canada, la France et les Caraïbes." },
+        { icon: "🌍", title: "Connexion Diaspora", desc: "Relier les Haïtiens à travers Haïti, les États-Unis, le Canada, la France et les Caraïbes." },
         { icon: "💡", title: "Autonomisation des Créateurs", desc: "Donner aux créateurs les outils et l'économie pour transformer l'influence en revenu." },
-        { icon: "🏆", title: "Propriété Communautaire",      desc: "La communauté façonne ce qui monte — pas des algorithmes contrôlés par des étrangers." },
-        { icon: "🚀", title: "Technologie Culturelle",       desc: "Une tech construite pour et par notre culture, pas adaptée d'ailleurs." },
+        { icon: "🏆", title: "Propriété Communautaire", desc: "La communauté façonne ce qui monte — pas des algorithmes contrôlés par des étrangers." },
+        { icon: "🚀", title: "Technologie Culturelle", desc: "Une tech construite pour et par notre culture, pas adaptée d'ailleurs." },
       ],
       quote: '"Sa se pou pèp Ayisyen an."',
       quoteSub: "Pour le peuple haïtien.",
@@ -333,8 +333,8 @@ const T = {
       h2: "3 étapes simples pour faire entendre votre voix",
       steps: [
         { title: "LIS et ARGUMENTE", desc: "Lisez les sujets, partagez votre argument avec la communauté." },
-        { title: "VOTE",             desc: "Votez pour la position que vous croyez la plus solide." },
-        { title: "IMPACTEZ",         desc: "Gagnez des points, montez dans le classement et faites pencher la balance." },
+        { title: "VOTE", desc: "Votez pour la position que vous croyez la plus solide." },
+        { title: "IMPACTEZ", desc: "Gagnez des points, montez dans le classement et faites pencher la balance." },
       ],
     },
     creators: {
@@ -352,9 +352,9 @@ const T = {
       ],
       cta: "Candidater en tant que Créateur →",
       stats: [
-        { label: "Revenus moyens créateur / mois",      value: "$240",    sub: "de pourboires + badges + boosts" },
-        { label: "Classement top créateur",              value: "#1 Vwa",  sub: "au classement cette semaine" },
-        { label: "Taux d'engagement communautaire",      value: "34%",     sub: "vs 3% sur les plateformes classiques" },
+        { label: "Revenus moyens créateur / mois", value: "$240", sub: "de pourboires + badges + boosts" },
+        { label: "Classement top créateur", value: "#1 Vwa", sub: "au classement cette semaine" },
+        { label: "Taux d'engagement communautaire", value: "34%", sub: "vs 3% sur les plateformes classiques" },
       ],
     },
     supporters: {

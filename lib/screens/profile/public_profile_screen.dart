@@ -28,6 +28,7 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
   bool _followLoading = false;
   List<Map<String, dynamic>> _recentArguments = [];
 
+
   @override
   void initState() {
     super.initState();
@@ -407,48 +408,55 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
           ),
           const SizedBox(height: 16),
           if (!_isOwnProfile)
-            GestureDetector(
-              onTap: _followLoading ? null : _toggleFollow,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 46,
-                decoration: BoxDecoration(
-                  gradient: _isFollowing ? null : AppColors.primaryGradient,
-                  color: _isFollowing ? AppColors.cardLight : null,
-                  borderRadius: BorderRadius.circular(14),
-                  border: _isFollowing
-                      ? Border.all(color: AppColors.border, width: 1)
-                      : null,
-                  boxShadow: _isFollowing
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: AppColors.purple.withValues(alpha: 0.35),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: _followLoading ? null : _toggleFollow,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: 46,
+                      decoration: BoxDecoration(
+                        gradient: _isFollowing ? null : AppColors.primaryGradient,
+                        color: _isFollowing ? AppColors.cardLight : null,
+                        borderRadius: BorderRadius.circular(14),
+                        border: _isFollowing
+                            ? Border.all(color: AppColors.border, width: 1)
+                            : null,
+                        boxShadow: _isFollowing
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color: AppColors.purple.withValues(alpha: 0.35),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                      ),
+                      child: Center(
+                        child: _followLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2))
+                            : Text(
+                                _isFollowing ? 'Swivan ✓' : 'Swiv',
+                                style: TextStyle(
+                                  color: _isFollowing
+                                      ? AppColors.textSecondary
+                                      : Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Center(
-                  child: _followLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2))
-                      : Text(
-                          _isFollowing ? 'Swivan ✓' : 'Swiv',
-                          style: TextStyle(
-                            color: _isFollowing
-                                ? AppColors.textSecondary
-                                : Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                ),
-              ),
+                // 1 vs 1 button — hidden until battle feature is fully live
+              ],
             ),
         ],
       ),

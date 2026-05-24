@@ -2270,3 +2270,350 @@ class CosmeticsService {
     }
   }
 }
+
+// ─── BattleService ────────────────────────────────────────────────────────────
+/// Manages the full debate battle lifecycle:
+///   challenge → accept/decline → lobby → live → voting → completed
+///
+/// Edge Functions handle privileged writes (tier-gating, coin locking, Agora tokens).
+/// Direct table reads are used for fetching battle state and vote counts.
+/// Realtime subscriptions are managed per-battle and cleaned up on exit.
+class BattleService {
+  final _client = Supabase.instance.client;
+
+  // Active Realtime channels keyed by battleId.
+  final Map<String, RealtimeChannel> _channels = {};
+
+  // ── Helpers ──────────────────────────────────────────────
+
+  Map<String, dynamic> _mapFrom(Object? data) {
+    if (data is Map) return Map<String, dynamic>.from(data);
+    if (data is List && data.isNotEmpty && data.first is Map) {
+      return Map<String, dynamic>.from(data.first as Map);
+    }
+    return {};
+  }
+
+  // ── Challenge flow ───────────────────────────────────────
+
+  /// Create a battle challenge. Returns the new battle_id and status.
+  /// Throws if tier gate fails or insufficient coins.
+  Future<Map<String, dynamic>> createBattle({
+    required String opponentId,
+    required String mode,   // 'rapid_fire' | 'full_debate'
+    required String topic,
+    int entryFeeCoins = 0,
+  }) async {
+    try {
+      final res = await _client.functions.invoke(
+        'create-debate-battle',
+        body: {
+          'opponent_id':      opponentId,
+          'mode':             mode,
+          'topic':            topic,
+          'entry_fee_coins':  entryFeeCoins,
+        },
+      );
+      final data = _mapFrom(res.data);
+      final error = data['error'];
+      if (error != null) throw Exception(error);
+      return data;
+    } catch (e) {
+      debugPrint('[BattleService] createBattle error: $e');
+      rethrow;
+    }
+  }
+
+  /// Accept or decline an incoming battle challenge.
+  /// [action] must be 'accept' or 'decline'.
+  /// On accept, returns Agora tokens and channel name.
+  Future<Map<String, dynamic>> respondToBattle({
+    required String battleId,
+    required String action,   // 'accept' | 'decline'
+  }) async {
+    try {
+      final res = await _client.functions.invoke(
+        'accept-debate-battle',
+        body: {'battle_id': battleId, 'action': action},
+      );
+      final data = _mapFrom(res.data);
+      final error = data['error'];
+      if (error != null) throw Exception(error);
+      return data;
+    } catch (e) {
+      debugPrint('[BattleService] respondToBattle error: $e');
+      rethrow;
+    }
+  }
+
+  // ── Recording ────────────────────────────────────────────
+
+  /// Start Agora Cloud Recording and transition battle to 'live'.
+  /// Called by either debater once both are ready in the lobby.
+  Future<Map<String, dynamic>> startRecording(String battleId) async {
+    try {
+      final res = await _client.functions.invoke(
+        'start-battle-recording',
+        body: {'battle_id': battleId},
+      );
+      final data = _mapFrom(res.data);
+      final error = data['error'];
+      if (error != null) throw Exception(error);
+      return data;
+    } catch (e) {
+      debugPrint('[BattleService] startRecording error: $e');
+      rethrow;
+    }
+  }
+
+  /// Stop recording and open the 30-second audience winner vote.
+  /// Transitions battle to 'voting'.
+  Future<Map<String, dynamic>> stopBattle(String battleId) async {
+    try {
+      final res = await _client.functions.invoke(
+        'end-battle',
+        body: {'battle_id': battleId, 'action': 'stop'},
+      );
+      final data = _mapFrom(res.data);
+      final error = data['error'];
+      if (error != null) throw Exception(error);
+      return data;
+    } catch (e) {
+      debugPrint('[BattleService] stopBattle error: $e');
+      rethrow;
+    }
+  }
+
+  /// Tally audience votes, distribute prize pool, award badges, complete battle.
+  /// Call 30 seconds after stopBattle().
+  Future<Map<String, dynamic>> tallyBattle(String battleId) async {
+    try {
+      final res = await _client.functions.invoke(
+        'end-battle',
+        body: {'battle_id': battleId, 'action': 'tally'},
+      );
+      final data = _mapFrom(res.data);
+      final error = data['error'];
+      if (error != null) throw Exception(error);
+      return data;
+    } catch (e) {
+      debugPrint('[BattleService] tallyBattle error: $e');
+      rethrow;
+    }
+  }
+
+  // ── Fetching ─────────────────────────────────────────────
+
+  /// Fetch a single battle by ID.
+  Future<DebateBattleModel?> getBattle(String battleId) async {
+    try {
+      final data = await _client
+          .from('debate_battles')
+          .select()
+          .eq('id', battleId)
+          .maybeSingle();
+      if (data == null) return null;
+      return DebateBattleModel.fromJson(data);
+    } catch (e) {
+      debugPrint('[BattleService] getBattle error: $e');
+      return null;
+    }
+  }
+
+  /// Fetch all battles where the current user is challenger or opponent.
+  Future<List<DebateBattleModel>> getMyBattles({int limit = 20}) async {
+    try {
+      final user = await UserService().getProfile();
+      if (user == null) return [];
+
+      final data = await _client
+          .from('debate_battles')
+          .select()
+          .or('challenger_id.eq.${user.id},opponent_id.eq.${user.id}')
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      return (data as List)
+          .map((j) => DebateBattleModel.fromJson(
+              Map<String, dynamic>.from(j as Map)))
+          .toList();
+    } catch (e) {
+      debugPrint('[BattleService] getMyBattles error: $e');
+      return [];
+    }
+  }
+
+  /// Fetch the round log for a Full Debate battle (ordered by round + speaker).
+  Future<List<BattleRoundLogModel>> getRoundLog(String battleId) async {
+    try {
+      final data = await _client
+          .from('battle_round_log')
+          .select()
+          .eq('battle_id', battleId)
+          .order('round_number')
+          .order('starts_at');
+
+      return (data as List)
+          .map((j) => BattleRoundLogModel.fromJson(
+              Map<String, dynamic>.from(j as Map)))
+          .toList();
+    } catch (e) {
+      debugPrint('[BattleService] getRoundLog error: $e');
+      return [];
+    }
+  }
+
+  // ── Voting ───────────────────────────────────────────────
+
+  /// Cast a vote for the winner during the 30-second post-battle window.
+  /// [voteFor] must be 'challenger' or 'opponent'.
+  /// Silently ignores duplicate votes (UNIQUE constraint on DB).
+  Future<void> castAudienceVote({
+    required String battleId,
+    required String voteFor,  // 'challenger' | 'opponent'
+  }) async {
+    try {
+      final user = await UserService().getProfile();
+      if (user == null) throw Exception('Not signed in');
+      await _client.from('battle_audience_votes').insert({
+        'battle_id': battleId,
+        'voter_id':  user.id,
+        'vote_for':  voteFor,
+      });
+    } on PostgrestException catch (e) {
+      // 23505 = unique_violation — user already voted, ignore silently
+      if (e.code == '23505') return;
+      debugPrint('[BattleService] castAudienceVote error: $e');
+      rethrow;
+    } catch (e) {
+      debugPrint('[BattleService] castAudienceVote error: $e');
+      rethrow;
+    }
+  }
+
+  /// Cast an extension vote during the 10-second mid-battle window.
+  /// [vote] true = "Yes, extend" | false = "No, end on time".
+  Future<void> castExtensionVote({
+    required String battleId,
+    required bool vote,
+  }) async {
+    try {
+      final user = await UserService().getProfile();
+      if (user == null) throw Exception('Not signed in');
+      await _client.from('battle_extension_votes').insert({
+        'battle_id': battleId,
+        'voter_id':  user.id,
+        'vote':      vote,
+      });
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') return; // already voted
+      debugPrint('[BattleService] castExtensionVote error: $e');
+      rethrow;
+    } catch (e) {
+      debugPrint('[BattleService] castExtensionVote error: $e');
+      rethrow;
+    }
+  }
+
+  /// Get live audience vote counts for the winner vote.
+  Future<BattleVoteCounts> getAudienceVoteCounts(String battleId) async {
+    try {
+      final data = await _client
+          .from('battle_audience_votes')
+          .select('vote_for')
+          .eq('battle_id', battleId);
+
+      final list = data as List;
+      final challengerVotes =
+          list.where((v) => v['vote_for'] == 'challenger').length;
+      final opponentVotes =
+          list.where((v) => v['vote_for'] == 'opponent').length;
+
+      return BattleVoteCounts(
+        challengerVotes: challengerVotes,
+        opponentVotes:   opponentVotes,
+      );
+    } catch (e) {
+      debugPrint('[BattleService] getAudienceVoteCounts error: $e');
+      return const BattleVoteCounts(challengerVotes: 0, opponentVotes: 0);
+    }
+  }
+
+  /// Get live extension vote counts.
+  Future<BattleExtensionCounts> getExtensionVoteCounts(
+      String battleId) async {
+    try {
+      final data = await _client
+          .from('battle_extension_votes')
+          .select('vote')
+          .eq('battle_id', battleId);
+
+      final list = data as List;
+      final yesVotes = list.where((v) => v['vote'] == true).length;
+      final noVotes  = list.where((v) => v['vote'] == false).length;
+
+      return BattleExtensionCounts(yesVotes: yesVotes, noVotes: noVotes);
+    } catch (e) {
+      debugPrint('[BattleService] getExtensionVoteCounts error: $e');
+      return const BattleExtensionCounts(yesVotes: 0, noVotes: 0);
+    }
+  }
+
+  // ── Realtime ─────────────────────────────────────────────
+
+  /// Subscribe to live battle state changes.
+  ///
+  /// [onBattleUpdate] fires whenever the debate_battles row changes.
+  /// Use this to sync status, round_ends_at, extension/vote windows.
+  ///
+  /// Call [unsubscribeFromBattle] when leaving the battle screen.
+  void subscribeToBattle(
+    String battleId, {
+    required void Function(DebateBattleModel battle) onBattleUpdate,
+  }) {
+    // Unsubscribe any existing channel first (idempotent)
+    unsubscribeFromBattle(battleId);
+
+    final channel = _client
+        .channel('battle:$battleId')
+        .onPostgresChanges(
+          event:    PostgresChangeEvent.update,
+          schema:   'public',
+          table:    'debate_battles',
+          filter:   PostgresChangeFilter(
+            type:   PostgresChangeFilterType.eq,
+            column: 'id',
+            value:  battleId,
+          ),
+          callback: (payload) {
+            try {
+              final newRecord = payload.newRecord;
+              if (newRecord.isNotEmpty) {
+                onBattleUpdate(DebateBattleModel.fromJson(newRecord));
+              }
+            } catch (e) {
+              debugPrint('[BattleService] Realtime parse error: $e');
+            }
+          },
+        )
+        .subscribe();
+
+    _channels[battleId] = channel;
+  }
+
+  /// Remove the Realtime subscription for a battle.
+  Future<void> unsubscribeFromBattle(String battleId) async {
+    final channel = _channels.remove(battleId);
+    if (channel != null) {
+      await _client.removeChannel(channel);
+    }
+  }
+
+  /// Clean up all active battle subscriptions (call from dispose).
+  Future<void> unsubscribeAll() async {
+    for (final channel in _channels.values) {
+      await _client.removeChannel(channel);
+    }
+    _channels.clear();
+  }
+}

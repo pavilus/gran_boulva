@@ -1463,3 +1463,196 @@ class EquippedCosmetics {
       profileThemeKey != null ||
       cosmeticBadgeKey != null;
 }
+
+// ─── Debate Battle Models ─────────────────────────────────────────────────────
+
+class DebateBattleModel {
+  final String id;
+  final String challengerId;
+  final String opponentId;
+  final String? winnerId;
+
+  /// 'rapid_fire' | 'full_debate'
+  final String mode;
+  final String topic;
+  final int entryFeeCoins;
+  final int prizePoolCoins;
+
+  /// 'pending' | 'accepted' | 'lobby' | 'live' | 'voting' | 'completed' | 'cancelled'
+  final String status;
+  final String? cancelledReason;
+
+  // Agora
+  final String? agoraChannel;
+  final String? agoraChallengerToken;
+  final String? agoraOpponentToken;
+
+  // Round state (Full Debate)
+  final int currentRound;
+  final DateTime? roundEndsAt;
+
+  // Extension vote
+  final bool extensionUsed;
+  final bool extensionVoteOpen;
+  final bool? extensionApproved;
+
+  // Final audience vote
+  final bool audienceVoteOpen;
+
+  // Recording
+  final String? recordingUrl;
+  final DateTime? recordingExpiresAt;
+
+  // Timestamps
+  final DateTime createdAt;
+  final DateTime? startedAt;
+  final DateTime? endedAt;
+
+  const DebateBattleModel({
+    required this.id,
+    required this.challengerId,
+    required this.opponentId,
+    this.winnerId,
+    required this.mode,
+    required this.topic,
+    required this.entryFeeCoins,
+    required this.prizePoolCoins,
+    required this.status,
+    this.cancelledReason,
+    this.agoraChannel,
+    this.agoraChallengerToken,
+    this.agoraOpponentToken,
+    required this.currentRound,
+    this.roundEndsAt,
+    required this.extensionUsed,
+    required this.extensionVoteOpen,
+    this.extensionApproved,
+    required this.audienceVoteOpen,
+    this.recordingUrl,
+    this.recordingExpiresAt,
+    required this.createdAt,
+    this.startedAt,
+    this.endedAt,
+  });
+
+  factory DebateBattleModel.fromJson(Map<String, dynamic> j) =>
+      DebateBattleModel(
+        id:                    j['id'] as String,
+        challengerId:          j['challenger_id'] as String,
+        opponentId:            j['opponent_id'] as String,
+        winnerId:              j['winner_id'] as String?,
+        mode:                  j['mode'] as String,
+        topic:                 j['topic'] as String,
+        entryFeeCoins:         (j['entry_fee_coins'] as num?)?.toInt() ?? 0,
+        prizePoolCoins:        (j['prize_pool_coins'] as num?)?.toInt() ?? 0,
+        status:                j['status'] as String,
+        cancelledReason:       j['cancelled_reason'] as String?,
+        agoraChannel:          j['agora_channel'] as String?,
+        agoraChallengerToken:  j['agora_challenger_token'] as String?,
+        agoraOpponentToken:    j['agora_opponent_token'] as String?,
+        currentRound:          (j['current_round'] as num?)?.toInt() ?? 0,
+        roundEndsAt:           j['round_ends_at'] != null
+            ? DateTime.parse(j['round_ends_at'] as String)
+            : null,
+        extensionUsed:         j['extension_used'] as bool? ?? false,
+        extensionVoteOpen:     j['extension_vote_open'] as bool? ?? false,
+        extensionApproved:     j['extension_approved'] as bool?,
+        audienceVoteOpen:      j['audience_vote_open'] as bool? ?? false,
+        recordingUrl:          j['recording_url'] as String?,
+        recordingExpiresAt:    j['recording_expires_at'] != null
+            ? DateTime.parse(j['recording_expires_at'] as String)
+            : null,
+        createdAt:             DateTime.parse(j['created_at'] as String),
+        startedAt:             j['started_at'] != null
+            ? DateTime.parse(j['started_at'] as String)
+            : null,
+        endedAt:               j['ended_at'] != null
+            ? DateTime.parse(j['ended_at'] as String)
+            : null,
+      );
+
+  /// True if the signed-in user is one of the two debaters.
+  bool isParticipant(String userId) =>
+      userId == challengerId || userId == opponentId;
+
+  /// True if the recording exists and has not yet expired.
+  bool get isReplayAvailable =>
+      recordingUrl != null &&
+      !recordingUrl!.startsWith('agora:') &&
+      (recordingExpiresAt == null ||
+          recordingExpiresAt!.isAfter(DateTime.now()));
+
+  String get modeLabel =>
+      mode == 'rapid_fire' ? '⚡ Rapid Fire' : '🎙️ Full Debate';
+}
+
+class BattleRoundLogModel {
+  final String id;
+  final String battleId;
+  final int roundNumber;
+
+  /// 'challenger' | 'opponent'
+  final String speaker;
+  final int durationSeconds;
+  final DateTime startsAt;
+  final DateTime endsAt;
+  final DateTime createdAt;
+
+  const BattleRoundLogModel({
+    required this.id,
+    required this.battleId,
+    required this.roundNumber,
+    required this.speaker,
+    required this.durationSeconds,
+    required this.startsAt,
+    required this.endsAt,
+    required this.createdAt,
+  });
+
+  factory BattleRoundLogModel.fromJson(Map<String, dynamic> j) =>
+      BattleRoundLogModel(
+        id:              j['id'] as String,
+        battleId:        j['battle_id'] as String,
+        roundNumber:     (j['round_number'] as num).toInt(),
+        speaker:         j['speaker'] as String,
+        durationSeconds: (j['duration_seconds'] as num).toInt(),
+        startsAt:        DateTime.parse(j['starts_at'] as String),
+        endsAt:          DateTime.parse(j['ends_at'] as String),
+        createdAt:       DateTime.parse(j['created_at'] as String),
+      );
+
+  /// Remaining seconds until this round's speaker time ends.
+  int get secondsRemaining {
+    final diff = endsAt.difference(DateTime.now()).inSeconds;
+    return diff.clamp(0, durationSeconds);
+  }
+}
+
+class BattleVoteCounts {
+  final int challengerVotes;
+  final int opponentVotes;
+  final int total;
+
+  const BattleVoteCounts({
+    required this.challengerVotes,
+    required this.opponentVotes,
+  }) : total = challengerVotes + opponentVotes;
+
+  double get challengerPct =>
+      total == 0 ? 0.5 : challengerVotes / total;
+  double get opponentPct =>
+      total == 0 ? 0.5 : opponentVotes / total;
+}
+
+class BattleExtensionCounts {
+  final int yesVotes;
+  final int noVotes;
+  final int total;
+
+  const BattleExtensionCounts({
+    required this.yesVotes,
+    required this.noVotes,
+  }) : total = yesVotes + noVotes;
+
+  double get yesPct => total == 0 ? 0 : yesVotes / total;
+}
