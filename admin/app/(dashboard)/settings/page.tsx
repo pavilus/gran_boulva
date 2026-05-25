@@ -216,6 +216,13 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Stripe key state
+  const [stripeKey, setStripeKey]           = useState("");
+  const [stripeHint, setStripeHint]         = useState("");
+  const [stripeConfigured, setStripeConfigured] = useState(false);
+  const [stripeSaving, setStripeSaving]     = useState(false);
+  const [stripeMsg, setStripeMsg]           = useState("");
+
   useEffect(() => {
     let alive = true;
     fetch("/api/settings/coin")
@@ -254,6 +261,14 @@ export default function SettingsPage() {
         if (alive) setPayout(data);
       })
       .catch(() => {/* use fallback */});
+    fetch("/api/settings/stripe")
+      .then(async (res) => res.ok ? res.json() : null)
+      .then((data: { configured: boolean; hint: string } | null) => {
+        if (!alive || !data) return;
+        setStripeConfigured(data.configured);
+        setStripeHint(data.hint);
+      })
+      .catch(() => {/* silent */});
     return () => {
       alive = false;
     };
@@ -289,6 +304,25 @@ export default function SettingsPage() {
         [key]: Number.isFinite(parsed) && parsed >= 0 ? parsed : 0,
       }));
     };
+
+  const saveStripe = async () => {
+    if (!stripeKey.trim()) return;
+    setStripeSaving(true);
+    setStripeMsg("");
+    try {
+      const res  = await fetch("/api/settings/stripe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secretKey: stripeKey.trim() }) });
+      const data = await res.json() as { ok?: boolean; hint?: string; configured?: boolean; error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Save failed");
+      setStripeConfigured(true);
+      setStripeHint(data.hint ?? "");
+      setStripeKey("");
+      setStripeMsg("✓ Stripe key saved");
+    } catch (err) {
+      setStripeMsg(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setStripeSaving(false);
+    }
+  };
 
   const save = async () => {
     setSaving(true);
@@ -710,6 +744,58 @@ export default function SettingsPage() {
             <strong style={{ color: "#a78bfa" }}>
               ${(10000 * payout.coinToUsdRate).toFixed(2)} USD
             </strong>
+          </div>
+        </Section>
+
+        {/* ── Stripe Keys ──────────────────────────────────────────── */}
+        <Section title="Stripe / Peman">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3 rounded-xl p-4" style={{ background: stripeConfigured ? "rgba(16,185,129,0.06)" : "rgba(245,158,11,0.06)", border: `1px solid ${stripeConfigured ? "rgba(16,185,129,0.25)" : "rgba(245,158,11,0.25)"}` }}>
+              <span style={{ fontSize: 18 }}>{stripeConfigured ? "✅" : "⚠️"}</span>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: stripeConfigured ? "#10b981" : "#f59e0b", margin: 0 }}>
+                  {stripeConfigured ? `Stripe configured — ${stripeHint}` : "Stripe not configured — payments disabled"}
+                </p>
+                <p className="text-xs" style={{ color: "#475569", margin: "2px 0 0" }}>
+                  {stripeConfigured ? "Enter a new key below to rotate it." : "Get your secret key from dashboard.stripe.com/apikeys"}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#64748b" }}>
+                Secret Key (sk_test_… or sk_live_…)
+              </label>
+              <div className="flex gap-3">
+                <input
+                  type="password"
+                  value={stripeKey}
+                  onChange={e => setStripeKey(e.target.value)}
+                  placeholder={stripeConfigured ? "Enter new key to rotate…" : "sk_test_…"}
+                  className="flex-1 rounded-xl px-4 py-2 text-sm"
+                  style={{ background: "#0a0b18", border: "1px solid #1e2040", color: "#e2e8f0", outline: "none" }}
+                  onFocus={e => (e.target.style.borderColor = "rgba(168,85,247,0.5)")}
+                  onBlur={e  => (e.target.style.borderColor = "#1e2040")}
+                />
+                <button
+                  onClick={saveStripe}
+                  disabled={stripeSaving || !stripeKey.trim()}
+                  className="flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all disabled:opacity-50"
+                  style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7)", whiteSpace: "nowrap" }}
+                >
+                  <Save size={14} />
+                  {stripeSaving ? "Saving…" : "Save Key"}
+                </button>
+              </div>
+              {stripeMsg && (
+                <p className="text-xs mt-2" style={{ color: stripeMsg.startsWith("✓") ? "#10b981" : "#f87171" }}>{stripeMsg}</p>
+              )}
+            </div>
+
+            <p className="text-xs" style={{ color: "#334155" }}>
+              The key is stored encrypted in your database. It is never exposed to the browser.
+              Use sk_test_ for testing, sk_live_ for production.
+            </p>
           </div>
         </Section>
 

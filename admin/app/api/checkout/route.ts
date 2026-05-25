@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const TIER_CONFIG: Record<string, { name: string; amount: number; description: string }> = {
   supporter:        { name: "Gran Boulva Supporter",        amount:   900, description: "Founding Supporter — one-time contribution" },
@@ -8,11 +9,28 @@ const TIER_CONFIG: Record<string, { name: string; amount: number; description: s
   founding_partner: { name: "Gran Boulva Founding Partner", amount: 49900, description: "Founding Partner — one-time contribution" },
 };
 
+// Resolve Stripe secret key: env var takes priority, falls back to app_settings
+async function resolveStripeKey(): Promise<string | null> {
+  if (process.env.STRIPE_SECRET_KEY) return process.env.STRIPE_SECRET_KEY;
+
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "stripe_keys")
+    .maybeSingle();
+
+  return data?.value?.secretKey ?? null;
+}
+
 export async function POST(req: Request) {
   try {
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    const stripeKey = await resolveStripeKey();
     if (!stripeKey) {
-      return NextResponse.json({ error: "Stripe not configured" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Stripe is not configured yet. Add your secret key in Admin → Settings." },
+        { status: 503 },
+      );
     }
 
     const { tier } = await req.json() as { tier?: string };
