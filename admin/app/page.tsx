@@ -455,7 +455,7 @@ export default function LandingPage() {
                 by <span style={{ color: "#94a3b8", fontWeight: 600 }}>Freedom</span> from the album{" "}
                 <em style={{ color: "#94a3b8", fontStyle: "italic" }}>1804</em>.
                 <br />
-                <span style={{ color: "#475569" }}>That emotion — the pain, the hope, the questions, the love for our people — is part of the spirit behind this platform.</span>
+                <span style={{ color: "#475569" }}>That emotion — the pain, the hope, the questions, the love for our people — that&apos;s Gran Boulva.</span>
               </p>
             </div>
 
