@@ -395,7 +395,7 @@ export default function LandingPage() {
 
           {/* Label */}
           <p style={{ color: "#a855f7", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 48, textAlign: "center" }}>
-            Why I&apos;m Building Gran Boulva
+            {t.founder.label}
           </p>
 
           {/* Card */}
@@ -406,56 +406,42 @@ export default function LandingPage() {
 
             {/* Body */}
             <div style={{ fontSize: "clamp(15px,1.6vw,17px)", color: "#94a3b8", lineHeight: 2, display: "flex", flexDirection: "column", gap: 20 }}>
-              <p style={{ margin: 0 }}>
-                I grew up watching Haitians debate everything — politics, football, music, life — with a level of passion, humor, intelligence, and energy that the world rarely gets to see.
-              </p>
-              <p style={{ margin: 0 }}>
-                I also grew up seeing what community can accomplish when people come together around a common goal. In my neighborhood, I had the opportunity to help organize people to bring electricity to our block. That experience stayed with me. It taught me that when people have a voice, a purpose, and a platform to unite around, real change becomes possible.
-              </p>
+              <p style={{ margin: 0 }}>{t.founder.p1}</p>
+              <p style={{ margin: 0 }}>{t.founder.p2}</p>
 
               {/* Callout questions */}
               <div style={{ borderLeft: "2px solid rgba(168,85,247,0.4)", paddingLeft: 24, margin: "8px 0", display: "flex", flexDirection: "column", gap: 8 }}>
-                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>Are we having the conversations that truly matter?</p>
-                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>Are we building the future we actually want?</p>
-                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>Who controls the narrative about what it means to be Ayisyen?</p>
+                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>{t.founder.q1}</p>
+                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>{t.founder.q2}</p>
+                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>{t.founder.q3}</p>
               </div>
 
-              <p style={{ margin: 0 }}>
-                Today, Haitians are everywhere around the world, yet most of our voices still depend on platforms that were never truly built for us. Too often, other people shape our image, our stories, and our identity for us.
-              </p>
+              <p style={{ margin: 0 }}>{t.founder.p3}</p>
 
               {/* Mission statement */}
               <div style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 16, padding: "24px 28px", margin: "8px 0" }}>
                 <p style={{ margin: 0, fontSize: "clamp(16px,1.8vw,19px)", color: "#e2e8f0", fontWeight: 700, lineHeight: 1.6 }}>
-                  Gran Boulva was created from a simple belief:<br />
-                  <span style={{ color: "#a855f7" }}>Haitian communities deserve a space where our culture is not hidden in the background, but placed at the center.</span>
+                  {t.founder.missionIntro}<br />
+                  <span style={{ color: "#a855f7" }}>{t.founder.missionCore}</span>
                 </p>
               </div>
 
-              <p style={{ margin: 0 }}>
-                Not another platform designed only to maximize attention and waste time — but a platform that reflects who we are and who we aspire to become: proud, peaceful, creative, free, ambitious, and connected.
-              </p>
-              <p style={{ margin: 0 }}>
-                I saw firsthand how hungry our community is for a space that truly belongs to us.
-              </p>
-              <p style={{ margin: 0, color: "#e2e8f0", fontWeight: 700, fontSize: "clamp(16px,1.8vw,19px)" }}>
-                Gran Boulva is the beginning of my answer to that.
-              </p>
-              <p style={{ margin: 0 }}>
-                This is more than a platform. It is a digital garden where ideas grow, creators rise, communities connect, important conversations happen, and a new generation can help shape the future of what it means to be Ayisyen.
-              </p>
+              <p style={{ margin: 0 }}>{t.founder.p4}</p>
+              <p style={{ margin: 0 }}>{t.founder.p5}</p>
+              <p style={{ margin: 0, color: "#e2e8f0", fontWeight: 700, fontSize: "clamp(16px,1.8vw,19px)" }}>{t.founder.p6}</p>
+              <p style={{ margin: 0 }}>{t.founder.p7}</p>
             </div>
 
             {/* Music note */}
             <div style={{ marginTop: 32, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px 24px", display: "flex", alignItems: "flex-start", gap: 14 }}>
               <span style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>🎵</span>
               <p style={{ margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
-                If you want to understand part of what I&apos;m feeling when building Gran Boulva, listen to{" "}
+                {t.founder.musicPre}{" "}
                 <em style={{ color: "#94a3b8", fontStyle: "italic" }}>Ayibobo</em>{" "}
-                by <span style={{ color: "#94a3b8", fontWeight: 600 }}>Freedom</span> from the album{" "}
+                {t.founder.musicBy} <span style={{ color: "#94a3b8", fontWeight: 600 }}>Freedom</span> {t.founder.musicFrom}{" "}
                 <em style={{ color: "#94a3b8", fontStyle: "italic" }}>1804</em>.
                 <br />
-                <span style={{ color: "#475569" }}>That emotion, the pain, the hope, the questions, the love for our people, that&apos;s Gran Boulva.</span>
+                <span style={{ color: "#475569" }}>{t.founder.musicEmotion}</span>
               </p>
             </div>
 
@@ -469,7 +455,7 @@ export default function LandingPage() {
               />
               <div>
                 <p style={{ margin: 0, fontWeight: 800, color: "#e2e8f0", fontSize: 15 }}>Guy Emmanuel Pavilus</p>
-                <p style={{ margin: "2px 0 0", fontSize: 13, color: "#64748b" }}>Founder, Gran Boulva</p>
+                <p style={{ margin: "2px 0 0", fontSize: 13, color: "#64748b" }}>{t.founder.founderTitle}</p>
                 <a
                   href="https://linkedin.com/in/gpavilus"
                   target="_blank"
