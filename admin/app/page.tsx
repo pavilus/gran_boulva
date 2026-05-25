@@ -446,12 +446,25 @@ export default function LandingPage() {
               </p>
             </div>
 
+            {/* Music note */}
+            <div style={{ marginTop: 32, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px 24px", display: "flex", alignItems: "flex-start", gap: 14 }}>
+              <span style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>🎵</span>
+              <p style={{ margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
+                If you want to understand part of what I&apos;m feeling when building Gran Boulva, listen to{" "}
+                <em style={{ color: "#94a3b8", fontStyle: "italic" }}>Ayibobo</em>{" "}
+                by <span style={{ color: "#94a3b8", fontWeight: 600 }}>Freedom</span> from the album{" "}
+                <em style={{ color: "#94a3b8", fontStyle: "italic" }}>1804</em>.
+                <br />
+                <span style={{ color: "#475569" }}>That emotion — the pain, the hope, the questions, the love for our people — is part of the spirit behind this platform.</span>
+              </p>
+            </div>
+
             {/* Signature */}
             <div style={{ marginTop: 40, paddingTop: 32, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 16 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="https://res.cloudinary.com/dysiltsoj/image/upload/v1779687427/00BB75A4-87B6-416A-AE26-DC31B83D185A_1_105_c_kr9vd4.jpg"
-                alt="Guy Emmanuel Pavilus"
+                alt="Guy Pavilus"
                 style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(168,85,247,0.4)" }}
               />
               <div>
@@ -463,7 +476,7 @@ export default function LandingPage() {
                   rel="noopener noreferrer"
                   style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 6, fontSize: 12, color: "#a855f7", textDecoration: "none", fontWeight: 600 }}
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
                   linkedin.com/in/gpavilus
                 </a>
               </div>
