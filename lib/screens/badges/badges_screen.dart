@@ -44,6 +44,9 @@ class _BadgesScreenState extends State<BadgesScreen> {
 
   int get _earnedCount => _badges.where((badge) => badge.level > 0).length;
 
+  List<BadgeProgressModel> get _unlockedBadges =>
+      _badges.where((badge) => badge.level > 0).toList();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,16 +80,52 @@ class _BadgesScreenState extends State<BadgesScreen> {
                 children: [
                   _buildSummary(),
                   const SizedBox(height: 16),
-                  for (final badge in _badges) ...[
-                    _BadgeProgressCard(
-                      badge: badge,
-                      color: _colorFromHex(badge.badge.colorHex),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
+                  if (_unlockedBadges.isEmpty)
+                    _buildEmptyState()
+                  else
+                    for (final badge in _unlockedBadges) ...[
+                      _BadgeProgressCard(
+                        badge: badge,
+                        color: _colorFromHex(badge.badge.colorHex),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 64),
+      child: const Column(
+        children: [
+          Icon(Icons.workspace_premium_rounded,
+              color: AppColors.textDim, size: 52),
+          SizedBox(height: 16),
+          Text(
+            'Pa gen badj debloke pou kounye a',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontFamily: 'Poppins',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Vote, agimante, sipòte — chak aksyon\npote ou pi pre premye badj ou a.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
