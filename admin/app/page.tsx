@@ -389,6 +389,77 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── FOUNDER SECTION ──────────────────────────────────────────────── */}
+      <section id="founder" style={{ padding: "120px 32px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+
+          {/* Label */}
+          <p style={{ color: "#a855f7", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 48, textAlign: "center" }}>
+            Why I&apos;m Building Gran Boulva
+          </p>
+
+          {/* Card */}
+          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(168,85,247,0.15)", borderRadius: 28, padding: "56px 56px 48px", position: "relative" }}>
+
+            {/* Opening quote mark */}
+            <div style={{ fontSize: 80, lineHeight: 0.6, color: "rgba(168,85,247,0.2)", fontFamily: "Georgia, serif", marginBottom: 32, userSelect: "none" }}>&ldquo;</div>
+
+            {/* Body */}
+            <div style={{ fontSize: "clamp(15px,1.6vw,17px)", color: "#94a3b8", lineHeight: 2, display: "flex", flexDirection: "column", gap: 20 }}>
+              <p style={{ margin: 0 }}>
+                I grew up watching Haitians debate everything — politics, football, music, life — with a level of passion, humor, intelligence, and energy that the world rarely gets to see.
+              </p>
+              <p style={{ margin: 0 }}>
+                I also grew up seeing what community can accomplish when people come together around a common goal. In my neighborhood, I had the opportunity to help organize people to bring electricity to our block. That experience stayed with me. It taught me that when people have a voice, a purpose, and a platform to unite around, real change becomes possible.
+              </p>
+
+              {/* Callout questions */}
+              <div style={{ borderLeft: "2px solid rgba(168,85,247,0.4)", paddingLeft: 24, margin: "8px 0", display: "flex", flexDirection: "column", gap: 8 }}>
+                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>Are we having the conversations that truly matter?</p>
+                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>Are we building the future we actually want?</p>
+                <p style={{ margin: 0, color: "#c4b5fd", fontWeight: 600, fontStyle: "italic" }}>Who controls the narrative about what it means to be Ayisyen?</p>
+              </div>
+
+              <p style={{ margin: 0 }}>
+                Today, Haitians are everywhere around the world, yet most of our voices still depend on platforms that were never truly built for us. Too often, other people shape our image, our stories, and our identity for us.
+              </p>
+
+              {/* Mission statement */}
+              <div style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 16, padding: "24px 28px", margin: "8px 0" }}>
+                <p style={{ margin: 0, fontSize: "clamp(16px,1.8vw,19px)", color: "#e2e8f0", fontWeight: 700, lineHeight: 1.6 }}>
+                  Gran Boulva was created from a simple belief:<br />
+                  <span style={{ color: "#a855f7" }}>Haitian communities deserve a space where our culture is not hidden in the background, but placed at the center.</span>
+                </p>
+              </div>
+
+              <p style={{ margin: 0 }}>
+                Not another platform designed only to maximize attention and waste time — but a platform that reflects who we are and who we aspire to become: proud, peaceful, creative, free, ambitious, and connected.
+              </p>
+              <p style={{ margin: 0 }}>
+                I saw firsthand how hungry our community is for a space that truly belongs to us.
+              </p>
+              <p style={{ margin: 0, color: "#e2e8f0", fontWeight: 700, fontSize: "clamp(16px,1.8vw,19px)" }}>
+                Gran Boulva is the beginning of my answer to that.
+              </p>
+              <p style={{ margin: 0 }}>
+                This is more than a platform. It is a digital garden where ideas grow, creators rise, communities connect, important conversations happen, and a new generation can help shape the future of what it means to be Ayisyen.
+              </p>
+            </div>
+
+            {/* Signature */}
+            <div style={{ marginTop: 40, paddingTop: 32, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#a855f7,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
+                🇭🇹
+              </div>
+              <div>
+                <p style={{ margin: 0, fontWeight: 800, color: "#e2e8f0", fontSize: 15 }}>Guy Emmanuel Pavilus</p>
+                <p style={{ margin: "2px 0 0", fontSize: 13, color: "#64748b" }}>Founder, Gran Boulva</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── FOUNDING SUPPORTER TIERS ─────────────────────────────────────── */}
       <section id="supporters" style={{ padding: "120px 32px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)", width: 900, height: 500, background: "radial-gradient(ellipse,rgba(245,158,11,0.08) 0%,transparent 65%)", pointerEvents: "none" }} />
