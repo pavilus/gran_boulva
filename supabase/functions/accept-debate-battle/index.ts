@@ -306,7 +306,7 @@ serve(async (req) => {
     // deno-lint-ignore no-explicit-any
     const opponentTier  = (opponentUser.creator_profiles as any)?.creator_tier ?? 0;
     if (opponentTier < requiredTier) {
-      const tierName = requiredTier === 1 ? "Kreyatè Monte (Tier 1)" : "Kreyatè Verifye (Tier 2)";
+      const tierName = requiredTier === 1 ? "Kreyatè Entèmedyè (Tier 1)" : "Kreyatè Verifye (Tier 2)";
       return Response.json(
         {
           error: `You need ${tierName} to participate in this battle. Your current tier is ${opponentTier}.`,

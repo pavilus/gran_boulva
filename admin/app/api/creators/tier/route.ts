@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // Notify user of tier change
     const tierNames: Record<number, string> = {
-      1: "Kreyatè Monte",
+      1: "Kreyatè Entèmedyè",
       2: "Kreyatè Verifye",
       3: "Kreyatè Elit",
       4: "Ikòn Kiltirèl",

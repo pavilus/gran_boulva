@@ -159,7 +159,7 @@ serve(async (req) => {
       (challenger.creator_profiles as any)?.creator_tier ?? 0;
 
     if (challengerTier < requiredTier) {
-      const tierName = requiredTier === 1 ? "Kreyatè Monte (Tier 1)" : "Kreyatè Verifye (Tier 2)";
+      const tierName = requiredTier === 1 ? "Kreyatè Entèmedyè (Tier 1)" : "Kreyatè Verifye (Tier 2)";
       return Response.json(
         {
           error: `${mode === "rapid_fire" ? "Rapid Fire" : "Full Debate"} requires ${tierName}. Your current tier is ${challengerTier}.`,
@@ -200,7 +200,7 @@ serve(async (req) => {
     // deno-lint-ignore no-explicit-any
     const opponentTier = (opponent.creator_profiles as any)?.creator_tier ?? 0;
     if (opponentTier < requiredTier) {
-      const tierName = requiredTier === 1 ? "Kreyatè Monte (Tier 1)" : "Kreyatè Verifye (Tier 2)";
+      const tierName = requiredTier === 1 ? "Kreyatè Entèmedyè (Tier 1)" : "Kreyatè Verifye (Tier 2)";
       return Response.json(
         {
           error: `Opponent does not meet the required creator tier for this mode. They need ${tierName}.`,

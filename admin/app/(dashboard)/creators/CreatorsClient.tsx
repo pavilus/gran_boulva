@@ -48,7 +48,7 @@ type Payout = {
 };
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
-const TIERS = ["Itilizatè", "Kreyatè Monte", "Kreyatè Verifye", "Kreyatè Elit", "Ikòn Kiltirèl"];
+const TIERS = ["Itilizatè", "Kreyatè Entèmedyè", "Kreyatè Verifye", "Kreyatè Elit", "Ikòn Kiltirèl"];
 const TIER_COLORS = ["#64748b", "#22c55e", "#3b82f6", "#a855f7", "#f59e0b"];
 const TIER_ICONS = ["👤", "🌱", "✅", "⚡", "👑"];
 const TABS = ["all", "monetized", "payouts"] as const;

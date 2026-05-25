@@ -138,7 +138,7 @@ class _IncomingBody extends StatelessWidget {
     final tierRequired = battle.mode == 'full_debate' ? 2 : 1;
     final tierLabel    = tierRequired == 2
         ? 'Kreyatè Verifye (Tier 2)'
-        : 'Kreyatè Monte (Tier 1)';
+        : 'Kreyatè Entèmedyè (Tier 1)';
 
     return SafeArea(
       child: SingleChildScrollView(

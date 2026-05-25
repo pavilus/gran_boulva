@@ -237,7 +237,7 @@ Tiers live in `creator_profiles`. `refresh_creator_tier()` is called after any s
 | Tier | Name (HT) | Unlock condition | Revenue share | Debate access |
 |------|-----------|-----------------|--------------|--------------|
 | 0 | Itilizatè (User) | Default | 0% | ❌ None |
-| 1 | Kreyatè Monte (Rising) | score ≥ 15 AND followers ≥ 10 — **automatic** | 60% | ⚡ Rapid Fire |
+| 1 | Kreyatè Entèmedyè (Rising) | score ≥ 15 AND followers ≥ 10 — **automatic** | 60% | ⚡ Rapid Fire |
 | 2 | Kreyatè Verifye (Verified) | Approved verification + score ≥ 35 | 70% | 🎙️ Full Debate + Rapid Fire |
 | 3 | Kreyatè Elit (Elite) | score ≥ 70 + admin confirmation | 80% | All |
 | 4 | Ikòn Kiltirèl (Cultural Icon) | Admin-only grant | Custom | All |
