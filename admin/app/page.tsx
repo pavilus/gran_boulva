@@ -29,7 +29,7 @@ function smoothScroll(id: string) {
 function LangSwitcher({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
   return (
     <div style={{ display: "flex", gap: 2, background: "rgba(255,255,255,0.05)", borderRadius: 99, padding: 3, border: "1px solid rgba(255,255,255,0.08)" }}>
-      {(["en", "ht", "fr"] as Lang[]).map((l) => (
+      {(["ht", "en", "fr"] as Lang[]).map((l) => (
         <button
           key={l}
           onClick={() => setLang(l)}
@@ -48,7 +48,7 @@ function LangSwitcher({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => voi
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function LandingPage() {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>("ht");
   const t = T[lang];
 
   const [scrolled, setScrolled] = useState(false);
@@ -125,7 +125,7 @@ export default function LandingPage() {
     }
   }
 
-  const selectedTierName = TIERS.find(t => t.key === selectedTier)?.name ?? "";
+  const selectedTierName = selectedTier ? (t.tierNames[selectedTier as keyof typeof t.tierNames] ?? "") : "";
 
   return (
     <div style={{ background: "#07080f", color: "#e2e8f0", fontFamily: "'Poppins', system-ui, sans-serif", overflowX: "hidden" }}>
@@ -491,7 +491,7 @@ export default function LandingPage() {
                     <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: tier.color, color: "#fff", fontSize: 10, fontWeight: 800, padding: "4px 14px", borderRadius: 99, whiteSpace: "nowrap", letterSpacing: 0.5 }}>MOST POPULAR</div>
                   )}
                   <div style={{ fontSize: 32, marginBottom: 12 }}>{tier.badge}</div>
-                  <h3 style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>{tier.name}</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>{t.tierNames[tier.key as keyof typeof t.tierNames]}</h3>
                   <div style={{ marginBottom: 20 }}>
                     <span style={{ fontSize: 32, fontWeight: 900, color: tier.color, letterSpacing: "-1px" }}>{tier.price}</span>
                     <span style={{ fontSize: 13, color: "#475569", marginLeft: 6 }}>{tier.period}</span>
