@@ -28,6 +28,7 @@ import {
   ChevronRight,
   Shield,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -39,6 +40,7 @@ const NAV = [
   { href: "/scout", icon: Bot, label: "AI Boulva Scout" },
   { href: "/categories", icon: Tag, label: "Kategori" },
   { href: "/users", icon: Users, label: "Itilizatè" },
+  { href: "/waitlist", icon: ClipboardList, label: "Lis Datant" },
   { href: "/verification", icon: BadgeCheck, label: "Verifikasyon" },
   { href: "/creators", icon: Award, label: "Kreyatè" },
   { href: "/badges", icon: Medal, label: "Badj" },
