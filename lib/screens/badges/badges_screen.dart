@@ -194,16 +194,24 @@ class _BadgeProgressCard extends StatelessWidget {
               // Inner container border property has been removed from here
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(
-                  16), // Clips the image to match the container corners
-              child: Image.asset(
-                badge.badge.iconAsset,
-                fit: BoxFit
-                    .cover, // Forces the image to completely fill the 68x68 dimensions
-                errorBuilder: (_, __, ___) => Center(
-                  child: Icon(Icons.workspace_premium_rounded, color: color),
-                ),
-              ),
+              borderRadius: BorderRadius.circular(16),
+              child: badge.badge.iconAsset.startsWith('http')
+                  ? Image.network(
+                      badge.badge.iconAsset,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Center(
+                        child: Icon(Icons.workspace_premium_rounded,
+                            color: color),
+                      ),
+                    )
+                  : Image.asset(
+                      badge.badge.iconAsset,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Center(
+                        child: Icon(Icons.workspace_premium_rounded,
+                            color: color),
+                      ),
+                    ),
             ),
           ),
           const SizedBox(width: 14),

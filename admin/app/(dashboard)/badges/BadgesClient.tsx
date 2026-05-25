@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Pencil, Check, X, ChevronDown, ChevronRight } from "lucide-react";
+import { useState, useRef } from "react";
+import { Pencil, Check, X, ChevronDown, ChevronRight, Upload } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 type BadgeLevel = {
   id: string;
@@ -56,6 +57,31 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
   const [form, setForm] = useState(initial);
   const [levelForm, setLevelForm] = useState<BadgeLevel | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const uploadIcon = async (file: File) => {
+    setUploading(true);
+    try {
+      const supabase = createClient();
+      const ext = file.name.split(".").pop();
+      const path = `${badge.key}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("badge-icons")
+        .upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: { publicUrl } } = supabase.storage
+        .from("badge-icons")
+        .getPublicUrl(path);
+      await callApi({ action: "update_badge", id: badge.id, icon_asset: publicUrl });
+      setBadge((b) => ({ ...b, icon_asset: publicUrl }));
+      setForm((f) => ({ ...f, icon_asset: publicUrl }));
+    } catch (e) {
+      alert("Upload échoué: " + (e instanceof Error ? e.message : e));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const setF = (k: keyof Badge) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -112,11 +138,13 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
     >
       {/* ── Badge header ── */}
       <div className="flex items-start gap-4 p-5">
-        {/* Color swatch + icon */}
+        {/* Icon — click to upload */}
         <div
+          onClick={() => fileRef.current?.click()}
+          title="Klike pou chanje icon"
           style={{
-            width: 52,
-            height: 52,
+            width: 58,
+            height: 58,
             borderRadius: 14,
             background: color + "22",
             border: `2px solid ${color}44`,
@@ -124,10 +152,37 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
             alignItems: "center",
             justifyContent: "center",
             flexShrink: 0,
-            fontSize: 22,
+            cursor: "pointer",
+            overflow: "hidden",
+            position: "relative",
           }}
         >
-          🏅
+          {badge.icon_asset?.startsWith("http") ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={badge.icon_asset} alt={badge.name_ht} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            <span style={{ fontSize: 24 }}>🏅</span>
+          )}
+          {/* Upload overlay */}
+          <div style={{
+            position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            opacity: uploading ? 1 : 0, transition: "opacity 0.15s",
+          }}
+            onMouseEnter={(e) => { if (!uploading) e.currentTarget.style.opacity = "1"; }}
+            onMouseLeave={(e) => { if (!uploading) e.currentTarget.style.opacity = "0"; }}
+          >
+            {uploading
+              ? <span style={{ color: "#fff", fontSize: 11 }}>…</span>
+              : <Upload size={16} color="#fff" />}
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadIcon(f); }}
+          />
         </div>
 
         {/* Info */}
