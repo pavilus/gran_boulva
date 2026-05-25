@@ -609,4 +609,32 @@ Estimated monthly costs at early launch stage (Haiti/Caribbean team, ~50 battles
 
 **Critical:** Apple/Google take **30%** of all in-app coin purchases (15% via Small Business Program under $1M/year). At $10,000/month gross coin revenue: $3,000 goes to Apple/Google before any operating cost.
 
+---
+
+## To-Do List
+
+### 🔴 Before / During Apple Submission
+- [ ] Prepare App Store screenshots, metadata, and app description
+- [ ] Submit app to Apple App Store for review
+- [ ] Apply pending DB migration: `supabase db push` → creates `partner_applications` table (`20260522001500_partner_applications.sql`)
+
+### 🟡 After Apple Submission (while waiting)
+- [ ] **VPS deploy** — SSH into `root@2.24.101.250` and run:
+  ```bash
+  cd /root/gran_boulva && git checkout -- admin/package-lock.json && git pull && cd admin && npm install && rm -rf .next && npm run build && pm2 restart gran-boulva-admin
+  ```
+- [ ] **Add Stripe secret key** — Admin dashboard → Settings → Stripe / Peman section
+
+### 🟢 After Apple Approval (post-launch)
+- [ ] **Web coin store** — Let users buy coins at `granboulva.com/coins` to bypass Apple's 30% fee. Includes: user login, pack grid with +10% web bonus, Stripe Checkout, confirm edge function, success page with deep link back to app, and "Buy on web" link in Flutter coin screen. Build once real purchase activity justifies it.
+- [ ] **Agora + AWS setup** (to go live with Debate Battles):
+  1. Create Agora account → new project → get App ID + App Certificate
+  2. Add `AGORA_APP_ID` + `AGORA_APP_CERTIFICATE` to Supabase Edge Function secrets
+  3. Enable Cloud Recording on Agora dashboard
+  4. Create S3 bucket `gran-boulva-battle-recordings` with 24h object lifecycle rule
+  5. Create IAM user with S3 write access → give credentials to Agora Cloud Recording
+  6. Add `AGORA_APP_ID` to Flutter build: `--dart-define=AGORA_APP_ID=...`
+  7. Reactivate `⚔️ 1 vs 1` entry point in `public_profile_screen.dart` (see instructions above)
+- [ ] **Apple External Purchase Link entitlement** — Apply via App Store Connect to allow in-app link to web coin store (US users). Reduces Apple's cut on web-originated purchases.
+
 **Agora scales with audience:** 500 viewers/battle × 1,500 battles/month ≈ $5,400/month in Agora fees alone. Consider viewer caps or premium live-viewing for high-traffic battles.
