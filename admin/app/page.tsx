@@ -59,7 +59,7 @@ export default function LandingPage() {
   async function startCheckout(tierKey: string) {
     setCheckoutLoading(tierKey);
     try {
-      const res  = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tier: tierKey }) });
+      const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tier: tierKey }) });
       const data = await res.json() as { url?: string; error?: string };
       if (!res.ok || !data.url) throw new Error(data.error ?? "Checkout failed");
       window.location.href = data.url;
@@ -559,7 +559,7 @@ export default function LandingPage() {
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.download}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <a href="https://apps.apple.com/app/gran-boulva" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>App Store (iOS)</a>
+                  <a href="https://apps.apple.com/app/gran-boulva" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>App Store (iOS).coming soon</a>
                   <span style={{ fontSize: 13, color: "#334155" }}>{t.footer.googlePlay}</span>
                 </div>
               </div>
@@ -575,15 +575,15 @@ export default function LandingPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.contact}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <a href="mailto:support@granboulva.com" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>support@granboulva.com</a>
-                  <a href="mailto:creators@granboulva.com" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>creators@granboulva.com</a>
+                  <a href="mailto:gpavilus@granboulva.com" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>gpavilus@granboulva.com</a>
                 </div>
               </div>
             </div>
           </div>
 
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <span style={{ fontSize: 12, color: "#1e2040" }}>© {new Date().getFullYear()} Gran Boulva. All rights reserved.</span>
-            <span style={{ fontSize: 12, color: "#1e2040" }}>{t.footer.copyright}</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>© {new Date().getFullYear()} Gran Boulva. All rights reserved.</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>{t.footer.copyright}</span>
           </div>
         </div>
       </footer>

@@ -94,7 +94,7 @@ const T = {
         ["Early access to the platform", "Supporter badge on your profile", "Exclusive supporter newsletter", "Gran Boulva community Discord"],
         ["Everything in Supporter", "Ambassador badge (permanent)", "Name on the founding wall", "Vote on platform features", "Founding Ambassador Discord role"],
         ["Everything in Ambassador", "Founding Creator badge (lifetime)", "Priority creator verification", "Creator tools early access", "Featured in founding creators wall", "Direct feedback channel to team"],
-        ["Everything in Founding Creator", "Founding Partner badge (permanent gold)", "Founding Partner recognition wall (forever)", "Founding call with the team", "Input on platform roadmap", "Ability to investor's discussions"],
+        ["Everything in Founding Creator", "Founding Partner badge (permanent gold)", "Founding Partner recognition wall (forever)", "Founding call with the team", "Input on platform roadmap", "Access to investor's discussions"],
       ],
     },
     waitlist: {
