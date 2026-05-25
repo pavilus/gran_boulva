@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -328,8 +328,8 @@ function PartnerThankYou() {
   );
 }
 
-// ── Page entry point ──────────────────────────────────────────────────────────
-export default function CheckoutSuccess() {
+// ── Inner component (uses useSearchParams — must be inside Suspense) ──────────
+function CheckoutSuccessInner() {
   const params    = useSearchParams();
   const tier      = params.get("tier") ?? "";
   const sessionId = params.get("session_id") ?? "";
@@ -342,4 +342,17 @@ export default function CheckoutSuccess() {
   }
 
   return <GenericSuccess tier={tier} />;
+}
+
+// ── Page entry point ──────────────────────────────────────────────────────────
+export default function CheckoutSuccess() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: "100vh", background: "#07080f", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: "#64748b", fontFamily: "'Poppins', sans-serif", fontSize: 14 }}>Loading…</div>
+      </div>
+    }>
+      <CheckoutSuccessInner />
+    </Suspense>
+  );
 }
