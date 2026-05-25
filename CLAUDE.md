@@ -401,9 +401,11 @@ Current applied migrations (in order):
 20260522001200_debate_battles                             — debate_battles + round_log + audience/extension votes tables
 20260522001300_battle_notification_types                  — battle_challenge, battle_accepted, battle_result enum values
 20260522001400_atomic_coin_ops                            — lock_coins_for_battle() + credit_coins() atomic RPCs
+20260522001500_partner_applications                       — partner_applications table for founding partner form
+20260525000100_badge_rls_policies                         — SELECT policies on user_badges/badge_events/badges/badge_levels (fixes counter showing 0)
 ```
 
-**Next migration timestamp to use: `20260522001500_...`**
+**Next migration timestamp to use: `20260525000200_...`**
 
 ---
 
@@ -616,7 +618,7 @@ Estimated monthly costs at early launch stage (Haiti/Caribbean team, ~50 battles
 ### 🔴 Before / During Apple Submission
 - [ ] Prepare App Store screenshots, metadata, and app description
 - [ ] Submit app to Apple App Store for review
-- [ ] Apply pending DB migration: `supabase db push` → creates `partner_applications` table (`20260522001500_partner_applications.sql`)
+- [x] Apply pending DB migration: `supabase db push` → creates `partner_applications` table (`20260522001500_partner_applications.sql`) ✓
 
 ### 🟡 After Apple Submission (while waiting)
 - [ ] **VPS deploy** — SSH into `root@2.24.101.250` and run:
