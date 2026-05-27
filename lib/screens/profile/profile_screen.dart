@@ -651,14 +651,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           // Border and BoxShadow properties have been removed
                         ),
                         //padding: const EdgeInsets.all(7),
-                        child: Image.asset(
-                          badge.badge.iconAsset,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Icon(
-                            Icons.workspace_premium_rounded,
-                            color: color,
-                            size: 50,
-                          ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: badge.badge.iconAsset.startsWith('http')
+                              ? Image.network(
+                                  badge.badge.iconAsset,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Center(
+                                    child: Icon(
+                                      Icons.workspace_premium_rounded,
+                                      color: color,
+                                      size: 36,
+                                    ),
+                                  ),
+                                )
+                              : Image.asset(
+                                  badge.badge.iconAsset,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Center(
+                                    child: Icon(
+                                      Icons.workspace_premium_rounded,
+                                      color: color,
+                                      size: 36,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(height: 9),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,6 +13,8 @@ import '../../widgets/common/app_interactions.dart';
 import '../../widgets/common/grad_button.dart';
 import '../../widgets/common/user_avatar.dart';
 import '../../widgets/common/verification_badge.dart';
+import '../../widgets/media_player_widget.dart';
+import '../../widgets/media_recorder_widget.dart';
 
 const _matchupPageBg = AppColors.bg0;
 const _matchupDeepPurple = Color(0xFF4F158F);
@@ -251,14 +255,22 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   }
 
   Future<void> _submitVoteAndArgument(
-      String optionId, String argumentBody) async {
-    if (optionId.isEmpty || argumentBody.trim().isEmpty) return;
+    String optionId,
+    String argumentBody, {
+    File? mediaFile,
+    String? mediaType,
+    int? mediaDuration,
+  }) async {
+    if (optionId.isEmpty) return;
     setState(() => _submitting = true);
     try {
       await _matchupService.submitVoteAndArgument(
         matchupId: widget.matchupId,
         optionId: optionId,
-        argumentBody: argumentBody.trim(),
+        argumentBody: argumentBody.trim().isEmpty ? ' ' : argumentBody.trim(),
+        mediaFile: mediaFile,
+        mediaType: mediaType,
+        mediaDuration: mediaDuration,
       );
       if (!mounted) return;
       setState(() {
@@ -331,9 +343,12 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _VoteBottomSheet(
         matchup: _matchup!,
-        onSubmit: (optionId, body) {
+        onSubmit: (optionId, body, mediaFile, mediaType, mediaDuration) {
           Navigator.pop(context);
-          _submitVoteAndArgument(optionId, body);
+          _submitVoteAndArgument(optionId, body,
+              mediaFile: mediaFile,
+              mediaType: mediaType,
+              mediaDuration: mediaDuration);
         },
         submitting: _submitting,
       ),
@@ -356,9 +371,12 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => _ArgumentBottomSheet(
-        onSubmit: (body) {
+        onSubmit: (body, mediaFile, mediaType, mediaDuration) {
           Navigator.pop(context);
-          _submitVoteAndArgument(_myVoteOptionId!, body);
+          _submitVoteAndArgument(_myVoteOptionId!, body,
+              mediaFile: mediaFile,
+              mediaType: mediaType,
+              mediaDuration: mediaDuration);
         },
         submitting: _submitting,
       ),
@@ -1031,17 +1049,27 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    arg.body,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      height: 1.45,
+                  if (arg.body.trim().isNotEmpty && arg.body.trim() != ' ')
+                    Text(
+                      arg.body,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                        fontFamily: 'Poppins',
+                        height: 1.45,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  // Voice / video attachment on own argument
+                  if (arg.mediaUrl != null && arg.mediaType != null) ...[
+                    const SizedBox(height: 8),
+                    MediaPlayerWidget(
+                      url: arg.mediaUrl!,
+                      type: arg.mediaType!,
+                      duration: arg.mediaDuration,
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -1058,56 +1086,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
                         active: arg.myReaction == 'dislike',
                         onTap: () => _onReaction(arg, 'dislike'),
                       ),
-                      if (arg.supportCoins > 0) ...[
-                        const SizedBox(width: 12),
-                        Image.asset('assets/images/coin.png',
-                            width: 14, height: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          _fmtNum(arg.supportCoins),
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 12,
-                            fontFamily: 'Poppins',
-                          ),
-                        ),
-                      ],
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () => context.push('/boost/${arg.id}'),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 7),
-                          decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.purple.withValues(alpha: 0.35),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.bolt_rounded,
-                                  color: Colors.white, size: 15),
-                              SizedBox(width: 5),
-                              Text(
-                                'Booste',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // MVP: support coins badge + Booste button hidden — re-enable post-launch
                     ],
                   ),
                 ],
@@ -1741,14 +1720,24 @@ class _ArgumentCardState extends State<_ArgumentCard> {
         ]),
         const SizedBox(height: 10),
         // Body
-        Text(arg.body,
-            style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-                fontFamily: 'Poppins',
-                height: 1.45),
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis),
+        if (arg.body.trim().isNotEmpty && arg.body.trim() != ' ')
+          Text(arg.body,
+              style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  height: 1.45),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis),
+        // Voice / video attachment
+        if (arg.mediaUrl != null && arg.mediaType != null) ...[
+          const SizedBox(height: 8),
+          MediaPlayerWidget(
+            url: arg.mediaUrl!,
+            type: arg.mediaType!,
+            duration: arg.mediaDuration,
+          ),
+        ],
         // MVP: support coins badge hidden
         const SizedBox(height: 10),
         // Footer actions
@@ -2022,7 +2011,8 @@ class _SupportBottomSheetState extends State<_SupportBottomSheet> {
 
 class _VoteBottomSheet extends StatefulWidget {
   final MatchupModel matchup;
-  final void Function(String optionId, String body) onSubmit;
+  final void Function(String optionId, String body,
+      File? mediaFile, String? mediaType, int? mediaDuration) onSubmit;
   final bool submitting;
   const _VoteBottomSheet(
       {required this.matchup,
@@ -2036,6 +2026,9 @@ class _VoteBottomSheet extends StatefulWidget {
 class _VoteBottomSheetState extends State<_VoteBottomSheet> {
   String? _selectedId;
   final _bodyCtrl = TextEditingController();
+  File? _mediaFile;
+  String? _mediaType;
+  int? _mediaDuration;
 
   @override
   void dispose() {
@@ -2044,7 +2037,8 @@ class _VoteBottomSheetState extends State<_VoteBottomSheet> {
   }
 
   bool get _canSubmit =>
-      _selectedId != null && _bodyCtrl.text.trim().length >= 10;
+      _selectedId != null &&
+      (_bodyCtrl.text.trim().length >= 10 || _mediaFile != null);
 
   Color get _selectedSideColor {
     final optB = widget.matchup.optionB;
@@ -2147,13 +2141,27 @@ class _VoteBottomSheetState extends State<_VoteBottomSheet> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
+                MediaRecorderWidget(
+                  onMediaReady: (file, type, dur) => setState(() {
+                    _mediaFile = file;
+                    _mediaType = type;
+                    _mediaDuration = dur;
+                  }),
+                  onClear: () => setState(() {
+                    _mediaFile = null;
+                    _mediaType = null;
+                    _mediaDuration = null;
+                  }),
+                ),
                 const SizedBox(height: 16),
                 _VoteSubmitButton(
                   active: _canSubmit,
                   loading: widget.submitting,
                   activeColor: _selectedSideColor,
                   onTap: _canSubmit
-                      ? () => widget.onSubmit(_selectedId!, _bodyCtrl.text)
+                      ? () => widget.onSubmit(_selectedId!, _bodyCtrl.text,
+                            _mediaFile, _mediaType, _mediaDuration)
                       : null,
                 ),
               ]),
@@ -2277,7 +2285,8 @@ class _VoteSubmitButton extends StatelessWidget {
 // ── Argument-only Bottom Sheet ─────────────────────────────────────────────────
 
 class _ArgumentBottomSheet extends StatefulWidget {
-  final void Function(String body) onSubmit;
+  final void Function(String body, File? mediaFile, String? mediaType,
+      int? mediaDuration) onSubmit;
   final bool submitting;
   const _ArgumentBottomSheet(
       {required this.onSubmit, required this.submitting});
@@ -2288,6 +2297,9 @@ class _ArgumentBottomSheet extends StatefulWidget {
 
 class _ArgumentBottomSheetState extends State<_ArgumentBottomSheet> {
   final _ctrl = TextEditingController();
+  File? _mediaFile;
+  String? _mediaType;
+  int? _mediaDuration;
 
   @override
   void dispose() {
@@ -2295,66 +2307,85 @@ class _ArgumentBottomSheetState extends State<_ArgumentBottomSheet> {
     super.dispose();
   }
 
+  bool get _canSubmit =>
+      _ctrl.text.trim().length >= 10 || _mediaFile != null;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-        child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                  child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                          color: AppColors.border,
-                          borderRadius: BorderRadius.circular(2)))),
-              const SizedBox(height: 16),
-              const Text('Ekri agimanw...',
-                  style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Poppins')),
-              const SizedBox(height: 12),
-              Container(
-                decoration: BoxDecoration(
-                    color: AppColors.card,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.border)),
-                child: TextField(
-                  controller: _ctrl,
-                  onChanged: (_) => setState(() {}),
-                  maxLines: 5,
-                  style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
-                      fontFamily: 'Poppins'),
-                  decoration: const InputDecoration(
-                    hintText: 'Eksplike poukisa ou panse konsa...',
-                    hintStyle: TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 13,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                    child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                            color: AppColors.border,
+                            borderRadius: BorderRadius.circular(2)))),
+                const SizedBox(height: 16),
+                const Text('Ekri agimanw...',
+                    style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Poppins')),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                      color: AppColors.card,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.border)),
+                  child: TextField(
+                    controller: _ctrl,
+                    onChanged: (_) => setState(() {}),
+                    maxLines: 5,
+                    style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
                         fontFamily: 'Poppins'),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(14),
+                    decoration: const InputDecoration(
+                      hintText: 'Eksplike poukisa ou panse konsa...',
+                      hintStyle: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 13,
+                          fontFamily: 'Poppins'),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(14),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              GradButton(
-                label: 'Soumèt agimanw',
-                icon: Icons.send_rounded,
-                onTap: _ctrl.text.trim().length >= 10
-                    ? () => widget.onSubmit(_ctrl.text)
-                    : null,
-                loading: widget.submitting,
-              ),
-            ]),
+                const SizedBox(height: 12),
+                MediaRecorderWidget(
+                  onMediaReady: (file, type, dur) => setState(() {
+                    _mediaFile = file;
+                    _mediaType = type;
+                    _mediaDuration = dur;
+                  }),
+                  onClear: () => setState(() {
+                    _mediaFile = null;
+                    _mediaType = null;
+                    _mediaDuration = null;
+                  }),
+                ),
+                const SizedBox(height: 16),
+                GradButton(
+                  label: 'Soumèt agimanw',
+                  icon: Icons.send_rounded,
+                  onTap: _canSubmit
+                      ? () => widget.onSubmit(
+                            _ctrl.text, _mediaFile, _mediaType, _mediaDuration)
+                      : null,
+                  loading: widget.submitting,
+                ),
+              ]),
+        ),
       ),
     );
   }
@@ -2591,6 +2622,9 @@ class _ReplyBottomSheet extends StatefulWidget {
 class _ReplyBottomSheetState extends State<_ReplyBottomSheet> {
   final _ctrl = TextEditingController();
   bool _sending = false;
+  File? _mediaFile;
+  String? _mediaType;
+  int? _mediaDuration;
 
   @override
   void dispose() {
@@ -2598,15 +2632,20 @@ class _ReplyBottomSheetState extends State<_ReplyBottomSheet> {
     super.dispose();
   }
 
+  bool get _canSend => _ctrl.text.trim().isNotEmpty || _mediaFile != null;
+
   Future<void> _send() async {
     final body = _ctrl.text.trim();
-    if (body.isEmpty) return;
+    if (!_canSend) return;
     setState(() => _sending = true);
     try {
       await widget.service.replyToArgument(
         widget.argument.id,
         body,
         ownerUserId: widget.argument.userId,
+        mediaFile: _mediaFile,
+        mediaType: _mediaType,
+        mediaDuration: _mediaDuration,
       );
       if (mounted) Navigator.pop(context);
     } catch (_) {
@@ -2674,11 +2713,24 @@ class _ReplyBottomSheetState extends State<_ReplyBottomSheet> {
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              MediaRecorderWidget(
+                onMediaReady: (file, type, dur) => setState(() {
+                  _mediaFile = file;
+                  _mediaType = type;
+                  _mediaDuration = dur;
+                }),
+                onClear: () => setState(() {
+                  _mediaFile = null;
+                  _mediaType = null;
+                  _mediaDuration = null;
+                }),
+              ),
               const SizedBox(height: 14),
               GradButton(
                 label: 'Voye repons',
                 icon: Icons.reply_rounded,
-                onTap: _ctrl.text.trim().isNotEmpty ? _send : null,
+                onTap: _canSend ? _send : null,
                 loading: _sending,
               ),
             ]),
@@ -2830,6 +2882,10 @@ class _RepliesViewSheetState extends State<_RepliesViewSheet> {
                         final verificationBadgeStyle =
                             user?['verification_badge_style'] as String?;
                         final body = r['body'] as String? ?? '';
+                        final replyMediaUrl = r['media_url'] as String?;
+                        final replyMediaType = r['media_type'] as String?;
+                        final replyMediaDuration =
+                            r['media_duration'] as int?;
                         final createdAt = r['created_at'] != null
                             ? DateTime.tryParse(r['created_at'] as String)
                             : null;
@@ -2894,12 +2950,24 @@ class _RepliesViewSheetState extends State<_RepliesViewSheet> {
                                           ],
                                         ]),
                                         const SizedBox(height: 3),
-                                        Text(body,
-                                            style: const TextStyle(
-                                                color: AppColors.textSecondary,
-                                                fontSize: 13,
-                                                fontFamily: 'Poppins',
-                                                height: 1.4)),
+                                        if (body.trim().isNotEmpty &&
+                                            body.trim() != ' ')
+                                          Text(body,
+                                              style: const TextStyle(
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                  fontSize: 13,
+                                                  fontFamily: 'Poppins',
+                                                  height: 1.4)),
+                                        if (replyMediaUrl != null &&
+                                            replyMediaType != null) ...[
+                                          const SizedBox(height: 6),
+                                          MediaPlayerWidget(
+                                            url: replyMediaUrl,
+                                            type: replyMediaType,
+                                            duration: replyMediaDuration,
+                                          ),
+                                        ],
                                       ]),
                                 ),
                               ]),

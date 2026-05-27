@@ -372,6 +372,13 @@ class _MenuScreenState extends State<MenuScreen> {
 
   List<_MenuItemData> _communityItems() => [
         _MenuItemData(
+          imagePath: 'assets/images/debate.png',
+          color: const Color(0xFFEC4899),
+          title: 'Vwa & Videyo',
+          subtitle: 'Tande ak gade agiman vwa ak videyo',
+          onTap: () => context.push('/media-feed'),
+        ),
+        _MenuItemData(
           imagePath: 'assets/images/predict.png',
           color: AppColors.purple,
           title: 'Prediksyon',

@@ -464,6 +464,10 @@ class ArgumentModel {
   final int saveCount;
   final int viewCount;
   final double finalScore;
+  // Media (voice / video — 30 s max)
+  final String? mediaUrl;
+  final String? mediaType; // 'audio' | 'video'
+  final int? mediaDuration; // seconds
 
   const ArgumentModel({
     required this.id,
@@ -488,6 +492,9 @@ class ArgumentModel {
     this.saveCount = 0,
     this.viewCount = 0,
     this.finalScore = 0,
+    this.mediaUrl,
+    this.mediaType,
+    this.mediaDuration,
   });
 
   factory ArgumentModel.fromJson(Map<String, dynamic> j) {
@@ -520,6 +527,9 @@ class ArgumentModel {
       saveCount: j['save_count'] ?? 0,
       viewCount: j['view_count'] ?? 0,
       finalScore: double.tryParse(j['final_score']?.toString() ?? '0') ?? 0,
+      mediaUrl: j['media_url'],
+      mediaType: j['media_type'],
+      mediaDuration: j['media_duration'],
     );
   }
 

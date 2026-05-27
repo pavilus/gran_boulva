@@ -1,11 +1,36 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app_sound_service.dart';
 import 'badge_unlock_events.dart';
 import '../models/models.dart';
 
 final supabase = Supabase.instance.client;
+
+// ── Module-level media upload helper ─────────────────────────────────────────
+// Used by both MatchupService.submitVoteAndArgument and ArgumentService.replyToArgument.
+// Uploads a local audio/video file to the argument-media bucket and returns
+// the public URL, or null on error.
+// Path: argument-media/{authUid}/{ts}.{ext}
+// NOTE: uses auth.uid() as folder prefix so the storage RLS policy matches.
+// The `userId` param (internal users.id) is ignored for path purposes.
+Future<String?> uploadArgumentMedia(File file, String userId) async {
+  try {
+    final authUid = supabase.auth.currentUser?.id;
+    if (authUid == null) return null;
+    final ext = file.path.contains('.')
+        ? file.path.split('.').last.toLowerCase()
+        : 'mp4';
+    final ts = DateTime.now().millisecondsSinceEpoch.toString();
+    final storagePath = '$authUid/$ts.$ext';
+    await supabase.storage.from('argument-media').upload(storagePath, file);
+    return supabase.storage.from('argument-media').getPublicUrl(storagePath);
+  } catch (e) {
+    debugPrint('Media upload error: $e');
+    return null;
+  }
+}
 
 class AuthService {
   Future<AuthResponse> signIn(String email, String password) =>
@@ -301,7 +326,19 @@ class MatchupService {
     required String matchupId,
     required String optionId,
     required String argumentBody,
+    File? mediaFile,
+    String? mediaType,
+    int? mediaDuration,
   }) async {
+    // Upload media first so the URL is ready before we touch the argument row
+    String? mediaUrl;
+    if (mediaFile != null && mediaType != null) {
+      final profile = await UserService().getProfile();
+      if (profile != null) {
+        mediaUrl = await uploadArgumentMedia(mediaFile, profile.id);
+      }
+    }
+
     final data =
         await supabase.rpc('submit_vote_and_argument_with_coins', params: {
       'p_matchup_id': matchupId,
@@ -309,6 +346,29 @@ class MatchupService {
       'p_argument_body': argumentBody,
     });
     AppSoundService.play(AppSound.vote);
+
+    // Attach media to the freshly created argument row
+    if (mediaUrl != null) {
+      final profile = await UserService().getProfile();
+      if (profile != null) {
+        final latest = await supabase
+            .from('arguments')
+            .select('id')
+            .eq('user_id', profile.id)
+            .eq('matchup_id', matchupId)
+            .order('created_at', ascending: false)
+            .limit(1)
+            .maybeSingle();
+        if (latest != null) {
+          await supabase.from('arguments').update({
+            'media_url': mediaUrl,
+            'media_type': mediaType,
+            if (mediaDuration != null) 'media_duration': mediaDuration,
+          }).eq('id', latest['id']);
+        }
+      }
+    }
+
     await BadgeService().recordEvent(
       badgeKey: 'top_voter',
       eventType: 'vote',
@@ -637,14 +697,31 @@ class ArgumentService {
         .eq('user_id', user.id);
   }
 
-  Future<void> replyToArgument(String argumentId, String body,
-      {String? ownerUserId}) async {
+  Future<void> replyToArgument(
+    String argumentId,
+    String body, {
+    String? ownerUserId,
+    File? mediaFile,
+    String? mediaType,
+    int? mediaDuration,
+  }) async {
     final user = await UserService().getProfile();
     if (user == null) return;
+
+    String? mediaUrl;
+    if (mediaFile != null && mediaType != null) {
+      mediaUrl = await uploadArgumentMedia(mediaFile, user.id);
+    }
+
     await supabase.from('argument_replies').insert({
       'argument_id': argumentId,
       'user_id': user.id,
-      'body': body,
+      // Use '' as body for media-only replies (no text) — the UI hides empty bodies.
+      'body': body.isEmpty ? '' : body,
+      if (mediaUrl != null) 'media_url': mediaUrl,
+      if (mediaUrl != null) 'media_type': mediaType,
+      if (mediaDuration != null && mediaUrl != null)
+        'media_duration': mediaDuration,
     });
     await BadgeService().recordEvent(
       badgeKey: 'community',
@@ -701,6 +778,19 @@ class ArgumentService {
       'reported_id': id,
       'reason': reason,
     });
+  }
+
+  /// Returns the most-recent arguments that have audio/video attachments,
+  /// across all matchups (public — no voter-gate).
+  Future<List<Map<String, dynamic>>> getMediaFeed({int limit = 50}) async {
+    try {
+      final data = await supabase.rpc('get_media_arguments_feed',
+          params: {'p_limit': limit});
+      return List<Map<String, dynamic>>.from(data as List);
+    } catch (e) {
+      debugPrint('getMediaFeed error: $e');
+      return [];
+    }
   }
 }
 
@@ -1517,14 +1607,28 @@ class PredictionService {
     required String predictionId,
     required String selectedOption,
     String? argumentBody,
+    File? mediaFile,
+    String? mediaType,
+    int? mediaDuration,
   }) async {
     final user = await UserService().getProfile();
     if (user == null) return;
+
+    String? mediaUrl;
+    if (mediaFile != null && mediaType != null) {
+      mediaUrl = await uploadArgumentMedia(mediaFile, user.id);
+    }
+
     await supabase.from('prediction_votes').insert({
       'prediction_id': predictionId,
       'user_id': user.id,
       'selected_option': selectedOption,
-      'argument_body': argumentBody,
+      if (argumentBody != null && argumentBody.isNotEmpty)
+        'argument_body': argumentBody,
+      if (mediaUrl != null) 'media_url': mediaUrl,
+      if (mediaUrl != null) 'media_type': mediaType,
+      if (mediaDuration != null && mediaUrl != null)
+        'media_duration': mediaDuration,
     });
     await RecommendationService().recordEvent(
       eventType: 'prediction_vote',
@@ -1549,7 +1653,8 @@ class PredictionService {
       String predictionId) async {
     final data = await supabase
         .from('prediction_votes')
-        .select('selected_option, created_at')
+        .select(
+            'selected_option, argument_body, media_url, media_type, media_duration, created_at')
         .eq('prediction_id', predictionId)
         .order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(data);

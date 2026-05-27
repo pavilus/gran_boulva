@@ -43,6 +43,7 @@ import '../screens/battles/battle_lobby_screen.dart';
 import '../screens/battles/battle_live_screen.dart';
 import '../screens/battles/battle_result_screen.dart';
 import '../screens/battles/battle_replay_screen.dart';
+import '../screens/media/media_feed_screen.dart';
 import '../widgets/common/app_interactions.dart';
 import 'app_colors.dart';
 
@@ -199,6 +200,7 @@ GoRouter createRouter() {
           builder: (_, __) => const CreatorDashboardScreen()),
       GoRoute(path: '/streak', builder: (_, __) => const StreakRecoveryScreen()),
       GoRoute(path: '/cosmetics', builder: (_, __) => const CosmeticsStoreScreen()),
+      GoRoute(path: '/media-feed', builder: (_, __) => const MediaFeedScreen()),
 
       // ── Battle routes ──────────────────────────────────────────────────────
       // /battle/:id       — smart dispatcher (status + role → correct sub-screen)

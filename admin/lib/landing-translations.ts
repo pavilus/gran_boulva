@@ -118,7 +118,7 @@ const T = {
       submit: "Reserve Your Spot →",
       submitting: "Reserving your spot…",
       successTitle: "You're on the list!",
-      successBody: "We'll reach out as soon as founding access opens. Welcome to the movement — Gran Boulva ap vini!",
+      successBody: "We'll reach out as soon as founding members access opens. Welcome to the movement — Gran Boulva ap vini!",
       noSpam: "No spam, ever. We only send important Gran Boulva updates.",
     },
     faq: {
@@ -180,7 +180,7 @@ const T = {
       h1a: "Kote Kilti Ayisyen,",
       h1b: "Kreyatè, ak Enflyans",
       h1c: "Pran Chè.",
-      sub1: "Gran Boulva ap bati paltfòm dijital pou kreyatè ayisyen, deba, transmisyon lide, prediksyon, ak enflyans kominotè.",
+      sub1: "Gran Boulva ap bati platfòm dijital pou kreyatè ayisyen, deba, transmisyon lide, prediksyon, ak enflyans kominotè.",
       sub2: "Fè tande vwa w, enfliyanse lide, epi ede chanje bagay yo.",
       cta1: "Rejwenn Lis Datant →",
       cta2: "👑 Vin yon Sipòtè Fondatè",
@@ -281,7 +281,7 @@ const T = {
       submit: "Rezève Plas Ou →",
       submitting: "Nap rezève plas ou…",
       successTitle: "Ou sou lis la!",
-      successBody: "N ap kontakte ou lè aksè fondatè ouvri. Byenveni nan mouvman an — Gran Boulva ap vini!",
+      successBody: "N ap kontakte ou lè aksè manm fondatè louvri. Byenveni nan mouvman an — Gran Boulva ap vini!",
       noSpam: "Pa gen spam. Nou voye sèlman mizajou enpòtan Gran Boulva.",
     },
     faq: {

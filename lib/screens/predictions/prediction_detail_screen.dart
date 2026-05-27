@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
@@ -7,6 +9,8 @@ import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
 import '../../widgets/common/grad_button.dart';
+import '../../widgets/media_player_widget.dart';
+import '../../widgets/media_recorder_widget.dart';
 
 class PredictionDetailScreen extends StatefulWidget {
   final String predictionId;
@@ -24,6 +28,11 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
   bool _submitting = false;
   String? _selectedOption; // 'A' or 'B'
   final _argController = TextEditingController();
+
+  // Media
+  File? _mediaFile;
+  String? _mediaType;
+  int? _mediaDuration;
 
   // Computed percentages from community votes
   int _votesA = 0;
@@ -99,6 +108,9 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
         argumentBody: _argController.text.trim().isEmpty
             ? null
             : _argController.text.trim(),
+        mediaFile: _mediaFile,
+        mediaType: _mediaType,
+        mediaDuration: _mediaDuration,
       );
       await _load();
     } catch (e) {
@@ -336,6 +348,19 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
               contentPadding: EdgeInsets.all(16),
             ),
           ),
+        ),
+        const SizedBox(height: 12),
+        MediaRecorderWidget(
+          onMediaReady: (file, type, dur) => setState(() {
+            _mediaFile = file;
+            _mediaType = type;
+            _mediaDuration = dur;
+          }),
+          onClear: () => setState(() {
+            _mediaFile = null;
+            _mediaType = null;
+            _mediaDuration = null;
+          }),
         ),
         const SizedBox(height: 20),
         GradButton(
@@ -641,6 +666,10 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
     final label = isA ? p.optionA : p.optionB;
     final createdAt =
         DateTime.tryParse(v['created_at'] as String? ?? '') ?? DateTime.now();
+    final argBody = v['argument_body'] as String?;
+    final mediaUrl = v['media_url'] as String?;
+    final mediaType = v['media_type'] as String?;
+    final mediaDuration = v['media_duration'] as int?;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -652,45 +681,74 @@ class _PredictionDetailScreenState extends State<PredictionDetailScreen> {
           border: Border.all(
               color: AppColors.border.withValues(alpha: 0.4), width: 1),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  pick,
-                  style: TextStyle(
-                      color: color,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
+            // ── Option badge + label + time ──────────────────────────────
+            Row(
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      pick,
+                      style: TextStyle(
+                          color: color,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Poppins'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                        fontFamily: 'Poppins'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  timeago.format(createdAt, locale: 'fr'),
+                  style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
                       fontFamily: 'Poppins'),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
+            // ── Text argument ────────────────────────────────────────────
+            if (argBody != null && argBody.trim().isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                argBody,
                 style: const TextStyle(
                     color: AppColors.textSecondary,
-                    fontSize: 12,
-                    fontFamily: 'Poppins'),
-                maxLines: 1,
+                    fontSize: 13,
+                    fontFamily: 'Poppins',
+                    height: 1.4),
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Text(
-              timeago.format(createdAt, locale: 'fr'),
-              style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                  fontFamily: 'Poppins'),
-            ),
+            ],
+            // ── Media ────────────────────────────────────────────────────
+            if (mediaUrl != null && mediaType != null) ...[
+              const SizedBox(height: 8),
+              MediaPlayerWidget(
+                url: mediaUrl,
+                type: mediaType,
+                duration: mediaDuration,
+              ),
+            ],
           ],
         ),
       ),

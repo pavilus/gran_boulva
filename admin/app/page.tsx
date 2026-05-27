@@ -445,10 +445,10 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Signature */}
+            {/* Signature 
             <div style={{ marginTop: 40, paddingTop: 32, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: 16 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            {/*<img
                 src="https://res.cloudinary.com/dysiltsoj/image/upload/v1779687427/00BB75A4-87B6-416A-AE26-DC31B83D185A_1_105_c_kr9vd4.jpg"
                 alt="Guy Pavilus"
                 style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(168,85,247,0.4)" }}
@@ -466,7 +466,7 @@ export default function LandingPage() {
                   linkedin.com/in/gpavilus
                 </a>
               </div>
-            </div>
+          </div> */}
           </div>
         </div>
       </section>
