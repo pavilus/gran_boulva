@@ -6,6 +6,7 @@ import { Trash2, Flag, RotateCcw } from "lucide-react";
 type Argument = {
   id: string; body: string; status: string; like_count: number; dislike_count: number;
   reply_count: number; created_at: string; matchup_id: string;
+  media_url?: string | null; media_type?: string | null; media_duration?: number | null;
   report_count?: number; report_reasons?: string[]; latest_report_at?: string | null;
   matchup?: { title_ht: string } | { title_ht: string }[];
   user?: { username: string; avatar_url?: string } | { username: string; avatar_url?: string }[];
@@ -58,9 +59,9 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
       if ((a.report_count ?? 0) === 0) return false;
     } else if (a.status !== activeTab) return false;
     const q = search.toLowerCase();
-    if (q && !`${getUser(a)} ${a.body} ${getMatchup(a)} ${a.like_count} ${a.dislike_count}`.toLowerCase().includes(q)) return false;
+    if (q && !`${getUser(a)} ${a.body} ${getMatchup(a)} ${a.like_count} ${a.dislike_count} ${a.media_type ?? ""}`.toLowerCase().includes(q)) return false;
     if (filters.user && !getUser(a).toLowerCase().includes(filters.user.toLowerCase())) return false;
-    if (filters.argument && !a.body.toLowerCase().includes(filters.argument.toLowerCase())) return false;
+    if (filters.argument && !(a.body ?? "").toLowerCase().includes(filters.argument.toLowerCase())) return false;
     if (filters.matchup && !getMatchup(a).toLowerCase().includes(filters.matchup.toLowerCase())) return false;
     if (filters.reactions && !`${a.like_count}/${a.dislike_count}`.includes(filters.reactions)) return false;
     if (filters.date && !fmtDate(a.created_at).toLowerCase().includes(filters.date.toLowerCase())) return false;
@@ -145,8 +146,31 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
             {filtered.map((a) => (
               <tr key={a.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
                 <td className="px-4 py-3" style={{ color: "#a78bfa" }}>@{getUser(a)}</td>
-                <td className="px-4 py-3 text-white" style={{ maxWidth: 280 }}>
-                  <div className="line-clamp-2" style={{ color: "#d1d5db" }}>{a.body}</div>
+                <td className="px-4 py-3 text-white" style={{ maxWidth: 300 }}>
+                  {/* Media badge */}
+                  {a.media_url && (
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: "2px 7px",
+                        borderRadius: 8, background: "rgba(168,85,247,0.15)",
+                        color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)",
+                      }}>
+                        {a.media_type === "video" ? "🎬 Videyo" : "🎤 Vwa"}
+                        {a.media_duration ? ` · ${a.media_duration}s` : ""}
+                      </span>
+                    </div>
+                  )}
+                  {/* Text body */}
+                  {a.body && a.body.trim() && (
+                    <div className="line-clamp-2 text-sm mb-1.5" style={{ color: "#d1d5db" }}>{a.body}</div>
+                  )}
+                  {/* Inline media player */}
+                  {a.media_url && a.media_type === "audio" && (
+                    <audio controls src={a.media_url} style={{ width: "100%", height: 32, accentColor: "#a855f7" }} />
+                  )}
+                  {a.media_url && a.media_type === "video" && (
+                    <video controls src={a.media_url} style={{ width: "100%", maxHeight: 120, borderRadius: 8, background: "#000" }} />
+                  )}
                 </td>
                 <td className="px-4 py-3" style={{ color: "#94a3b8", maxWidth: 200 }}>
                   <div className="truncate text-xs">{getMatchup(a)}</div>
