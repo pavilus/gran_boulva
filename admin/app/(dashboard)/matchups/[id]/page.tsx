@@ -25,7 +25,7 @@ export default async function MatchupDetailPage({ params }: { params: Promise<{ 
       .eq("matchup_id", id),
     supabase
       .from("arguments")
-      .select("id, body, like_count, dislike_count, reply_count, created_at, option_id, status, user:users(username)")
+      .select("id, body, like_count, dislike_count, reply_count, created_at, option_id, status, media_url, media_type, media_duration, user:users(username)")
       .eq("matchup_id", id)
       .order("like_count", { ascending: false })
       .limit(20),

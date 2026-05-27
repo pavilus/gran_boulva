@@ -35,6 +35,7 @@ type Vote = {
 type Arg = {
   id: string; body: string; like_count: number; dislike_count: number;
   reply_count: number; created_at: string; option_id: string; status: string;
+  media_url?: string | null; media_type?: string | null; media_duration?: number | null;
   user?: { username: string } | null;
 };
 
@@ -267,9 +268,25 @@ function TopArguments({ args, options }: { args: Arg[]; options: Option[] }) {
                         {a.status}
                       </span>
                     </div>
-                    <div className="text-sm text-white leading-relaxed" style={{ color: "#d1d5db" }}>
-                      {a.body.length > 140 ? a.body.slice(0, 140) + "…" : a.body}
-                    </div>
+                    {/* Media badge */}
+                    {a.media_url && (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full mb-1" style={{ background: "rgba(168,85,247,0.15)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)" }}>
+                        {a.media_type === "video" ? "🎬 Videyo" : "🎤 Vwa"}{a.media_duration ? ` · ${a.media_duration}s` : ""}
+                      </span>
+                    )}
+                    {/* Text body */}
+                    {a.body && a.body.trim() && (
+                      <div className="text-sm leading-relaxed" style={{ color: "#d1d5db" }}>
+                        {a.body.length > 140 ? a.body.slice(0, 140) + "…" : a.body}
+                      </div>
+                    )}
+                    {/* Inline media player */}
+                    {a.media_url && a.media_type === "audio" && (
+                      <audio controls src={a.media_url} className="mt-1.5" style={{ width: "100%", height: 32, accentColor: "#a855f7" }} />
+                    )}
+                    {a.media_url && a.media_type === "video" && (
+                      <video controls src={a.media_url} className="mt-1.5 rounded-lg" style={{ width: "100%", maxHeight: 160, background: "#000" }} />
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
