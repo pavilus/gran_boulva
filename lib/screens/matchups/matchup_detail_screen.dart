@@ -67,7 +67,7 @@ class MatchupDetailScreen extends StatefulWidget {
 class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   final _matchupService = MatchupService();
   final _argumentService = ArgumentService();
-  final _coinService = CoinService();
+  // MVP: _coinService hidden — re-enable post-launch
   String? _myInternalUserId;
 
   MatchupModel? _matchup;
@@ -81,14 +81,14 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
   bool _submitting = false;
   bool _argumentsLoading = false;
   String? _argumentsError;
-  int _coinBalance = 0;
+  // MVP: _coinBalance hidden
   bool _isSaved = false;
 
   final _scrollController = ScrollController();
 
   static const _sortTabs = [
     ('popular', 'Tòp Agiman'),
-    ('boosted', 'Boosted'),
+    // MVP: ('boosted', 'Boosted') hidden — re-enable post-launch
     ('recent', 'Resan'),
     ('following', 'Map Swiv'),
   ];
@@ -128,7 +128,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
       if (!_isLocked) {
         await _loadArguments();
       }
-      _loadCoinBalance();
+      // MVP: _loadCoinBalance() hidden
     } catch (e) {
       debugPrint('_init matchup error: $e');
       if (mounted) setState(() => _loading = false);
@@ -250,13 +250,6 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
     }
   }
 
-  Future<void> _loadCoinBalance() async {
-    try {
-      final balance = await _coinService.getBalance();
-      if (mounted) setState(() => _coinBalance = balance);
-    } catch (_) {}
-  }
-
   Future<void> _submitVoteAndArgument(
       String optionId, String argumentBody) async {
     if (optionId.isEmpty || argumentBody.trim().isEmpty) return;
@@ -273,7 +266,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
         _isLocked = false;
         _submitting = false;
       });
-      await _loadCoinBalance();
+      // MVP: await _loadCoinBalance() hidden
       await _init();
     } catch (e) {
       if (mounted) {
@@ -315,7 +308,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
         _hasChangedVote = true;
         _submitting = false;
       });
-      await _loadCoinBalance();
+      // MVP: await _loadCoinBalance() hidden
       await _init();
     } catch (e) {
       if (mounted) {
@@ -399,32 +392,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
     );
   }
 
-  void _openSupportSheet(ArgumentModel arg) {
-    if (arg.userId == _myInternalUserId) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Ou pa ka sipòte pwòp agiman ou.',
-            style: TextStyle(fontFamily: 'Poppins')),
-        backgroundColor: AppColors.warning,
-      ));
-      return;
-    }
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.bg1,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (_) => _SupportBottomSheet(
-        argument: arg,
-        coinService: _coinService,
-        currentUserId: _myInternalUserId,
-        onSupported: () async {
-          Navigator.pop(context);
-          await _loadArguments();
-          await _loadCoinBalance();
-        },
-      ),
-    );
-  }
+  // MVP: _openSupportSheet hidden — re-enable post-launch
 
   ArgumentModel? get _myArgument {
     final uid = _myInternalUserId;
@@ -485,43 +453,7 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
         fit: BoxFit.contain,
       ),
       centerTitle: true,
-      actions: [
-        GestureDetector(
-          onTap: () => context.push('/coins'),
-          child: Container(
-            height: 42,
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppColors.bg1,
-              borderRadius: BorderRadius.circular(22),
-              border:
-                  Border.all(color: AppColors.purple.withValues(alpha: 0.35)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/images/coin.png',
-                  width: 20,
-                  height: 20,
-                  fit: BoxFit.contain,
-                ),
-                const SizedBox(width: 7),
-                Text(
-                  _fmtNum(_coinBalance),
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      // MVP: coin balance pill hidden — re-enable post-launch
     );
   }
 
@@ -1033,9 +965,6 @@ class _MatchupDetailScreenState extends State<MatchupDetailScreen> {
                               argument: _arguments[i],
                               service: _argumentService,
                               currentUserId: _myInternalUserId,
-                              onBoost: () =>
-                                  context.push('/boost/${_arguments[i].id}'),
-                              onSupport: () => _openSupportSheet(_arguments[i]),
                               onReply: () => _openReplySheet(_arguments[i]),
                               onReadReplies: () =>
                                   _openReadRepliesSheet(_arguments[i]),
@@ -1599,8 +1528,7 @@ class _OptionCard extends StatelessWidget {
 class _ArgumentCard extends StatefulWidget {
   final ArgumentModel argument;
   final ArgumentService service;
-  final VoidCallback onBoost;
-  final VoidCallback onSupport;
+  // MVP: onBoost / onSupport hidden — re-enable post-launch
   final VoidCallback onReply;
   final VoidCallback onReadReplies;
   final ValueChanged<String> onReaction;
@@ -1609,8 +1537,6 @@ class _ArgumentCard extends StatefulWidget {
   const _ArgumentCard({
     required this.argument,
     required this.service,
-    required this.onBoost,
-    required this.onSupport,
     required this.onReply,
     required this.onReadReplies,
     required this.onReaction,
@@ -1823,35 +1749,7 @@ class _ArgumentCardState extends State<_ArgumentCard> {
                 height: 1.45),
             maxLines: 4,
             overflow: TextOverflow.ellipsis),
-        if (arg.supportCoins > 0) ...[
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.pink.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.pink.withValues(alpha: 0.28)),
-            ),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Image.asset('assets/images/coin.png', width: 16, height: 16),
-              const SizedBox(width: 6),
-              Text('${_fmt(arg.supportCoins)} coins sipò',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Poppins')),
-              if (arg.supportCount > 0) ...[
-                const SizedBox(width: 6),
-                Text('• ${_fmt(arg.supportCount)} moun',
-                    style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontFamily: 'Poppins')),
-              ],
-            ]),
-          ),
-        ],
+        // MVP: support coins badge hidden
         const SizedBox(height: 10),
         // Footer actions
         Row(children: [
@@ -1890,49 +1788,7 @@ class _ArgumentCardState extends State<_ArgumentCard> {
                       fontFamily: 'Poppins')),
             ),
           ],
-          const Spacer(),
-          if (!isOwnCard)
-            AppPressable(
-              onTap: widget.onSupport,
-              haptic: AppHaptic.medium,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.pink.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                  border:
-                      Border.all(color: AppColors.pink.withValues(alpha: 0.3)),
-                ),
-                child: const Text('Sipòte',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Poppins')),
-              ),
-            ),
-          if (isOwnCard) ...[
-            const SizedBox(width: 8),
-            AppPressable(
-              onTap: widget.onBoost,
-              haptic: AppHaptic.medium,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.purpleDim,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text('Booste',
-                    style: TextStyle(
-                        color: AppColors.purpleLight,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins')),
-              ),
-            ),
-          ],
+          // MVP: Sipòte / Booste buttons hidden — re-enable post-launch
         ]),
       ]),
     );

@@ -315,8 +315,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               count: _unreadNotifications,
               onTap: () => context.push('/notifications'),
             ),
-            const SizedBox(width: 8),
-            _CoinPill(balance: _user!.coinBalance),
+            // MVP: coin pill hidden — re-enable post-launch
           ],
         ),
       ],
@@ -1120,49 +1119,7 @@ class _NotificationButton extends StatelessWidget {
   }
 }
 
-class _CoinPill extends StatelessWidget {
-  final int balance;
-
-  const _CoinPill({required this.balance});
-
-  @override
-  Widget build(BuildContext context) {
-    final formatted = balance >= 1000
-        ? '${(balance / 1000).toStringAsFixed(balance % 1000 == 0 ? 0 : 1)}K'
-        : '$balance';
-    return GestureDetector(
-      onTap: () => context.push('/coins'),
-      child: Container(
-        height: 32,
-        padding: const EdgeInsets.symmetric(horizontal: 9),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.purpleLight),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              'assets/images/coin.png',
-              width: 24,
-              height: 24,
-            ),
-            const SizedBox(width: 5),
-            Text(
-              formatted,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// MVP: _CoinPill hidden — re-enable post-launch
 
 class _ProfileMeta extends StatelessWidget {
   final IconData icon;

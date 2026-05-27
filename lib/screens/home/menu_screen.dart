@@ -402,13 +402,7 @@ class _MenuScreenState extends State<MenuScreen> {
       ];
 
   List<_MenuItemData> _financeItems() => [
-        _MenuItemData(
-          imagePath: 'assets/images/coins.png',
-          color: AppColors.success,
-          title: 'Boulva Coins',
-          subtitle: 'Balans, acha ak tranzaksyon',
-          onTap: () => context.push('/coins'),
-        ),
+        // MVP: Boulva Coins hidden — re-enable post-launch
         _MenuItemData(
           imagePath: 'assets/images/badjmwen.png',
           color: AppColors.warning,
