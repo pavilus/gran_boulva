@@ -47,7 +47,7 @@ export default async function MatchupImagesPage() {
         title="Imaj Matchup"
         subtitle={`${imageSets.length} jenerasyon resan`}
       />
-      <div className="grid gap-4 p-5" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))" }}>
+      <div className="grid gap-3 p-5" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(174px,1fr))" }}>
         {imageSets.map((imageSet) => {
           const title = titleFor(imageSet);
           const slug = title.slice(0, 30).replace(/\s+/g, "-").toLowerCase();
@@ -85,7 +85,7 @@ export default async function MatchupImagesPage() {
                 </div>
               )}
 
-              <div className="space-y-3 p-4">
+              <div className="space-y-2 p-3">
                 <div>
                   <h2 className="line-clamp-2 text-sm font-semibold text-white">{title}</h2>
                   <p className="mt-1 text-xs" style={{ color: "#64748b" }}>
@@ -97,7 +97,7 @@ export default async function MatchupImagesPage() {
                   {imageSet.poster_image_url && (
                     <a
                       href={dlUrl(imageSet.poster_image_url, `${slug}-poster.png`)}
-                      className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                      className="rounded-lg px-2 py-1 text-xs font-semibold"
                       style={{ color: "#ffffff", background: "linear-gradient(90deg,#7c3aed,#a855f7)" }}
                     >
                       ↓ Poster
@@ -106,7 +106,7 @@ export default async function MatchupImagesPage() {
                   {imageSet.share_image_url && (
                     <a
                       href={dlUrl(imageSet.share_image_url, `${slug}-share.png`)}
-                      className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                      className="rounded-lg px-2 py-1 text-xs font-semibold"
                       style={{ color: "#a78bfa", border: "1px solid #31205b" }}
                     >
                       ↓ OG Share
@@ -114,21 +114,21 @@ export default async function MatchupImagesPage() {
                   )}
                   <a
                     href={dlUrl(imageSet.option_a_image_url, `${slug}-option-a.png`)}
-                    className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                    className="rounded-lg px-2 py-1 text-xs font-semibold"
                     style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
                   >
                     ↓ Opsyon A
                   </a>
                   <a
                     href={dlUrl(imageSet.option_b_image_url, `${slug}-option-b.png`)}
-                    className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                    className="rounded-lg px-2 py-1 text-xs font-semibold"
                     style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
                   >
                     ↓ Opsyon B
                   </a>
                   <Link
                     href={`/matchups/${imageSet.matchup_id}`}
-                    className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                    className="rounded-lg px-2 py-1 text-xs font-semibold"
                     style={{ color: "#475569", border: "1px solid #1e2040" }}
                   >
                     Matchup →
