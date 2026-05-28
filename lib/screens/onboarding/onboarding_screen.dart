@@ -89,7 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _skip() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
-    if (mounted) context.go('/login');
+    if (mounted) context.go('/create-account');
   }
 
   @override
@@ -176,8 +176,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         ),
                       ),
-                    ] else
-                      const SizedBox(height: 48),
+                    ] else ...[
+                      const SizedBox(height: 14),
+                      TextButton(
+                        onPressed: () => context.go('/login'),
+                        child: const Text.rich(
+                          TextSpan(
+                            text: 'Deja gen kont?  ',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 13,
+                              color: AppColors.textMuted,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Konekte',
+                                style: TextStyle(
+                                  color: AppColors.purpleLight,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                   ],
                 ),
               ),
