@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, Archive, Trash2, Plus, X, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { CheckCircle, Archive, Trash2, Plus, X, ExternalLink, ChevronUp, ChevronDown, ChevronsUpDown, ImageIcon } from "lucide-react";
 import Link from "next/link";
 
-type Option = { id: string; option_label: string; option_name: string; vote_count: number };
+type Option = { id: string; option_label: string; option_name: string; vote_count: number; image_url?: string | null };
 type Matchup = {
   id: string; title_ht: string; title_en?: string; status: string; total_votes: number;
   created_at: string; published_at?: string; category_id?: string;
@@ -403,7 +403,14 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                 <td className="px-4 py-3 text-white" style={{ maxWidth: 340, minWidth: 200 }}>
                   <Link href={`/matchups/${m.id}`} className="group flex items-start gap-1.5 hover:opacity-80 transition-opacity">
                     <div className="min-w-0">
-                      <div className="font-medium break-words group-hover:underline" style={{ textDecorationColor: "#a78bfa" }}>{m.title_ht}</div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-medium break-words group-hover:underline" style={{ textDecorationColor: "#a78bfa" }}>{m.title_ht}</span>
+                        {m.options?.some((o) => o.image_url) && (
+                          <span title="Imaj jenerasyon disponib" style={{ color: "#a855f7", flexShrink: 0 }}>
+                            <ImageIcon size={12} />
+                          </span>
+                        )}
+                      </div>
                       {m.title_en && <div className="break-words" style={{ color: "#475569", fontSize: 11 }}>{m.title_en}</div>}
                     </div>
                     <ExternalLink size={11} className="shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#a78bfa" }} />
