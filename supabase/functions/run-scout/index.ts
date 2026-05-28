@@ -163,9 +163,11 @@ serve(async (req) => {
       ),
       searchWeb(openaiKey,
         `As of ${today}, what are current Haitian sports news, predictions, and debates? ` +
-        `Haiti national football team, Haitian athletes internationally, upcoming games/events, player comparisons, ` +
-        `sports controversies. Also check: any political elections, economic predictions, or social outcome uncertainties for Haiti. ` +
-        `List 8 debate-worthy or prediction-worthy topics with context and source.`
+        `Haiti national football team results and upcoming matches, Haitian players in MLS/international leagues, ` +
+        `Haitian athletes in NBA/NFL/boxing, local Haitian league standings, sports rivalries, player transfers, ` +
+        `coach decisions, sports controversies, youth sports, kompa vs rap debate in sports circles. ` +
+        `Also: political elections timelines, economic predictions, social outcome uncertainties for Haiti. ` +
+        `List 15 specific debate-worthy or prediction-worthy topics with context and source.`
       ),
     ]);
 

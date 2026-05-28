@@ -434,6 +434,7 @@ export default function ScoutList({
   const router = useRouter();
   const [running, startRunning] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [scoutStarted, setScoutStarted] = useState(false);
   const [allDrafts, setAllDrafts] = useState({ pending, approved, rejected });
   const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected">("pending");
   const [filters, setFilters] = useState({
@@ -447,11 +448,12 @@ export default function ScoutList({
 
   async function runScout() {
     setError(null);
+    setScoutStarted(false);
     startRunning(async () => {
       const res = await fetch("/api/scout/run", { method: "POST" });
       const data = await res.json();
       if (!res.ok) setError(data.error ?? "Scout failed");
-      else router.refresh();
+      else setScoutStarted(true);
     });
   }
 
@@ -523,6 +525,19 @@ export default function ScoutList({
           {running ? "Scout k ap kouri…" : "Run Scout"}
         </button>
       </div>
+
+      {scoutStarted && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
+          <Loader2 size={14} className="animate-spin shrink-0" style={{ color: "#a855f7" }} />
+          <div>
+            <div className="text-sm font-semibold" style={{ color: "#a855f7" }}>Scout k ap kouri nan background…</div>
+            <div className="text-xs mt-0.5" style={{ color: "#64748b" }}>Retounen nan 2–3 minit epi klike <strong style={{ color: "#94a3b8" }}>Refresh</strong> pou wè nouvo drafts yo.</div>
+          </div>
+          <button onClick={() => router.refresh()} className="ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: "rgba(168,85,247,0.15)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)" }}>
+            Refresh
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="text-sm px-4 py-3 rounded-xl" style={{ background: "rgba(239,68,68,0.08)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.15)" }}>

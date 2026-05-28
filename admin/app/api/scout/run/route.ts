@@ -16,15 +16,15 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const res = await fetch(`${supabaseUrl}/functions/v1/run-scout`, {
+  // Fire-and-forget — Scout takes 2-3 min, don't wait or the request times out
+  fetch(`${supabaseUrl}/functions/v1/run-scout`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.access_token}`,
       "Content-Type": "application/json",
       apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     },
-  });
+  }).catch(() => {}); // silently ignore — result goes straight to DB
 
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  return NextResponse.json({ started: true, message: "Scout k ap kouri… Retounen nan 2-3 minit." });
 }
