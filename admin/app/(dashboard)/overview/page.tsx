@@ -12,6 +12,7 @@ import {
   getScoutDrafts,
   getRecentReports,
   getActivitySeries,
+  getRevenueSeries,
 } from "@/lib/dashboard";
 
 function fmt(n: number): string {
@@ -21,20 +22,21 @@ function fmt(n: number): string {
 }
 
 export default async function DashboardPage() {
-  const [stats, matchups, drafts, reports, activity] = await Promise.all([
+  const [stats, matchups, drafts, reports, activity, revenueSeries] = await Promise.all([
     getDashboardStats(),
     getRecentMatchups(),
     getScoutDrafts(),
     getRecentReports(),
     getActivitySeries(),
+    getRevenueSeries(),
   ]);
 
   const STATS = [
     {
       label: "Itilizatè Aktif",
       value: fmt(stats.users),
-      change: 5.4,
-      changeLabel: "semèn sa",
+      change: stats.usersChange,
+      changeLabel: "vs semèn pase",
       icon: Users,
       iconColor: "#a78bfa",
       iconBg: "rgba(124,58,237,0.18)",
@@ -42,8 +44,8 @@ export default async function DashboardPage() {
     {
       label: "Matchups Aktif",
       value: fmt(stats.activeMatchups),
-      change: 8.1,
-      changeLabel: "depi dènye",
+      change: 0,
+      changeLabel: "an dirèk",
       icon: Swords,
       iconColor: "#f9a8d4",
       iconBg: "rgba(236,72,153,0.18)",
@@ -51,8 +53,8 @@ export default async function DashboardPage() {
     {
       label: "Vòt Total",
       value: fmt(stats.totalVotes),
-      change: 3.4,
-      changeLabel: "semèn sa",
+      change: stats.votesChange,
+      changeLabel: "vs semèn pase",
       icon: Vote,
       iconColor: "#67e8f9",
       iconBg: "rgba(6,182,212,0.15)",
@@ -60,27 +62,30 @@ export default async function DashboardPage() {
     {
       label: "Boulva Coins",
       value: fmt(stats.totalCoins),
-      change: 3.2,
-      changeLabel: "semèn sa",
+      change: 0,
+      changeLabel: "an total",
       icon: CircleDollarSign,
       iconColor: "#fcd34d",
       iconBg: "rgba(245,158,11,0.15)",
     },
     {
       label: "Revni USD",
-      value: fmt(stats.totalRevenue),
-      change: 8.3,
-      changeLabel: "depi dènye",
+      value: `$${stats.totalRevenue.toFixed(2)}`,
+      change: stats.revenueChange,
+      changeLabel: "vs semèn pase",
       icon: DollarSign,
       iconColor: "#6ee7b7",
       iconBg: "rgba(16,185,129,0.15)",
-      prefix: "$",
     },
   ];
 
   const BOTTOM_STATS = [
     { label: "Itilizatè", value: fmt(stats.users) },
-    { label: "Agiman", value: fmt(stats.totalArguments), change: "+4.8%" },
+    {
+      label: "Agiman",
+      value: fmt(stats.totalArguments),
+      change: stats.argsChange !== 0 ? `${stats.argsChange > 0 ? "+" : ""}${stats.argsChange}%` : undefined,
+    },
     { label: "Prediksyon", value: fmt(stats.predictions) },
     {
       label: "Rapò ijan",
@@ -113,7 +118,11 @@ export default async function DashboardPage() {
         {/* Bottom row: matchups + revenue + reports */}
         <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 300px 280px" }}>
           <RecentMatchups matchups={matchups} />
-          <RevenueChart />
+          <RevenueChart
+            data={revenueSeries}
+            totalRevenue={stats.totalRevenue}
+            revenueChange={stats.revenueChange}
+          />
           <ReportsPanel reports={reports} />
         </div>
 

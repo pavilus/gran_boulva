@@ -5,10 +5,10 @@ import PaymentTables from "./PaymentTables";
 export default async function PaymentsPage() {
   const supabase = createAdminClient();
 
-  const [{ data: payments }, { data: coins }] = await Promise.all([
+  const [{ data: purchases }, { data: coins }] = await Promise.all([
     supabase
-      .from("payments")
-      .select("id, amount, status, created_at, user_id, user:users(username)")
+      .from("coin_purchases")
+      .select("id, coin_amount, usd_cents, status, created_at, user_id, user:users(username)")
       .order("created_at", { ascending: false })
       .limit(100),
     supabase
@@ -18,13 +18,13 @@ export default async function PaymentsPage() {
       .limit(100),
   ]);
 
-  const totalRev = (payments ?? [])
+  const totalRev = (purchases ?? [])
     .filter((p) => p.status === "succeeded")
-    .reduce((s, p) => s + (p.amount ?? 0), 0);
+    .reduce((s, p) => s + (p.usd_cents ?? 0), 0);
 
-  const totalCoins = (coins ?? [])
-    .filter((c) => c.transaction_type === "purchase" && (c.status === "completed" || c.status === "succeeded"))
-    .reduce((s, c) => s + (c.amount ?? 0), 0);
+  const totalCoins = (purchases ?? [])
+    .filter((p) => p.status === "succeeded")
+    .reduce((s, p) => s + (p.coin_amount ?? 0), 0);
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-y-auto" style={{ background: "#07080f" }}>
@@ -41,7 +41,7 @@ export default async function PaymentsPage() {
           </div>
         </div>
 
-        <PaymentTables payments={payments ?? []} coins={coins ?? []} />
+        <PaymentTables purchases={purchases ?? []} coins={coins ?? []} />
       </div>
     </div>
   );

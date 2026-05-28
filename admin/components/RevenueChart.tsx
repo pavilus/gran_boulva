@@ -11,15 +11,7 @@ import {
   Cell,
 } from "recharts";
 
-const data = [
-  { day: "May 9",  revenue: 2800 },
-  { day: "May 10", revenue: 3400 },
-  { day: "May 11", revenue: 2200 },
-  { day: "May 12", revenue: 4600 },
-  { day: "May 13", revenue: 3900 },
-  { day: "May 14", revenue: 4100 },
-  { day: "May 15", revenue: 3890 },
-];
+type RevenuePoint = { day: string; revenue: number };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -35,7 +27,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       >
         <p style={{ color: "#94a3b8", marginBottom: 4 }}>{label}</p>
         <p style={{ color: "#10b981", fontWeight: 700 }}>
-          ${payload[0].value.toLocaleString()}
+          ${payload[0].value.toFixed(2)}
         </p>
       </div>
     );
@@ -43,7 +35,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export default function RevenueChart() {
+export default function RevenueChart({
+  data,
+  totalRevenue,
+  revenueChange,
+}: {
+  data: RevenuePoint[];
+  totalRevenue: number;
+  revenueChange: number;
+}) {
+  const weekTotal = data.reduce((s, d) => s + d.revenue, 0);
+  const positive = revenueChange >= 0;
+
   return (
     <div
       className="rounded-xl p-5"
@@ -53,14 +56,20 @@ export default function RevenueChart() {
         <div>
           <div className="text-white font-semibold text-sm">Revni sou 7 jòu yo</div>
           <div className="font-bold mt-0.5" style={{ color: "#10b981", fontSize: 20 }}>
-            $24,890
+            ${weekTotal.toFixed(2)}
+          </div>
+          <div style={{ color: "#475569", fontSize: 10, marginTop: 2 }}>
+            Total: ${totalRevenue.toFixed(2)}
           </div>
         </div>
         <div
           className="text-xs px-2 py-1 rounded-full font-semibold"
-          style={{ background: "rgba(16,185,129,0.12)", color: "#10b981" }}
+          style={{
+            background: positive ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)",
+            color: positive ? "#10b981" : "#ef4444",
+          }}
         >
-          ↑ 8.3%
+          {positive ? "↑" : "↓"} {Math.abs(revenueChange)}%
         </div>
       </div>
 
@@ -77,14 +86,14 @@ export default function RevenueChart() {
             tick={{ fill: "#475569", fontSize: 9 }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+            tickFormatter={(v) => `$${v.toFixed(0)}`}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(124,58,237,0.05)" }} />
           <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
             {data.map((_, i) => (
               <Cell
                 key={i}
-                fill={i === data.length - 2 ? "#7c3aed" : "rgba(124,58,237,0.35)"}
+                fill={i === data.length - 1 ? "#7c3aed" : "rgba(124,58,237,0.35)"}
               />
             ))}
           </Bar>
