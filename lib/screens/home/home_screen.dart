@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<TopVoiceModel> _topPredictors = [];
   List<PredictionModel> _predictions = [];
   String _searchQuery = '';
-  String _activeCategoryLabel = 'Popilè';
+  String _activeCategoryLabel = 'Tout';
   String _activePredCategoryLabel = 'Tout';
   String? _predCategoryId; // null = all categories in predictions tab
   bool _loading = true;
@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final results = await Future.wait([
         _matchupService.getCategories(),
-        _matchupService.getHomeFeed(popular: true), // default tab is Popilè
+        _matchupService.getHomeFeed(), // default tab is Tout — show all matchups
         _userService.getTopVoices(limit: 8),
         PredictionService().getPredictions(),
         PredictionService().getTopPredictors(limit: 8),
