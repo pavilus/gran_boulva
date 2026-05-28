@@ -1,36 +1,30 @@
 import 'package:flutter/material.dart';
-
+import '../../models/models.dart';
 import 'app_interactions.dart';
 
-class CategoryItem {
-  final String label;
-  final String icon;
-  final String? asset;
-  const CategoryItem({required this.label, required this.icon, this.asset});
-}
-
-const List<CategoryItem> kCategories = [
-  CategoryItem(label: 'Popilè', icon: '🔥', asset: 'assets/images/fire.png'),
-  CategoryItem(label: 'Tout', icon: '⭐', asset: 'assets/images/star.png'),
-  CategoryItem(
-      label: 'Sosyete', icon: '👥', asset: 'assets/images/society.png'),
-  CategoryItem(
-      label: 'Divètisman',
-      icon: '🎬',
-      asset: 'assets/images/entertainment.png'),
-  CategoryItem(label: 'Sport', icon: '⚽', asset: 'assets/images/sport.png'),
-  CategoryItem(
-      label: 'Politik', icon: '🏛️', asset: 'assets/images/politics.png'),
+// Static tabs that always appear first, before DB categories
+const _kStaticTabs = [
+  _StaticTab(label: 'Popilè', asset: 'assets/images/fire.png'),
+  _StaticTab(label: 'Tout', asset: 'assets/images/star.png'),
 ];
+
+class _StaticTab {
+  final String label;
+  final String asset;
+  const _StaticTab({required this.label, required this.asset});
+}
 
 class CategoryTabs extends StatelessWidget {
   final String activeCategory;
   final ValueChanged<String> onSelect;
+  /// Live categories from the DB. When provided, replaces the old hardcoded list.
+  final List<CategoryModel>? categories;
 
   const CategoryTabs({
     super.key,
     required this.activeCategory,
     required this.onSelect,
+    this.categories,
   });
 
   @override
@@ -39,25 +33,63 @@ class CategoryTabs extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
-        children: kCategories.map((cat) {
-          final isActive = cat.label == activeCategory;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: isActive
-                ? _ActiveTab(cat: cat, onTap: () => onSelect(cat.label))
-                : _InactiveTab(cat: cat, onTap: () => onSelect(cat.label)),
-          );
-        }).toList(),
+        children: [
+          // Static tabs: Popilè + Tout
+          ..._kStaticTabs.map((tab) {
+            final isActive = tab.label == activeCategory;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: isActive
+                  ? _ActiveTab(
+                      label: tab.label,
+                      asset: tab.asset,
+                      onTap: () => onSelect(tab.label),
+                    )
+                  : _InactiveTab(
+                      label: tab.label,
+                      onTap: () => onSelect(tab.label),
+                    ),
+            );
+          }),
+
+          // Dynamic DB categories
+          if (categories != null)
+            ...categories!.map((cat) {
+              final isActive = cat.nameHt == activeCategory;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: isActive
+                    ? _ActiveTab(
+                        label: cat.nameHt,
+                        emoji: cat.icon ?? '📂',
+                        onTap: () => onSelect(cat.nameHt),
+                      )
+                    : _InactiveTab(
+                        label: cat.nameHt,
+                        onTap: () => onSelect(cat.nameHt),
+                      ),
+              );
+            }),
+        ],
       ),
     );
   }
 }
 
+// ── Tab widgets ───────────────────────────────────────────────────────────────
+
 class _ActiveTab extends StatelessWidget {
-  final CategoryItem cat;
+  final String label;
+  final String? asset;
+  final String? emoji;
   final VoidCallback onTap;
 
-  const _ActiveTab({required this.cat, required this.onTap});
+  const _ActiveTab({
+    required this.label,
+    required this.onTap,
+    this.asset,
+    this.emoji,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -83,14 +115,13 @@ class _ActiveTab extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (cat.asset != null)
-                Image.asset(cat.asset!,
-                    width: 15, height: 15, fit: BoxFit.contain)
-              else
-                Text(cat.icon, style: const TextStyle(fontSize: 13)),
+              if (asset != null)
+                Image.asset(asset!, width: 15, height: 15, fit: BoxFit.contain)
+              else if (emoji != null)
+                Text(emoji!, style: const TextStyle(fontSize: 13)),
               const SizedBox(width: 5),
               Text(
-                cat.label,
+                label,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 13,
@@ -107,10 +138,10 @@ class _ActiveTab extends StatelessWidget {
 }
 
 class _InactiveTab extends StatelessWidget {
-  final CategoryItem cat;
+  final String label;
   final VoidCallback onTap;
 
-  const _InactiveTab({required this.cat, required this.onTap});
+  const _InactiveTab({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +156,7 @@ class _InactiveTab extends StatelessWidget {
           border: Border.all(color: const Color(0xFF2A2A4A)),
         ),
         child: Text(
-          cat.label,
+          label,
           style: const TextStyle(
             color: Color(0xFF9999BB),
             fontSize: 13,

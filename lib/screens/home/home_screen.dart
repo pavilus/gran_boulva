@@ -496,6 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
         activeCategory:
             _homeTab == 0 ? _activeCategoryLabel : _activePredCategoryLabel,
         onSelect: _onCategoryLabelTap,
+        categories: _categories,
       ),
     );
   }

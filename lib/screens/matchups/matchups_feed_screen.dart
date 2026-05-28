@@ -270,6 +270,7 @@ class _MatchupsFeedScreenState extends State<MatchupsFeedScreen> {
       child: CategoryTabs(
         activeCategory: _activeCategoryLabel,
         onSelect: _onCategoryLabelTap,
+        categories: _categories,
       ),
     );
   }
