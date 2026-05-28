@@ -15,7 +15,7 @@ export type ImageGeneratorMatchup = {
   options: MatchupOption[];
 };
 
-const imageModel = "gpt-image-1.5";
+const imageModel = "gpt-image-1";
 
 function optionPrompt(matchup: ImageGeneratorMatchup, option: MatchupOption) {
   const side = option.option_label === "A" ? "left" : "right";

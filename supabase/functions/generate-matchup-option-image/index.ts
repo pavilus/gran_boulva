@@ -82,7 +82,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-image-1.5",
+        model: "gpt-image-1",
         prompt,
         size: "1024x1536",
         quality: "high",
