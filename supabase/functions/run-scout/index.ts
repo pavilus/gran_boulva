@@ -233,6 +233,7 @@ Return a JSON object:
       "option_b": "Second option name",
       "description_ht": "1-2 sentence context in Haitian Creole explaining why this is relevant NOW",
       "category": "exact category name_ht from available list",
+      "source_url": "https://exact-article-url.com/article — the specific URL from the research that inspired this matchup, or null if not found",
       "source_platform": "primary platform where found",
       "trending_keywords": ["keyword1", "keyword2", "keyword3"],
       "detected_entities": ["Person/Place/Org 1", "Person/Place/Org 2"],
@@ -281,6 +282,7 @@ Return a JSON object:
       "option_b": "Second outcome option",
       "description_ht": "1-2 sentence context explaining the situation and why it's uncertain",
       "category": "exact category name_ht from available list",
+      "source_url": "https://exact-article-url.com/article — the specific URL from the research that inspired this prediction, or null if not found",
       "source_platform": "primary platform where found",
       "trending_keywords": ["keyword1", "keyword2"],
       "detected_entities": ["Person/Place/Org 1"],
@@ -334,7 +336,9 @@ Return a JSON object:
         option_a: m.option_a,
         option_b: m.option_b,
         description_ht: m.description_ht ?? null,
-        source_links: uniqueUrls.slice(0, 5),
+        source_links: m.source_url
+          ? [m.source_url, ...uniqueUrls.filter(u => u !== m.source_url).slice(0, 4)]
+          : uniqueUrls.slice(0, 5),
         source_platform: m.source_platform ?? null,
         trending_keywords: m.trending_keywords ?? [],
         detected_entities: m.detected_entities ?? [],
@@ -386,7 +390,9 @@ Return a JSON object:
         option_a: p.option_a,
         option_b: p.option_b,
         description_ht: p.description_ht ?? null,
-        source_links: uniqueUrls.slice(0, 5),
+        source_links: p.source_url
+          ? [p.source_url, ...uniqueUrls.filter(u => u !== p.source_url).slice(0, 4)]
+          : uniqueUrls.slice(0, 5),
         source_platform: p.source_platform ?? null,
         trending_keywords: p.trending_keywords ?? [],
         detected_entities: p.detected_entities ?? [],
