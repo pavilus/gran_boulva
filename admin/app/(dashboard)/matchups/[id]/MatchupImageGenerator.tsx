@@ -32,6 +32,7 @@ export default function MatchupImageGenerator({
     share: initialShare ?? "",
   });
   const [generating, setGenerating] = useState(false);
+  const [genStarted, setGenStarted] = useState(false);
   const [uploading, setUploading] = useState<Partial<Record<Slot, boolean>>>({});
   const [genError, setGenError] = useState("");
   const [slotErrors, setSlotErrors] = useState<Partial<Record<Slot, string>>>({});
@@ -39,6 +40,7 @@ export default function MatchupImageGenerator({
   // ── AI generation (A + B + composite attempt) ──────────────────────────────
   async function generate() {
     setGenerating(true);
+    setGenStarted(false);
     setGenError("");
     try {
       const res = await fetch("/api/matchups/images/generate", {
@@ -48,12 +50,7 @@ export default function MatchupImageGenerator({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Jenerasyon echwe");
-      setImages({
-        option_a: data.option_a_image_url ?? images.option_a,
-        option_b: data.option_b_image_url ?? images.option_b,
-        poster:   data.poster_image_url   ?? images.poster,
-        share:    data.share_image_url    ?? images.share,
-      });
+      setGenStarted(true);
     } catch (e) {
       setGenError(e instanceof Error ? e.message : "Jenerasyon echwe");
     } finally {
@@ -101,6 +98,16 @@ export default function MatchupImageGenerator({
           {generating ? "Ap jenere…" : "Jenere ak IA"}
         </button>
       </div>
+
+      {genStarted && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
+          <Loader2 size={14} className="animate-spin shrink-0" style={{ color: "#a855f7" }} />
+          <div>
+            <div className="text-xs font-semibold" style={{ color: "#a855f7" }}>Imaj ap jenere nan background…</div>
+            <div className="text-xs mt-0.5" style={{ color: "#64748b" }}>Rafraîchi paj la nan 2–3 minit pou wè yo.</div>
+          </div>
+        </div>
+      )}
 
       {genError && (
         <div className="mb-4 rounded-lg px-3 py-2 text-xs" style={{ color: "#fca5a5", background: "rgba(239,68,68,.1)" }}>
