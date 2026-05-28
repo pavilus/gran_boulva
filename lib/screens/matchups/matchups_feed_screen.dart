@@ -21,7 +21,7 @@ class _MatchupsFeedScreenState extends State<MatchupsFeedScreen> {
   List<MatchupModel> _matchups = [];
   List<CategoryModel> _categories = [];
   String _searchQuery = '';
-  String _activeCategoryLabel = 'Popilè';
+  String _activeCategoryLabel = 'Tout';
   bool _loading = true;
   final _searchController = TextEditingController();
 

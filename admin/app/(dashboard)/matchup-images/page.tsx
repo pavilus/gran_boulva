@@ -7,8 +7,8 @@ type ImageSet = {
   matchup_id: string;
   option_a_image_url: string;
   option_b_image_url: string;
-  poster_image_url: string;
-  share_image_url: string;
+  poster_image_url: string | null;
+  share_image_url: string | null;
   model: string;
   created_at: string;
   matchup?: { title_ht?: string } | Array<{ title_ht?: string }> | null;
@@ -19,6 +19,11 @@ function titleFor(imageSet: ImageSet) {
     ? imageSet.matchup[0]
     : imageSet.matchup;
   return matchup?.title_ht ?? "Matchup";
+}
+
+/** Proxy URL so the browser triggers a real file download (cross-origin `download` attr is ignored) */
+function dlUrl(imageUrl: string, filename: string) {
+  return `/api/download?url=${encodeURIComponent(imageUrl)}&filename=${encodeURIComponent(filename)}`;
 }
 
 export default async function MatchupImagesPage() {
@@ -40,69 +45,106 @@ export default async function MatchupImagesPage() {
     >
       <Topbar
         title="Imaj Matchup"
-        subtitle={`${imageSets.length} poster jenerasyon resan`}
+        subtitle={`${imageSets.length} jenerasyon resan`}
       />
       <div className="grid gap-4 p-5" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))" }}>
-        {imageSets.map((imageSet) => (
-          <article
-            key={imageSet.id}
-            className="overflow-hidden rounded-xl"
-            style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageSet.poster_image_url}
-              alt={titleFor(imageSet)}
-              className="w-full"
-              style={{ aspectRatio: "4 / 5", objectFit: "cover" }}
-            />
-            <div className="space-y-3 p-4">
-              <div>
-                <h2 className="line-clamp-2 text-sm font-semibold text-white">
-                  {titleFor(imageSet)}
-                </h2>
-                <p className="mt-1 text-xs" style={{ color: "#64748b" }}>
-                  {new Date(imageSet.created_at).toLocaleString("fr-HT")} ·{" "}
-                  {imageSet.model}
-                </p>
+        {imageSets.map((imageSet) => {
+          const title = titleFor(imageSet);
+          const slug = title.slice(0, 30).replace(/\s+/g, "-").toLowerCase();
+          return (
+            <article
+              key={imageSet.id}
+              className="overflow-hidden rounded-xl"
+              style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+            >
+              {/* Preview: poster if available, otherwise side-by-side option images */}
+              {imageSet.poster_image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={imageSet.poster_image_url}
+                  alt={title}
+                  className="w-full"
+                  style={{ aspectRatio: "4 / 5", objectFit: "cover" }}
+                />
+              ) : (
+                <div className="flex w-full overflow-hidden" style={{ aspectRatio: "4 / 5" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageSet.option_a_image_url}
+                    alt="Opsyon A"
+                    className="h-full w-1/2"
+                    style={{ objectFit: "cover" }}
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageSet.option_b_image_url}
+                    alt="Opsyon B"
+                    className="h-full w-1/2"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-3 p-4">
+                <div>
+                  <h2 className="line-clamp-2 text-sm font-semibold text-white">{title}</h2>
+                  <p className="mt-1 text-xs" style={{ color: "#64748b" }}>
+                    {new Date(imageSet.created_at).toLocaleString("fr-HT")} · {imageSet.model}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {imageSet.poster_image_url && (
+                    <a
+                      href={dlUrl(imageSet.poster_image_url, `${slug}-poster.png`)}
+                      className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                      style={{ color: "#ffffff", background: "linear-gradient(90deg,#7c3aed,#a855f7)" }}
+                    >
+                      ↓ Poster
+                    </a>
+                  )}
+                  {imageSet.share_image_url && (
+                    <a
+                      href={dlUrl(imageSet.share_image_url, `${slug}-share.png`)}
+                      className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                      style={{ color: "#a78bfa", border: "1px solid #31205b" }}
+                    >
+                      ↓ OG Share
+                    </a>
+                  )}
+                  <a
+                    href={dlUrl(imageSet.option_a_image_url, `${slug}-option-a.png`)}
+                    className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                  >
+                    ↓ Opsyon A
+                  </a>
+                  <a
+                    href={dlUrl(imageSet.option_b_image_url, `${slug}-option-b.png`)}
+                    className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                  >
+                    ↓ Opsyon B
+                  </a>
+                  <Link
+                    href={`/matchups/${imageSet.matchup_id}`}
+                    className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                    style={{ color: "#475569", border: "1px solid #1e2040" }}
+                  >
+                    Matchup →
+                  </Link>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <a
-                  href={imageSet.poster_image_url}
-                  download
-                  className="rounded-lg px-3 py-1.5 text-xs font-semibold"
-                  style={{
-                    color: "#ffffff",
-                    background: "linear-gradient(90deg,#7c3aed,#a855f7)",
-                  }}
-                >
-                  Telechaje poster
-                </a>
-                <a
-                  href={imageSet.share_image_url}
-                  download
-                  className="rounded-lg px-3 py-1.5 text-xs font-semibold"
-                  style={{ color: "#a78bfa", border: "1px solid #31205b" }}
-                >
-                  OG share
-                </a>
-                <Link
-                  href={`/matchups/${imageSet.matchup_id}`}
-                  className="rounded-lg px-3 py-1.5 text-xs font-semibold"
-                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
-                >
-                  Matchup
-                </Link>
-              </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
+
         {imageSets.length === 0 && (
           <div
             className="rounded-xl p-8 text-sm"
             style={{ color: "#64748b", border: "1px solid #1e2040" }}
           >
-            Pa gen poster jenerasyon ankò.
+            Pa gen imaj jenerasyon ankò.
           </div>
         )}
       </div>

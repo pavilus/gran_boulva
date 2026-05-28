@@ -351,7 +351,7 @@ class _VsSide extends StatelessWidget {
         alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start;
 
     return SizedBox(
-      height: 80,
+      height: 88,
       child: LayoutBuilder(builder: (context, constraints) {
         final compact = constraints.maxWidth < 72;
         final micro = constraints.maxWidth < 46;
