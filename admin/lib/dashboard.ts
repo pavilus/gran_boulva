@@ -40,7 +40,7 @@ export async function getDashboardStats() {
     supabase.from("votes").select("*", { count: "exact", head: true }),
     supabase.from("arguments").select("*", { count: "exact", head: true }),
     supabase.from("reports").select("*", { count: "exact", head: true }).eq("status", "pending").then((r) => ({ count: r.count ?? 0, data: null })),
-    supabase.from("coin_transactions").select("amount").eq("transaction_type", "purchase"),
+    supabase.from("coin_purchases").select("coin_amount").eq("status", "succeeded"),
     // coin_purchases is the real revenue table (usd_cents = amount paid in cents)
     supabase.from("coin_purchases").select("usd_cents").eq("status", "succeeded"),
     supabase.from("predictions").select("*", { count: "exact", head: true }).then((r) => ({ data: r.count ?? 0 })),
@@ -56,7 +56,7 @@ export async function getDashboardStats() {
   ]);
 
   const totalCoins = (coinData ?? []).reduce(
-    (sum: number, r: { amount: number }) => sum + (r.amount ?? 0),
+    (sum: number, r: { coin_amount: number }) => sum + (r.coin_amount ?? 0),
     0
   );
   // usd_cents stored as integer cents → divide by 100 for USD
