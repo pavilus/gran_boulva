@@ -52,6 +52,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
         <div style={{ marginTop: 64, paddingTop: 24, borderTop: "1px solid #1e2040", display: "flex", flexWrap: "wrap", gap: 16 }}>
           {[
             { label: "Privacy Policy", href: "/privacy" },
+            { label: "Règleman Konfidansyalite (Kreyòl)", href: "/vi-prive" },
             { label: "Terms of Service", href: "/terms" },
             { label: "Acceptable Use", href: "/aup" },
             { label: "DMCA", href: "/dmca" },

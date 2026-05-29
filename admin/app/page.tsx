@@ -12,7 +12,11 @@ const TIERS = [
   { key: "founding_partner", name: "Founding Partner", price: "$499", period: "one-time", color: "#ec4899", glow: "rgba(236,72,153,0.35)", badge: "👑" },
 ];
 
-const LEGAL_HREFS = ["/privacy", "/terms", "/aup", "/dmca", "/cookies"];
+const LEGAL_HREFS: Record<string, string[]> = {
+  ht: ["/vi-prive", "/terms", "/aup", "/dmca", "/cookies"],
+  en: ["/privacy", "/terms", "/aup", "/dmca", "/cookies"],
+  fr: ["/privacy", "/terms", "/aup", "/dmca", "/cookies"],
+};
 const PLATFORM_HREFS = ["#features", "#vision", "#creators", "#supporters"];
 const SOCIAL = [
   { label: "X / Twitter", href: "https://twitter.com/granboulva", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg> },
@@ -649,7 +653,7 @@ export default function LandingPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.legal}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {t.footer.legalLinks.map((label, i) => (
-                    <Link key={label} href={LEGAL_HREFS[i] ?? "#"} style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>{label}</Link>
+                    <Link key={label} href={(LEGAL_HREFS[lang] ?? LEGAL_HREFS.en)[i] ?? "#"} style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>{label}</Link>
                   ))}
                 </div>
               </div>
@@ -657,7 +661,6 @@ export default function LandingPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.contact}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <a href="mailto:support@granboulva.com" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>support@granboulva.com</a>
-                  <a href="mailto:gpavilus@granboulva.com" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>gpavilus@granboulva.com</a>
                 </div>
               </div>
             </div>
