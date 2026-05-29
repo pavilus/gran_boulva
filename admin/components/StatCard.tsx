@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { TrendingUp, TrendingDown, LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -9,6 +10,7 @@ interface StatCardProps {
   iconColor: string;
   iconBg: string;
   prefix?: string;
+  href?: string;
 }
 
 export default function StatCard({
@@ -20,17 +22,19 @@ export default function StatCard({
   iconColor,
   iconBg,
   prefix,
+  href,
 }: StatCardProps) {
   const positive = change >= 0;
 
-  return (
+  const inner = (
     <div
       className="flex flex-col gap-3 p-4 rounded-xl"
       style={{
         background: "#0e0f1e",
         border: "1px solid #1e2040",
-        flex: 1,
-        minWidth: 0,
+        cursor: href ? "pointer" : "default",
+        transition: "border-color 0.15s",
+        height: "100%",
       }}
     >
       {/* Top row */}
@@ -64,4 +68,13 @@ export default function StatCard({
       </div>
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} style={{ flex: 1, minWidth: 0, textDecoration: "none" }}>
+        {inner}
+      </Link>
+    );
+  }
+  return <div style={{ flex: 1, minWidth: 0 }}>{inner}</div>;
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Topbar from "@/components/Topbar";
 import StatCard from "@/components/StatCard";
 import ActivityChart from "@/components/ActivityChart";
@@ -40,6 +41,7 @@ export default async function DashboardPage() {
       icon: Users,
       iconColor: "#a78bfa",
       iconBg: "rgba(124,58,237,0.18)",
+      href: "/users",
     },
     {
       label: "Matchups Aktif",
@@ -49,6 +51,7 @@ export default async function DashboardPage() {
       icon: Swords,
       iconColor: "#f9a8d4",
       iconBg: "rgba(236,72,153,0.18)",
+      href: "/matchups",
     },
     {
       label: "Vòt Total",
@@ -58,6 +61,7 @@ export default async function DashboardPage() {
       icon: Vote,
       iconColor: "#67e8f9",
       iconBg: "rgba(6,182,212,0.15)",
+      href: "/analytics",
     },
     {
       label: "Boulva Coins",
@@ -67,6 +71,7 @@ export default async function DashboardPage() {
       icon: CircleDollarSign,
       iconColor: "#fcd34d",
       iconBg: "rgba(245,158,11,0.15)",
+      href: "/payments",
     },
     {
       label: "Revni USD",
@@ -76,21 +81,24 @@ export default async function DashboardPage() {
       icon: DollarSign,
       iconColor: "#6ee7b7",
       iconBg: "rgba(16,185,129,0.15)",
+      href: "/payments",
     },
   ];
 
   const BOTTOM_STATS = [
-    { label: "Itilizatè", value: fmt(stats.users) },
+    { label: "Itilizatè", value: fmt(stats.users), href: "/users" },
     {
       label: "Agiman",
       value: fmt(stats.totalArguments),
       change: stats.argsChange !== 0 ? `${stats.argsChange > 0 ? "+" : ""}${stats.argsChange}%` : undefined,
+      href: "/matchups",
     },
-    { label: "Prediksyon", value: fmt(stats.predictions) },
+    { label: "Prediksyon", value: fmt(stats.predictions), href: "/predictions" },
     {
       label: "Rapò ijan",
       value: fmt(stats.pendingReports),
       change: stats.pendingReports > 0 ? `${stats.pendingReports} ijan` : undefined,
+      href: "/reports",
     },
   ];
 
@@ -133,7 +141,7 @@ export default async function DashboardPage() {
         >
           {BOTTOM_STATS.map((s, i) => (
             <div key={s.label} className="flex items-center">
-              <div className="px-6">
+              <Link href={s.href} className="px-6 block" style={{ textDecoration: "none" }}>
                 <div className="text-white font-bold text-base">{s.value}</div>
                 <div style={{ color: "#475569", fontSize: 11 }}>{s.label}</div>
                 {s.change && (
@@ -141,14 +149,14 @@ export default async function DashboardPage() {
                     {s.change}
                   </span>
                 )}
-              </div>
+              </Link>
               {i < BOTTOM_STATS.length - 1 && (
                 <div style={{ width: 1, height: 36, background: "#1e2040" }} />
               )}
             </div>
           ))}
 
-          <div className="ml-auto flex items-center gap-3">
+          <Link href="/payments" className="ml-auto flex items-center gap-3" style={{ textDecoration: "none" }}>
             <div>
               <div style={{ color: "#fcd34d", fontSize: 11, fontWeight: 600 }}>Boulva Coins</div>
               <div className="text-white font-bold text-lg">{fmt(stats.totalCoins)}</div>
@@ -164,7 +172,7 @@ export default async function DashboardPage() {
             >
               <CircleDollarSign size={24} color="#07080f" />
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -73,7 +74,12 @@ export default function RevenueChart({
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={150}>
+      <div className="flex items-center justify-between mb-1">
+        <span style={{ color: "#475569", fontSize: 10 }}>7 jou ki pase yo</span>
+        <Link href="/payments" style={{ color: "#a78bfa", fontSize: 11, textDecoration: "none" }}>Wè tout →</Link>
+      </div>
+
+      <ResponsiveContainer width="100%" height={130}>
         <BarChart data={data} margin={{ top: 0, right: 0, left: -24, bottom: 0 }} barSize={16}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e2040" vertical={false} />
           <XAxis

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Flag, ChevronRight } from "lucide-react";
 
 type Report = {
@@ -27,7 +28,7 @@ export default function ReportsPanel({ reports }: { reports: Report[] }) {
           </div>
           <div className="text-white font-semibold text-sm">Rapò ki bèswen atansyon</div>
         </div>
-        <button style={{ color: "#a78bfa", fontSize: 11 }}>Wè tout →</button>
+        <Link href="/reports" style={{ color: "#a78bfa", fontSize: 11, textDecoration: "none" }}>Wè tout →</Link>
       </div>
 
       <div className="space-y-2">
@@ -41,10 +42,11 @@ export default function ReportsPanel({ reports }: { reports: Report[] }) {
             r.reason?.toLowerCase().includes(w)
           );
           return (
-          <div
+          <Link
             key={r.id}
-            className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group"
-            style={{ background: "#13152a" }}
+            href="/reports"
+            className="flex items-center gap-3 p-3 rounded-lg group"
+            style={{ background: "#13152a", textDecoration: "none", display: "flex" }}
           >
             <div
               className="rounded-md flex items-center justify-center shrink-0"
@@ -89,7 +91,7 @@ export default function ReportsPanel({ reports }: { reports: Report[] }) {
               </div>
             </div>
             <ChevronRight size={13} color="#334155" className="group-hover:text-purple-400 shrink-0" />
-          </div>
+          </Link>
           );
         })}
       </div>

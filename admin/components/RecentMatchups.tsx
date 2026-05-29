@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type MatchupOption = { id: string; option_name: string; vote_count: number };
 type Matchup = {
   id: string;
@@ -22,7 +24,7 @@ export default function RecentMatchups({ matchups }: { matchups: Matchup[] }) {
     >
       <div className="flex items-center justify-between mb-4">
         <div className="text-white font-semibold text-sm">Matchups dènye yo</div>
-        <button style={{ color: "#a78bfa", fontSize: 11 }}>Wè tout →</button>
+        <Link href="/matchups" style={{ color: "#a78bfa", fontSize: 11, textDecoration: "none" }}>Wè tout →</Link>
       </div>
       <div className="space-y-2">
         {matchups.length === 0 && (
@@ -35,10 +37,11 @@ export default function RecentMatchups({ matchups }: { matchups: Matchup[] }) {
           const topVotes = (m.options ?? []).reduce((max, o) => Math.max(max, o.vote_count ?? 0), 0);
           const pctA = totalVotes > 0 ? Math.round((topVotes / totalVotes) * 100) : 50;
           return (
-          <div
+          <Link
             key={m.id}
+            href={`/matchups/${m.id}`}
             className="flex items-center gap-3 p-3 rounded-lg"
-            style={{ background: "#13152a" }}
+            style={{ background: "#13152a", textDecoration: "none", display: "flex" }}
           >
             <div
               className="rounded-lg shrink-0 flex items-center justify-center text-xs font-bold"
@@ -83,7 +86,7 @@ export default function RecentMatchups({ matchups }: { matchups: Matchup[] }) {
                 <span style={{ color: "#ec4899", fontSize: 9 }}>{100 - pctA}%</span>
               </div>
             </div>
-          </div>
+          </Link>
           );
         })}
       </div>
