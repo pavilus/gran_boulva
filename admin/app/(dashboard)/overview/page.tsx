@@ -129,6 +129,8 @@ export default async function DashboardPage() {
           <RevenueChart
             data={revenueSeries}
             totalRevenue={stats.totalRevenue}
+            totalCoinRevenue={stats.totalCoinRevenue}
+            totalSupporterRevenue={stats.totalSupporterRevenue}
             revenueChange={stats.revenueChange}
           />
           <ReportsPanel reports={reports} />

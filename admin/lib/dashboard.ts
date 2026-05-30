@@ -66,7 +66,9 @@ export async function getDashboardStats() {
   );
   const coinRevenue = (revenueData ?? []).reduce((sum: number, r: { usd_cents: number }) => sum + (r.usd_cents ?? 0), 0);
   const supporterRevenue = (supporterData ?? []).reduce((sum: number, r: { amount_cents: number }) => sum + (r.amount_cents ?? 0), 0);
-  const totalRevenue = (coinRevenue + supporterRevenue) / 100;
+  const totalCoinRevenue    = coinRevenue / 100;
+  const totalSupporterRevenue = supporterRevenue / 100;
+  const totalRevenue        = totalCoinRevenue + totalSupporterRevenue;
 
   const revThisTotal = (revThisWeek ?? []).reduce((s: number, r: { usd_cents: number }) => s + (r.usd_cents ?? 0), 0)
     + (supporterThisWeek ?? []).reduce((s: number, r: { amount_cents: number }) => s + (r.amount_cents ?? 0), 0);
@@ -81,8 +83,9 @@ export async function getDashboardStats() {
     pendingReports: reportCount ?? 0,
     totalCoins,
     totalRevenue,
+    totalCoinRevenue,
+    totalSupporterRevenue,
     predictions: typeof predictionCount === "number" ? predictionCount : 0,
-    // Real week-over-week % changes
     usersChange: pctChange(usersThisWeek ?? 0, usersPrevWeek ?? 0),
     votesChange: pctChange(votesThisWeek ?? 0, votesPrevWeek ?? 0),
     argsChange: pctChange(argsThisWeek ?? 0, argsPrevWeek ?? 0),
@@ -141,24 +144,24 @@ export async function getRevenueSeries() {
     supabase.from("waitlist").select("amount_cents, created_at").eq("is_supporter", true).not("amount_cents", "is", null).gte("created_at", isoSince),
   ]);
 
-  const days: Record<string, number> = {};
+  const days: Record<string, { coinRevenue: number; supporterRevenue: number }> = {};
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     const key = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    days[key] = 0;
+    days[key] = { coinRevenue: 0, supporterRevenue: 0 };
   }
 
   (coinData ?? []).forEach((r: { usd_cents: number; created_at: string }) => {
     const key = new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    if (key in days) days[key] += (r.usd_cents ?? 0) / 100;
+    if (key in days) days[key].coinRevenue += (r.usd_cents ?? 0) / 100;
   });
   (supporterData ?? []).forEach((r: { amount_cents: number; created_at: string }) => {
     const key = new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    if (key in days) days[key] += (r.amount_cents ?? 0) / 100;
+    if (key in days) days[key].supporterRevenue += (r.amount_cents ?? 0) / 100;
   });
 
-  return Object.entries(days).map(([day, revenue]) => ({ day, revenue }));
+  return Object.entries(days).map(([day, v]) => ({ day, ...v }));
 }
 
 export async function getActivitySeries() {

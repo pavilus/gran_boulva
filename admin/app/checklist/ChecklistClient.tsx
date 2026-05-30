@@ -426,9 +426,9 @@ export default function ChecklistClient() {
             {submitting ? "Ap voye…" : "✉️  Voye Rezilta yo bay Ekip la"}
           </button>
           {!name.trim() && (
-            <p style={{ color: "#475569", fontSize: 12, margin: 0 }}>Ranpli non ou anvan ou voye.</p>
+            <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, margin: 0 }}>Ranpli non ou anvan ou voye.</p>
           )}
-          <p style={{ color: "#334155", fontSize: 11, margin: 0, textAlign: "center" }}>
+          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, margin: 0, textAlign: "center" }}>
             Pwogrè ou sove otomatikman nan navigatè a. Ou ka fèmen paj la epi retounen pita.
           </p>
         </div>
