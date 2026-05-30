@@ -8,6 +8,24 @@ function fallbackName(email: string) {
   return email.split("@")[0]?.replace(/[._-]+/g, " ").trim() || "Stripe customer";
 }
 
+async function resolveStripeSecrets(): Promise<{ secretKey: string; webhookSecret: string } | null> {
+  const envKey    = process.env.STRIPE_SECRET_KEY;
+  const envSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (envKey && envSecret) return { secretKey: envKey, webhookSecret: envSecret };
+
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "stripe_keys")
+    .maybeSingle();
+
+  const secretKey    = envKey    ?? data?.value?.secretKey    ?? null;
+  const webhookSecret = envSecret ?? data?.value?.webhookSecret ?? null;
+  if (!secretKey || !webhookSecret) return null;
+  return { secretKey, webhookSecret };
+}
+
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const email = session.customer_details?.email?.trim().toLowerCase();
   if (!email) return;
@@ -35,9 +53,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 export async function POST(req: Request) {
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!stripeSecretKey || !webhookSecret) {
+  const secrets = await resolveStripeSecrets();
+  if (!secrets) {
     return NextResponse.json(
       { error: "Stripe webhook secrets are not configured" },
       { status: 500 },
@@ -51,7 +68,7 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event;
   const body = await req.text();
-  const stripe = new Stripe(stripeSecretKey, {
+  const stripe = new Stripe(secrets.secretKey, {
     apiVersion: "2026-04-22.dahlia",
   });
 
@@ -59,7 +76,7 @@ export async function POST(req: Request) {
     event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
-      webhookSecret,
+      secrets.webhookSecret,
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Invalid webhook";

@@ -217,11 +217,16 @@ export default function SettingsPage() {
   const [message, setMessage] = useState("");
 
   // Stripe key state
-  const [stripeKey, setStripeKey]           = useState("");
-  const [stripeHint, setStripeHint]         = useState("");
-  const [stripeConfigured, setStripeConfigured] = useState(false);
-  const [stripeSaving, setStripeSaving]     = useState(false);
-  const [stripeMsg, setStripeMsg]           = useState("");
+  const [stripeKey, setStripeKey]                     = useState("");
+  const [stripeHint, setStripeHint]                   = useState("");
+  const [stripeConfigured, setStripeConfigured]       = useState(false);
+  const [stripeSaving, setStripeSaving]               = useState(false);
+  const [stripeMsg, setStripeMsg]                     = useState("");
+  const [webhookSecret, setWebhookSecret]             = useState("");
+  const [webhookHint, setWebhookHint]                 = useState("");
+  const [webhookConfigured, setWebhookConfigured]     = useState(false);
+  const [webhookSaving, setWebhookSaving]             = useState(false);
+  const [webhookMsg, setWebhookMsg]                   = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -263,10 +268,12 @@ export default function SettingsPage() {
       .catch(() => {/* use fallback */});
     fetch("/api/settings/stripe")
       .then(async (res) => res.ok ? res.json() : null)
-      .then((data: { configured: boolean; hint: string } | null) => {
+      .then((data: { configured: boolean; hint: string; webhookConfigured: boolean; webhookHint: string } | null) => {
         if (!alive || !data) return;
         setStripeConfigured(data.configured);
         setStripeHint(data.hint);
+        setWebhookConfigured(data.webhookConfigured);
+        setWebhookHint(data.webhookHint);
       })
       .catch(() => {/* silent */});
     return () => {
@@ -321,6 +328,25 @@ export default function SettingsPage() {
       setStripeMsg(err instanceof Error ? err.message : "Save failed");
     } finally {
       setStripeSaving(false);
+    }
+  };
+
+  const saveWebhookSecret = async () => {
+    if (!webhookSecret.trim()) return;
+    setWebhookSaving(true);
+    setWebhookMsg("");
+    try {
+      const res  = await fetch("/api/settings/stripe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ webhookSecret: webhookSecret.trim() }) });
+      const data = await res.json() as { ok?: boolean; webhookHint?: string; webhookConfigured?: boolean; error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Save failed");
+      setWebhookConfigured(true);
+      setWebhookHint(data.webhookHint ?? "");
+      setWebhookSecret("");
+      setWebhookMsg("✓ Webhook secret saved");
+    } catch (err) {
+      setWebhookMsg(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setWebhookSaving(false);
     }
   };
 
@@ -796,6 +822,49 @@ export default function SettingsPage() {
               The key is stored encrypted in your database. It is never exposed to the browser.
               Use sk_test_ for testing, sk_live_ for production.
             </p>
+
+            {/* Webhook secret */}
+            <div className="flex items-center gap-3 rounded-xl p-4" style={{ background: webhookConfigured ? "rgba(16,185,129,0.06)" : "rgba(245,158,11,0.06)", border: `1px solid ${webhookConfigured ? "rgba(16,185,129,0.25)" : "rgba(245,158,11,0.25)"}` }}>
+              <span style={{ fontSize: 18 }}>{webhookConfigured ? "✅" : "⚠️"}</span>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: webhookConfigured ? "#10b981" : "#f59e0b", margin: 0 }}>
+                  {webhookConfigured ? `Webhook secret configured — ${webhookHint}` : "Webhook secret not configured — payments won't be recorded"}
+                </p>
+                <p className="text-xs" style={{ color: "#475569", margin: "2px 0 0" }}>
+                  {webhookConfigured ? "Enter a new secret below to rotate it." : "Get the signing secret from Stripe Dashboard → Developers → Webhooks"}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#64748b" }}>
+                Webhook Signing Secret (whsec_…)
+              </label>
+              <div className="flex gap-3">
+                <input
+                  type="password"
+                  value={webhookSecret}
+                  onChange={e => setWebhookSecret(e.target.value)}
+                  placeholder={webhookConfigured ? "Enter new secret to rotate…" : "whsec_…"}
+                  className="flex-1 rounded-xl px-4 py-2 text-sm"
+                  style={{ background: "#0a0b18", border: "1px solid #1e2040", color: "#e2e8f0", outline: "none" }}
+                  onFocus={e => (e.target.style.borderColor = "rgba(168,85,247,0.5)")}
+                  onBlur={e  => (e.target.style.borderColor = "#1e2040")}
+                />
+                <button
+                  onClick={saveWebhookSecret}
+                  disabled={webhookSaving || !webhookSecret.trim()}
+                  className="flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold text-white transition-all disabled:opacity-50"
+                  style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7)", whiteSpace: "nowrap" }}
+                >
+                  <Save size={14} />
+                  {webhookSaving ? "Saving…" : "Save Secret"}
+                </button>
+              </div>
+              {webhookMsg && (
+                <p className="text-xs mt-2" style={{ color: webhookMsg.startsWith("✓") ? "#10b981" : "#f87171" }}>{webhookMsg}</p>
+              )}
+            </div>
           </div>
         </Section>
 
