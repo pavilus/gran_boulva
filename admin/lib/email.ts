@@ -32,7 +32,7 @@ export function renderEmailHtml({
       <div style="background:#07080f;border-radius:14px;padding:18px 24px;margin-bottom:18px;text-align:center;">
         <img src="https://granboulva.com/logo_email.png" alt="Gran Boulva" width="72" style="display:block;margin:0 auto 12px;height:auto;border-radius:10px;" />
         <div style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.3px;">Gran Boulva</div>
-        <div style="color:#a78bfa;font-size:11px;margin-top:3px;letter-spacing:0.5px;">Debat · Vote · Kominote</div>
+        <div style="color:#a78bfa;font-size:11px;margin-top:3px;letter-spacing:0.5px;">Debat · Vote · Agimante</div>
       </div>
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;">
         <h1 style="font-size:22px;line-height:1.25;margin:0 0 16px;color:#111827;">${escapeHtml(title)}</h1>
