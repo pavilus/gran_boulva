@@ -35,6 +35,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     : null;
   const name = session.customer_details?.name?.trim() || fallbackName(email);
 
+  const amountCents = typeof session.amount_total === "number" ? session.amount_total : null;
+
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("waitlist")
@@ -44,6 +46,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         email,
         is_supporter: true,
         tier,
+        amount_cents: amountCents,
         source: "stripe_checkout",
       },
       { onConflict: "email" },

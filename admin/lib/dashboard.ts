@@ -34,6 +34,9 @@ export async function getDashboardStats() {
     { count: argsPrevWeek },
     { data: revThisWeek },
     { data: revPrevWeek },
+    { data: supporterData },
+    { data: supporterThisWeek },
+    { data: supporterPrevWeek },
   ] = await Promise.all([
     supabase.from("users").select("*", { count: "exact", head: true }),
     supabase.from("matchups").select("*", { count: "exact", head: true }).eq("status", "published"),
@@ -41,10 +44,8 @@ export async function getDashboardStats() {
     supabase.from("arguments").select("*", { count: "exact", head: true }),
     supabase.from("reports").select("*", { count: "exact", head: true }).eq("status", "pending").then((r) => ({ count: r.count ?? 0, data: null })),
     supabase.from("coin_purchases").select("coin_amount").eq("status", "succeeded"),
-    // coin_purchases is the real revenue table (usd_cents = amount paid in cents)
     supabase.from("coin_purchases").select("usd_cents").eq("status", "succeeded"),
     supabase.from("predictions").select("*", { count: "exact", head: true }).then((r) => ({ data: r.count ?? 0 })),
-    // week-over-week comparisons
     supabase.from("users").select("*", { count: "exact", head: true }).gte("created_at", isoWeekAgo),
     supabase.from("users").select("*", { count: "exact", head: true }).gte("created_at", isoTwoWeeksAgo).lt("created_at", isoWeekAgo),
     supabase.from("votes").select("*", { count: "exact", head: true }).gte("created_at", isoWeekAgo),
@@ -53,20 +54,24 @@ export async function getDashboardStats() {
     supabase.from("arguments").select("*", { count: "exact", head: true }).gte("created_at", isoTwoWeeksAgo).lt("created_at", isoWeekAgo),
     supabase.from("coin_purchases").select("usd_cents").eq("status", "succeeded").gte("created_at", isoWeekAgo),
     supabase.from("coin_purchases").select("usd_cents").eq("status", "succeeded").gte("created_at", isoTwoWeeksAgo).lt("created_at", isoWeekAgo),
+    // Founding supporter payments from waitlist
+    supabase.from("waitlist").select("amount_cents, created_at").eq("is_supporter", true).not("amount_cents", "is", null),
+    supabase.from("waitlist").select("amount_cents, created_at").eq("is_supporter", true).not("amount_cents", "is", null).gte("created_at", isoWeekAgo),
+    supabase.from("waitlist").select("amount_cents, created_at").eq("is_supporter", true).not("amount_cents", "is", null).gte("created_at", isoTwoWeeksAgo).lt("created_at", isoWeekAgo),
   ]);
 
   const totalCoins = (coinData ?? []).reduce(
     (sum: number, r: { coin_amount: number }) => sum + (r.coin_amount ?? 0),
     0
   );
-  // usd_cents stored as integer cents → divide by 100 for USD
-  const totalRevenue = (revenueData ?? []).reduce(
-    (sum: number, r: { usd_cents: number }) => sum + (r.usd_cents ?? 0),
-    0
-  ) / 100;
+  const coinRevenue = (revenueData ?? []).reduce((sum: number, r: { usd_cents: number }) => sum + (r.usd_cents ?? 0), 0);
+  const supporterRevenue = (supporterData ?? []).reduce((sum: number, r: { amount_cents: number }) => sum + (r.amount_cents ?? 0), 0);
+  const totalRevenue = (coinRevenue + supporterRevenue) / 100;
 
-  const revThisTotal = (revThisWeek ?? []).reduce((s: number, r: { usd_cents: number }) => s + (r.usd_cents ?? 0), 0);
-  const revPrevTotal = (revPrevWeek ?? []).reduce((s: number, r: { usd_cents: number }) => s + (r.usd_cents ?? 0), 0);
+  const revThisTotal = (revThisWeek ?? []).reduce((s: number, r: { usd_cents: number }) => s + (r.usd_cents ?? 0), 0)
+    + (supporterThisWeek ?? []).reduce((s: number, r: { amount_cents: number }) => s + (r.amount_cents ?? 0), 0);
+  const revPrevTotal = (revPrevWeek ?? []).reduce((s: number, r: { usd_cents: number }) => s + (r.usd_cents ?? 0), 0)
+    + (supporterPrevWeek ?? []).reduce((s: number, r: { amount_cents: number }) => s + (r.amount_cents ?? 0), 0);
 
   return {
     users: userCount ?? 0,
@@ -131,11 +136,10 @@ export async function getRevenueSeries() {
   since.setDate(since.getDate() - 6);
   const isoSince = since.toISOString();
 
-  const { data } = await supabase
-    .from("coin_purchases")
-    .select("usd_cents, created_at")
-    .eq("status", "succeeded")
-    .gte("created_at", isoSince);
+  const [{ data: coinData }, { data: supporterData }] = await Promise.all([
+    supabase.from("coin_purchases").select("usd_cents, created_at").eq("status", "succeeded").gte("created_at", isoSince),
+    supabase.from("waitlist").select("amount_cents, created_at").eq("is_supporter", true).not("amount_cents", "is", null).gte("created_at", isoSince),
+  ]);
 
   const days: Record<string, number> = {};
   for (let i = 6; i >= 0; i--) {
@@ -145,9 +149,13 @@ export async function getRevenueSeries() {
     days[key] = 0;
   }
 
-  (data ?? []).forEach((r: { usd_cents: number; created_at: string }) => {
+  (coinData ?? []).forEach((r: { usd_cents: number; created_at: string }) => {
     const key = new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
     if (key in days) days[key] += (r.usd_cents ?? 0) / 100;
+  });
+  (supporterData ?? []).forEach((r: { amount_cents: number; created_at: string }) => {
+    const key = new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    if (key in days) days[key] += (r.amount_cents ?? 0) / 100;
   });
 
   return Object.entries(days).map(([day, revenue]) => ({ day, revenue }));
