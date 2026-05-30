@@ -5,7 +5,7 @@ import EmailClient from "./EmailClient";
 export default async function EmailPage() {
   const supabase = createAdminClient();
 
-  const [messagesRes, templatesRes, settingsRes] = await Promise.all([
+  const [messagesRes, templatesRes, settingsRes, eventsRes] = await Promise.all([
     supabase
       .from("email_messages")
       .select("id, direction, status, from_email, to_email, subject, body_text, body_html, error, created_at")
@@ -20,6 +20,11 @@ export default async function EmailPage() {
       .select("from_email, reply_to, default_signature_html")
       .eq("id", true)
       .maybeSingle(),
+    supabase
+      .from("email_event_mappings")
+      .select("event_slug, enabled, label_ht, description_ht, category, template_id")
+      .order("category")
+      .order("event_slug"),
   ]);
 
   return (
@@ -34,6 +39,7 @@ export default async function EmailPage() {
             reply_to: "support@granboulva.com",
             default_signature_html: null,
           }}
+          events={eventsRes.data ?? []}
           setupError={messagesRes.error?.message ?? templatesRes.error?.message ?? settingsRes.error?.message ?? null}
         />
       </div>

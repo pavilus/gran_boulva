@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, FilePlus, Inbox, Pencil, Save, Send, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, FilePlus, Inbox, Pencil, Save, Send, Trash2, X, Zap } from "lucide-react";
 
 type Message = {
   id: string;
@@ -24,6 +24,15 @@ type Template = {
   body_html?: string | null;
   signature_html?: string | null;
   created_at?: string;
+};
+
+type EventMapping = {
+  event_slug: string;
+  template_id: string | null;
+  enabled: boolean;
+  label_ht: string;
+  description_ht: string | null;
+  category: string;
 };
 
 type Settings = {
@@ -50,13 +59,121 @@ const DEFAULT_SIGNATURE = `<table cellpadding="0" cellspacing="0" border="0" sty
   </tr>
 </table>`;
 
+// Email header HTML shared across all previews
+const EMAIL_HEADER_HTML = `<div style="background:#07080f;border-radius:14px;padding:18px 24px;margin-bottom:18px;text-align:center;">
+  <img src="https://granboulva.com/logo_email.png" alt="Gran Boulva" width="72" style="display:block;margin:0 auto 12px;height:auto;border-radius:10px;" />
+  <div style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.3px;">Gran Boulva</div>
+  <div style="color:#a78bfa;font-size:11px;margin-top:3px;letter-spacing:0.5px;">Debat · Vote · Kominote</div>
+</div>`;
+
+function buildPreviewHtml(subject: string, body: string, signature: string) {
+  return `<!doctype html><html><body style="margin:0;background:#f8fafc;font-family:Arial,sans-serif;color:#111827;">
+<div style="max-width:640px;margin:0 auto;padding:28px 18px;">
+  ${EMAIL_HEADER_HTML}
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;">
+    <h1 style="font-size:22px;line-height:1.25;margin:0 0 16px;">${subject || "Subject"}</h1>
+    <div style="font-size:15px;line-height:1.65;color:#374151;">${body || "Body preview"}</div>
+    ${signature ? `<div style="border-top:1px solid #e5e7eb;margin-top:24px;padding-top:18px;">${signature}</div>` : ""}
+  </div>
+</div></body></html>`;
+}
+
 // ── Shared input styles ────────────────────────────────────────────────────────
 const inputCls = "w-full px-3 py-2 rounded-lg text-sm text-white outline-none";
 const inputStyle = { background: "#0a0b18", border: "1px solid #2e3060" };
 const cardStyle = { background: "#0e0f1e", border: "1px solid #2e3060" };
 const labelCls = "text-xs font-semibold mb-1 block";
 
-// ── Template editor panel (create or edit) ────────────────────────────────────
+const CATEGORY_LABELS: Record<string, string> = {
+  kont: "Kont Itilizatè",
+  peman: "Peman",
+  "kominotè": "Kominotè",
+  general: "Jeneral",
+};
+
+// ── Single event row ───────────────────────────────────────────────────────────
+function EventRow({ ev, templates, onChange }: {
+  ev: EventMapping;
+  templates: Template[];
+  onChange: (slug: string, patch: Partial<EventMapping>) => void;
+}) {
+  const [saving, setSaving] = useState(false);
+  const [ok, setOk] = useState(false);
+
+  async function patch(update: Partial<EventMapping>) {
+    setSaving(true);
+    onChange(ev.event_slug, update);
+    try {
+      await fetch("/api/email/events", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event_slug: ev.event_slug, ...update }),
+      });
+      setOk(true);
+      setTimeout(() => setOk(false), 2000);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-4 px-5 py-4" style={{ borderTop: "1px solid #2e3060" }}>
+      {/* Enabled toggle */}
+      <button
+        onClick={() => patch({ enabled: !ev.enabled })}
+        title={ev.enabled ? "Dezaktive" : "Aktive"}
+        className="flex-shrink-0 rounded-full transition-colors"
+        style={{
+          width: 36,
+          height: 20,
+          background: ev.enabled ? "#7c3aed" : "#1e2040",
+          border: "1px solid " + (ev.enabled ? "#7c3aed" : "#2e3060"),
+          position: "relative",
+        }}
+      >
+        <span style={{
+          position: "absolute",
+          top: 2,
+          left: ev.enabled ? 17 : 2,
+          width: 14,
+          height: 14,
+          borderRadius: "50%",
+          background: "white",
+          transition: "left 0.15s",
+          display: "block",
+        }} />
+      </button>
+
+      {/* Labels */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-white">{ev.label_ht}</p>
+        <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>{ev.description_ht}</p>
+        <p className="text-xs mt-0.5 font-mono" style={{ color: "#475569" }}>{ev.event_slug}</p>
+      </div>
+
+      {/* Template select */}
+      <div className="flex-shrink-0 flex items-center gap-2">
+        <select
+          value={ev.template_id ?? ""}
+          onChange={(e) => patch({ template_id: e.target.value || null })}
+          disabled={saving}
+          className="rounded-lg text-sm outline-none px-2 py-1.5"
+          style={{ background: "#0a0b18", border: "1px solid #2e3060", color: ev.template_id ? "#e2e8f0" : "#475569", minWidth: 180 }}
+        >
+          <option value="">— Okenn template —</option>
+          {templates.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+
+        {ok && <span style={{ color: "#34d399", fontSize: 11, whiteSpace: "nowrap" }}>✓ Sove</span>}
+        {saving && !ok && <span style={{ color: "#94a3b8", fontSize: 11 }}>…</span>}
+      </div>
+    </div>
+  );
+}
+
+// ── Template editor panel ──────────────────────────────────────────────────────
 function TemplateEditor({
   initial,
   onSave,
@@ -75,18 +192,11 @@ function TemplateEditor({
   const [err, setErr] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  const previewHtml = `<!doctype html><html><body style="margin:0;background:#f8fafc;font-family:Arial,sans-serif;color:#111827;">
-<div style="max-width:640px;margin:0 auto;padding:28px 18px;">
-  <div style="background:#07080f;border-radius:14px;padding:22px 24px;margin-bottom:18px;">
-    <div style="color:#fff;font-size:20px;font-weight:800;">Gran Boulva</div>
-    <div style="color:#a78bfa;font-size:12px;margin-top:4px;">Debat, vote, kominote</div>
-  </div>
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;">
-    <h1 style="font-size:22px;line-height:1.25;margin:0 0 16px;">${subject || "Subject"}</h1>
-    <div style="font-size:15px;line-height:1.65;color:#374151;">${bodyHtml || bodyText.replace(/\n/g, "<br/>") || "Body preview"}</div>
-    ${sigHtml ? `<div style="border-top:1px solid #e5e7eb;margin-top:24px;padding-top:18px;">${sigHtml}</div>` : ""}
-  </div>
-</div></body></html>`;
+  const previewHtml = buildPreviewHtml(
+    subject,
+    bodyHtml || bodyText.replace(/\n/g, "<br/>"),
+    sigHtml,
+  );
 
   async function save() {
     if (!name.trim() || !subject.trim()) { setErr("Name and subject are required"); return; }
@@ -109,7 +219,6 @@ function TemplateEditor({
 
   return (
     <div className="rounded-xl p-5 space-y-4" style={cardStyle}>
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-white">{initial?.id ? "Edit Template" : "New Template"}</h3>
         <button onClick={onCancel}><X size={16} style={{ color: "#94a3b8" }} /></button>
@@ -117,7 +226,6 @@ function TemplateEditor({
 
       {err && <p className="text-xs rounded px-3 py-2" style={{ background: "rgba(239,68,68,.1)", color: "#f87171" }}>{err}</p>}
 
-      {/* Fields */}
       <div className="grid gap-3" style={{ gridTemplateColumns: "1fr 1fr" }}>
         <div>
           <label className={labelCls} style={{ color: "#94a3b8" }}>Template name (slug)</label>
@@ -130,13 +238,13 @@ function TemplateEditor({
       </div>
 
       <div>
-        <label className={labelCls} style={{ color: "#94a3b8" }}>Body — plain text (fallback + edge function)</label>
+        <label className={labelCls} style={{ color: "#94a3b8" }}>Body — plain text (fallback)</label>
         <textarea value={bodyText} onChange={(e) => setBodyText(e.target.value)} rows={5} placeholder={"Plain text body.\n\nUse {{name}} to personalise."} className={`${inputCls} resize-none font-mono`} style={inputStyle} />
       </div>
 
       <div>
-        <label className={labelCls} style={{ color: "#94a3b8" }}>Body — HTML (optional, shown inside the Gran Boulva email wrapper)</label>
-        <textarea value={bodyHtml} onChange={(e) => setBodyHtml(e.target.value)} rows={6} placeholder={"<p>Kont ou konfime. <strong>Byenveni!</strong></p>\n\nUse {{name}} to personalise."} className={`${inputCls} resize-none font-mono`} style={inputStyle} />
+        <label className={labelCls} style={{ color: "#94a3b8" }}>Body — HTML (shown inside the Gran Boulva email wrapper)</label>
+        <textarea value={bodyHtml} onChange={(e) => setBodyHtml(e.target.value)} rows={6} placeholder={"<p>Kont ou konfime. <strong>Byenveni!</strong></p>"} className={`${inputCls} resize-none font-mono`} style={inputStyle} />
       </div>
 
       <div>
@@ -144,7 +252,6 @@ function TemplateEditor({
         <textarea value={sigHtml} onChange={(e) => setSigHtml(e.target.value)} rows={4} placeholder="<table>…</table>  — leave blank to use default signature" className={`${inputCls} resize-none font-mono`} style={inputStyle} />
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={() => setPreviewOpen((p) => !p)}
@@ -176,16 +283,19 @@ export default function EmailClient({
   messages,
   templates,
   settings,
+  events,
   setupError,
 }: {
   messages: Message[];
   templates: Template[];
   settings: Settings;
+  events: EventMapping[];
   setupError: string | null;
 }) {
-  const [tab, setTab] = useState<"compose" | "inbox" | "templates">("compose");
+  const [tab, setTab] = useState<"compose" | "inbox" | "templates" | "events">("compose");
   const [rows, setRows] = useState(messages);
   const [templateRows, setTemplateRows] = useState(templates);
+  const [eventRows, setEventRows] = useState<EventMapping[]>(events);
 
   // Compose state
   const [to, setTo] = useState("");
@@ -217,18 +327,7 @@ export default function EmailClient({
   }
 
   const previewHtml = useMemo(
-    () => `<!doctype html><html><body style="margin:0;background:#f8fafc;font-family:Arial,sans-serif;color:#111827;">
-<div style="max-width:640px;margin:0 auto;padding:28px 18px;">
-  <div style="background:#07080f;border-radius:14px;padding:22px 24px;margin-bottom:18px;">
-    <div style="color:#fff;font-size:20px;font-weight:800;">Gran Boulva</div>
-    <div style="color:#a78bfa;font-size:12px;margin-top:4px;">Debat, vote, kominote</div>
-  </div>
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;">
-    <h1 style="font-size:22px;line-height:1.25;margin:0 0 16px;">${subject || "Subject"}</h1>
-    <div style="font-size:15px;line-height:1.65;color:#374151;">${body.replace(/\n/g, "<br/>") || "Body preview"}</div>
-    ${signature ? `<div style="border-top:1px solid #e5e7eb;margin-top:24px;padding-top:18px;">${signature}</div>` : ""}
-  </div>
-</div></body></html>`,
+    () => buildPreviewHtml(subject, body.replace(/\n/g, "<br/>"), signature),
     [body, signature, subject]
   );
 
@@ -307,15 +406,35 @@ export default function EmailClient({
     finally { setSigSaving(false); }
   }
 
+  // ── Events update ─────────────────────────────────────────────────────────
+  function handleEventChange(slug: string, patch: Partial<EventMapping>) {
+    setEventRows((prev) => prev.map((e) => e.event_slug === slug ? { ...e, ...patch } : e));
+  }
+
+  // Group events by category
+  const eventsByCategory = useMemo(() => {
+    const map: Record<string, EventMapping[]> = {};
+    for (const ev of eventRows) {
+      if (!map[ev.category]) map[ev.category] = [];
+      map[ev.category].push(ev);
+    }
+    return map;
+  }, [eventRows]);
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
       {/* Tabs */}
       <div className="flex gap-2">
-        {([["compose", "Compose"], ["inbox", "Inbox"], ["templates", "Templates & Signature"]] as const).map(([key, label]) => (
+        {([
+          ["compose",   "Compose"],
+          ["inbox",     "Inbox"],
+          ["templates", "Templates"],
+          ["events",    "Evènman"],
+        ] as const).map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
             className="px-3 py-2 rounded-lg text-xs font-semibold"
-            style={{ background: tab === key ? "rgba(124,58,237,0.18)" : "#0e0f1e", color: tab === key ? "#a78bfa" : "#64748b", border: "1px solid #2e3060" }}>
+            style={{ background: tab === key ? "rgba(124,58,237,0.18)" : "#0e0f1e", color: tab === key ? "#a78bfa" : "#94a3b8", border: "1px solid #2e3060" }}>
             {label}
           </button>
         ))}
@@ -446,7 +565,6 @@ export default function EmailClient({
               </button>
             </div>
 
-            {/* New template form */}
             {editingId === "new" && (
               <TemplateEditor
                 onSave={(t) => { setTemplateRows((p) => [t, ...p]); setEditingId(null); flash("Template created."); }}
@@ -454,7 +572,6 @@ export default function EmailClient({
               />
             )}
 
-            {/* Existing templates */}
             {templateRows.length === 0 && editingId !== "new" && (
               <p className="text-sm py-8 text-center" style={{ color: "#94a3b8" }}>Okenn template. Klike « New template » pou kreye youn.</p>
             )}
@@ -477,7 +594,6 @@ export default function EmailClient({
                     )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
-                    {/* Use in compose */}
                     <button
                       onClick={() => { setSubject(t.subject); setBody(t.body_text ?? ""); setSignature(t.signature_html ?? sigHtml); setTemplateName(t.name); setTab("compose"); }}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -486,7 +602,6 @@ export default function EmailClient({
                     >
                       <Send size={12} /> Use
                     </button>
-                    {/* Edit */}
                     <button
                       onClick={() => setEditingId(t.id)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -494,7 +609,6 @@ export default function EmailClient({
                     >
                       <Pencil size={12} /> Edit
                     </button>
-                    {/* Delete */}
                     <button
                       onClick={() => deleteTemplate(t.id)}
                       disabled={deletingId === t.id}
@@ -508,6 +622,57 @@ export default function EmailClient({
               )
             )}
           </section>
+        </div>
+      )}
+
+      {/* ── Evènman ─────────────────────────────────────────────────────── */}
+      {tab === "events" && (
+        <div className="space-y-6">
+          <div className="rounded-xl px-5 py-4 flex items-start gap-3" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)" }}>
+            <Zap size={16} style={{ color: "#a78bfa", flexShrink: 0, marginTop: 1 }} />
+            <div>
+              <p className="text-sm font-semibold text-white">Evènman otomatik</p>
+              <p className="text-xs mt-1" style={{ color: "#94a3b8" }}>
+                Chak evènman ka lye ak yon template imèl. Aktive switch la pou Gran Boulva voye imèl otomatikman lè evènman sa rive.
+                Si okenn template pa chwazi, imèl la p ap voye menm si li aktive.
+              </p>
+            </div>
+          </div>
+
+          {templateRows.length === 0 && (
+            <div className="rounded-xl px-5 py-4 text-sm" style={{ background: "rgba(239,68,68,0.07)", border: "1px solid rgba(239,68,68,0.2)", color: "#f87171" }}>
+              Kreye omwen yon template anvan ou ka asiye evènman yo. Ale nan « Templates » pou kòmanse.
+            </div>
+          )}
+
+          {Object.entries(eventsByCategory).map(([cat, evs]) => (
+            <section key={cat} className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
+              {/* Category header */}
+              <div className="px-5 py-3 flex items-center gap-2" style={{ background: "#0a0b18" }}>
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#a78bfa" }}>
+                  {CATEGORY_LABELS[cat] ?? cat}
+                </span>
+                <span className="text-xs rounded-full px-2 py-0.5" style={{ background: "rgba(124,58,237,0.12)", color: "#94a3b8" }}>
+                  {evs.filter((e) => e.enabled).length}/{evs.length} aktive
+                </span>
+              </div>
+
+              {evs.map((ev) => (
+                <EventRow
+                  key={ev.event_slug}
+                  ev={ev}
+                  templates={templateRows}
+                  onChange={handleEventChange}
+                />
+              ))}
+            </section>
+          ))}
+
+          {eventRows.length === 0 && (
+            <p className="text-center py-12 text-sm" style={{ color: "#94a3b8" }}>
+              Tab evènman an p ap disponib — migrasyon DB a pa aplike yo. Voye <code>supabase db push</code>.
+            </p>
+          )}
         </div>
       )}
     </div>

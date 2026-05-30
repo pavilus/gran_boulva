@@ -29,9 +29,10 @@ export function renderEmailHtml({
 <html>
   <body style="margin:0;background:#f8fafc;font-family:Arial,sans-serif;color:#111827;">
     <div style="max-width:640px;margin:0 auto;padding:28px 18px;">
-      <div style="background:#07080f;border-radius:14px;padding:22px 24px;margin-bottom:18px;">
-        <div style="color:#ffffff;font-size:20px;font-weight:800;">Gran Boulva</div>
-        <div style="color:#a78bfa;font-size:12px;margin-top:4px;">Debat, vote, kominote</div>
+      <div style="background:#07080f;border-radius:14px;padding:18px 24px;margin-bottom:18px;text-align:center;">
+        <img src="https://granboulva.com/logo_email.png" alt="Gran Boulva" width="72" style="display:block;margin:0 auto 12px;height:auto;border-radius:10px;" />
+        <div style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.3px;">Gran Boulva</div>
+        <div style="color:#a78bfa;font-size:11px;margin-top:3px;letter-spacing:0.5px;">Debat · Vote · Kominote</div>
       </div>
       <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;">
         <h1 style="font-size:22px;line-height:1.25;margin:0 0 16px;color:#111827;">${escapeHtml(title)}</h1>
