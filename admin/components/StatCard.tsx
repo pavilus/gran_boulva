@@ -40,7 +40,7 @@ export default function StatCard({
       {/* Top row */}
       <div className="flex items-start justify-between">
         <div>
-          <div style={{ color: "#64748b", fontSize: 11, fontWeight: 500, marginBottom: 4 }}>
+          <div style={{ color: "#94a3b8", fontSize: 11, fontWeight: 500, marginBottom: 4 }}>
             {label}
           </div>
           <div className="text-white font-bold" style={{ fontSize: 22, lineHeight: 1 }}>
@@ -64,7 +64,7 @@ export default function StatCard({
           {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
           {positive ? "+" : ""}{change}%
         </span>
-        <span style={{ color: "#475569", fontSize: 11 }}>{changeLabel}</span>
+        <span style={{ color: "#94a3b8", fontSize: 11 }}>{changeLabel}</span>
       </div>
     </div>
   );

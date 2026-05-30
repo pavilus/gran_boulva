@@ -22,7 +22,7 @@ export default function PlaceholderPage({
             <Icon size={28} color="#a78bfa" />
           </div>
           <div className="text-white font-semibold text-lg">{title}</div>
-          <div style={{ color: "#475569", fontSize: 13 }}>{subtitle}</div>
+          <div style={{ color: "#94a3b8", fontSize: 13 }}>{subtitle}</div>
           <div
             className="inline-block px-4 py-2 rounded-lg text-xs font-medium"
             style={{

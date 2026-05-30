@@ -71,17 +71,17 @@ export default function RevenueChart({
       {/* Split revenue totals */}
       <div className="flex gap-3 mb-3">
         <div className="flex-1 rounded-lg px-3 py-2" style={{ background: "rgba(16,185,129,0.07)", border: "1px solid rgba(16,185,129,0.15)" }}>
-          <div style={{ color: "#64748b", fontSize: 9, textTransform: "uppercase", letterSpacing: 1 }}>Vant Coins</div>
+          <div style={{ color: "#94a3b8", fontSize: 9, textTransform: "uppercase", letterSpacing: 1 }}>Vant Coins</div>
           <div style={{ color: "#10b981", fontWeight: 700, fontSize: 14 }}>${totalCoinRevenue.toFixed(2)}</div>
         </div>
         <div className="flex-1 rounded-lg px-3 py-2" style={{ background: "rgba(167,139,250,0.07)", border: "1px solid rgba(167,139,250,0.15)" }}>
-          <div style={{ color: "#64748b", fontSize: 9, textTransform: "uppercase", letterSpacing: 1 }}>Kreyatè Fondatè</div>
+          <div style={{ color: "#94a3b8", fontSize: 9, textTransform: "uppercase", letterSpacing: 1 }}>Kreyatè Fondatè</div>
           <div style={{ color: "#a78bfa", fontWeight: 700, fontSize: 14 }}>${totalSupporterRevenue.toFixed(2)}</div>
         </div>
       </div>
 
       <div className="flex items-center justify-between mb-1">
-        <span style={{ color: "#475569", fontSize: 10 }}>Total: ${totalRevenue.toFixed(2)}</span>
+        <span style={{ color: "#94a3b8", fontSize: 10 }}>Total: ${totalRevenue.toFixed(2)}</span>
         <Link href="/payments" style={{ color: "#a78bfa", fontSize: 11, textDecoration: "none" }}>Wè tout →</Link>
       </div>
 

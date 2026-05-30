@@ -88,7 +88,7 @@ export default async function MatchupImagesPage() {
               <div className="space-y-2 p-3">
                 <div>
                   <h2 className="line-clamp-2 text-sm font-semibold text-white">{title}</h2>
-                  <p className="mt-1 text-xs" style={{ color: "#64748b" }}>
+                  <p className="mt-1 text-xs" style={{ color: "#94a3b8" }}>
                     {new Date(imageSet.created_at).toLocaleString("fr-HT")} · {imageSet.model}
                   </p>
                 </div>
@@ -129,7 +129,7 @@ export default async function MatchupImagesPage() {
                   <Link
                     href={`/matchups/${imageSet.matchup_id}`}
                     className="rounded-lg px-2 py-1 text-xs font-semibold"
-                    style={{ color: "#475569", border: "1px solid #1e2040" }}
+                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
                   >
                     Matchup →
                   </Link>
@@ -142,7 +142,7 @@ export default async function MatchupImagesPage() {
         {imageSets.length === 0 && (
           <div
             className="rounded-xl p-8 text-sm"
-            style={{ color: "#64748b", border: "1px solid #1e2040" }}
+            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
           >
             Pa gen imaj jenerasyon ankò.
           </div>

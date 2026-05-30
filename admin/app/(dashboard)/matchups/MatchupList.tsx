@@ -125,20 +125,20 @@ function CreateModal({ categories, onClose, onCreate }: {
       <div className="rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4" style={{ background: "#0a0b18", border: "1px solid #1e2040" }} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-base font-semibold text-white">Kreye Matchup</h2>
-          <button onClick={onClose}><X size={16} style={{ color: "#64748b" }} /></button>
+          <button onClick={onClose}><X size={16} style={{ color: "#94a3b8" }} /></button>
         </div>
 
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Tit (Kreyòl) *</label>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#94a3b8" }}>Tit (Kreyòl) *</label>
             <input style={inputStyle} placeholder="ex: Messi vs Ronaldo" value={form.title_ht} onChange={e => set("title_ht", e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Tit (Angle)</label>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#94a3b8" }}>Tit (Angle)</label>
             <input style={inputStyle} placeholder="English title (optional)" value={form.title_en} onChange={e => set("title_en", e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Kategorì *</label>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#94a3b8" }}>Kategorì *</label>
             <select style={{ ...inputStyle, appearance: "none" as const }} value={form.category_id} onChange={e => set("category_id", e.target.value)}>
               <option value="">— chwazi kategorì —</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name_ht}</option>)}
@@ -155,7 +155,7 @@ function CreateModal({ categories, onClose, onCreate }: {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold mb-1" style={{ color: "#64748b" }}>Deskripsyon</label>
+            <label className="block text-xs font-semibold mb-1" style={{ color: "#94a3b8" }}>Deskripsyon</label>
             <textarea style={{ ...inputStyle, resize: "vertical", minHeight: 72 }} placeholder="Kontèks oswa règ (opsyonèl)" value={form.description_ht} onChange={e => set("description_ht", e.target.value)} />
           </div>
         </div>
@@ -163,7 +163,7 @@ function CreateModal({ categories, onClose, onCreate }: {
         {err && <p className="text-xs" style={{ color: "#ef4444" }}>{err}</p>}
 
         <div className="flex justify-end gap-2 pt-1">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm" style={{ color: "#64748b", border: "1px solid #1e2040" }}>Anile</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm" style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Anile</button>
           <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5"
             style={{ background: "rgba(168,85,247,0.2)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.4)", opacity: saving ? 0.6 : 1 }}>
             <Plus size={13} />{saving ? "Ap kreye…" : "Kreye"}
@@ -326,7 +326,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                   </th>
                 );
               })}
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>Aksyon</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>Aksyon</th>
             </tr>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
               {/* Title — free text */}
@@ -386,7 +386,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                   <button
                     onClick={() => setFilters({ title: "", category: "", votes: "", status: "" })}
                     className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                    style={{ color: "#64748b", border: "1px solid #1e2040" }}
+                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
                   >
                     Risèt
                   </button>
@@ -396,7 +396,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
           </thead>
           <tbody>
             {sorted.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Okenn matchup yo</td></tr>
+              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Okenn matchup yo</td></tr>
             )}
             {sorted.map((m) => (
               <tr key={m.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -411,7 +411,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                           </span>
                         )}
                       </div>
-                      {m.title_en && <div className="break-words" style={{ color: "#475569", fontSize: 11 }}>{m.title_en}</div>}
+                      {m.title_en && <div className="break-words" style={{ color: "#94a3b8", fontSize: 11 }}>{m.title_en}</div>}
                     </div>
                     <ExternalLink size={11} className="shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "#a78bfa" }} />
                   </Link>
@@ -419,7 +419,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                 <td className="px-4 py-3" style={{ color: "#94a3b8", whiteSpace: "normal", minWidth: 100 }}>{catName(m)}</td>
                 <td className="px-4 py-3 font-semibold text-white" style={{ whiteSpace: "nowrap" }}>{(m.total_votes ?? 0).toLocaleString()}</td>
                 <td className="px-4 py-3" style={{ whiteSpace: "nowrap" }}><Badge status={m.status} /></td>
-                <td className="px-4 py-3" style={{ color: "#64748b", whiteSpace: "nowrap" }}>{fmtDate(m.created_at)}</td>
+                <td className="px-4 py-3" style={{ color: "#94a3b8", whiteSpace: "nowrap" }}>{fmtDate(m.created_at)}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
                     {m.status === "draft" && (
@@ -450,7 +450,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                         disabled={!!loading}
                         title="Achive"
                         className="p-1.5 rounded-lg transition-colors"
-                        style={{ color: "#64748b", background: "rgba(100,116,139,0.08)" }}
+                        style={{ color: "#94a3b8", background: "rgba(100,116,139,0.08)" }}
                       >
                         <Archive size={14} />
                       </button>

@@ -126,7 +126,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="text-center py-16" style={{ color: "#475569" }}>
+        <div className="text-center py-16" style={{ color: "#94a3b8" }}>
           <CheckCircle size={40} className="mx-auto mb-3 opacity-30" />
           <p className="text-sm">Pa gen demann {TAB_LABELS[activeTab].toLowerCase()}</p>
         </div>
@@ -183,7 +183,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
                       {TAB_LABELS[req.status] ?? req.status}
                     </span>
                   </div>
-                  <div style={{ color: "#475569", fontSize: 12, marginTop: 2 }}>
+                  <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 2 }}>
                     {req.display_name && <span>{req.display_name} · </span>}
                     Soumèt {fmtDate(req.submitted_at)}
                   </div>
@@ -248,36 +248,36 @@ export default function VerificationList({ requests: initial }: { requests: Requ
                 <div className="px-4 pb-4 space-y-3" style={{ borderTop: "1px solid #1a1b2e" }}>
                   <div className="grid grid-cols-1 gap-2 pt-3" style={{ color: "#94a3b8", fontSize: 13 }}>
                     {req.legal_name && (
-                      <div><span style={{ color: "#475569" }}>Non legal: </span>{req.legal_name}</div>
+                      <div><span style={{ color: "#94a3b8" }}>Non legal: </span>{req.legal_name}</div>
                     )}
                     {req.organization_name && (
-                      <div><span style={{ color: "#475569" }}>Òganizasyon: </span>{req.organization_name}</div>
+                      <div><span style={{ color: "#94a3b8" }}>Òganizasyon: </span>{req.organization_name}</div>
                     )}
                     {req.organization_email && (
-                      <div><span style={{ color: "#475569" }}>Imèl òg: </span>{req.organization_email}</div>
+                      <div><span style={{ color: "#94a3b8" }}>Imèl òg: </span>{req.organization_email}</div>
                     )}
                     {req.website && (
                       <div>
-                        <span style={{ color: "#475569" }}>Sit: </span>
+                        <span style={{ color: "#94a3b8" }}>Sit: </span>
                         <a href={req.website} target="_blank" rel="noopener noreferrer" style={{ color: "#a78bfa" }}>{req.website}</a>
                       </div>
                     )}
                     {req.social_links && (
-                      <div><span style={{ color: "#475569" }}>Rezo sosyal: </span>{req.social_links}</div>
+                      <div><span style={{ color: "#94a3b8" }}>Rezo sosyal: </span>{req.social_links}</div>
                     )}
                     {req.proof_notes && (
                       <div>
-                        <span style={{ color: "#475569" }}>Prèv / nòt: </span>
+                        <span style={{ color: "#94a3b8" }}>Prèv / nòt: </span>
                         <span style={{ whiteSpace: "pre-wrap" }}>{req.proof_notes}</span>
                       </div>
                     )}
                     {req.rejection_reason && (
                       <div style={{ color: "#ef4444" }}>
-                        <span style={{ color: "#475569" }}>Rezon refi: </span>{req.rejection_reason}
+                        <span style={{ color: "#94a3b8" }}>Rezon refi: </span>{req.rejection_reason}
                       </div>
                     )}
                     {req.admin_notes && (
-                      <div><span style={{ color: "#475569" }}>Nòt admin: </span>{req.admin_notes}</div>
+                      <div><span style={{ color: "#94a3b8" }}>Nòt admin: </span>{req.admin_notes}</div>
                     )}
                   </div>
 

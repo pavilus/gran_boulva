@@ -112,7 +112,7 @@ function TemplateEditor({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-white">{initial?.id ? "Edit Template" : "New Template"}</h3>
-        <button onClick={onCancel}><X size={16} style={{ color: "#64748b" }} /></button>
+        <button onClick={onCancel}><X size={16} style={{ color: "#94a3b8" }} /></button>
       </div>
 
       {err && <p className="text-xs rounded px-3 py-2" style={{ background: "rgba(239,68,68,.1)", color: "#f87171" }}>{err}</p>}
@@ -154,7 +154,7 @@ function TemplateEditor({
           {previewOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           {previewOpen ? "Hide preview" : "Show preview"}
         </button>
-        <button onClick={onCancel} className="px-4 py-2 rounded-lg text-xs font-semibold" style={{ border: "1px solid #1e2040", color: "#64748b" }}>
+        <button onClick={onCancel} className="px-4 py-2 rounded-lg text-xs font-semibold" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
           Cancel
         </button>
         <button onClick={save} disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: "#7c3aed", color: "white" }}>
@@ -333,14 +333,14 @@ export default function EmailClient({
             <input value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="Template name (optional — for Save Template)" className={inputCls} style={inputStyle} />
             <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Message body" rows={8} className={`${inputCls} resize-none`} style={inputStyle} />
             <div>
-              <label className={labelCls} style={{ color: "#64748b" }}>Signature HTML</label>
+              <label className={labelCls} style={{ color: "#94a3b8" }}>Signature HTML</label>
               <textarea value={signature} onChange={(e) => setSignature(e.target.value)} rows={4} className={`${inputCls} resize-none font-mono`} style={inputStyle} />
             </div>
 
             {/* Template quick-load */}
             {templateRows.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                <span className="text-xs self-center" style={{ color: "#475569" }}>Load:</span>
+                <span className="text-xs self-center" style={{ color: "#94a3b8" }}>Load:</span>
                 {templateRows.map((t) => (
                   <button key={t.id} onClick={() => { setTemplateName(t.name); setSubject(t.subject); setBody(t.body_text ?? ""); setSignature(t.signature_html ?? sigHtml); }}
                     className="px-2 py-1 rounded text-xs" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
@@ -374,12 +374,12 @@ export default function EmailClient({
           <table className="w-full text-sm">
             <thead style={{ background: "#0a0b18" }}>
               <tr>{["Dir", "Status", "From", "To", "Subject", "Date"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs uppercase" style={{ color: "#475569" }}>{h}</th>
+                <th key={h} className="px-4 py-3 text-left text-xs uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}</tr>
             </thead>
             <tbody>
               {rows.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#475569" }}><Inbox size={20} className="inline mr-2" />No emails yet</td></tr>
+                <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}><Inbox size={20} className="inline mr-2" />No emails yet</td></tr>
               )}
               {rows.map((m) => (
                 <tr key={m.id} style={{ borderTop: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -388,7 +388,7 @@ export default function EmailClient({
                   <td className="px-4 py-3 text-white">{m.from_email ?? "—"}</td>
                   <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{m.to_email ?? "—"}</td>
                   <td className="px-4 py-3 text-white">{m.subject ?? "—"}</td>
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>{fmtDate(m.created_at)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94a3b8" }}>{fmtDate(m.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -405,7 +405,7 @@ export default function EmailClient({
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-semibold text-white">Siyati pa defò</h2>
-                <p className="text-xs mt-0.5" style={{ color: "#64748b" }}>Used in Compose and as fallback when a template has no signature.</p>
+                <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>Used in Compose and as fallback when a template has no signature.</p>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => setSigPreview((p) => !p)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
@@ -456,7 +456,7 @@ export default function EmailClient({
 
             {/* Existing templates */}
             {templateRows.length === 0 && editingId !== "new" && (
-              <p className="text-sm py-8 text-center" style={{ color: "#475569" }}>Okenn template. Klike « New template » pou kreye youn.</p>
+              <p className="text-sm py-8 text-center" style={{ color: "#94a3b8" }}>Okenn template. Klike « New template » pou kreye youn.</p>
             )}
 
             {templateRows.map((t) =>
@@ -471,9 +471,9 @@ export default function EmailClient({
                 <div key={t.id} className="rounded-xl px-5 py-4 flex items-start justify-between gap-4" style={cardStyle}>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-white truncate">{t.name}</p>
-                    <p className="text-xs mt-0.5 truncate" style={{ color: "#64748b" }}>{t.subject}</p>
+                    <p className="text-xs mt-0.5 truncate" style={{ color: "#94a3b8" }}>{t.subject}</p>
                     {t.body_text && (
-                      <p className="text-xs mt-1 line-clamp-2" style={{ color: "#475569" }}>{t.body_text}</p>
+                      <p className="text-xs mt-1 line-clamp-2" style={{ color: "#94a3b8" }}>{t.body_text}</p>
                     )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">

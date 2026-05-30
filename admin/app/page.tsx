@@ -6,7 +6,7 @@ import T, { type Lang } from "@/lib/landing-translations";
 
 // ── Static tier shell (colors/prices don't change per language) ───────────────
 const TIERS = [
-  { key: "supporter", name: "Supporter", price: "$9", period: "one-time", color: "#64748b", glow: "rgba(100,116,139,0.3)", badge: "🎖️" },
+  { key: "supporter", name: "Supporter", price: "$9", period: "one-time", color: "#94a3b8", glow: "rgba(100,116,139,0.3)", badge: "🎖️" },
   { key: "ambassador", name: "Ambassador", price: "$49", period: "one-time", color: "#a855f7", glow: "rgba(168,85,247,0.35)", badge: "⭐", popular: true },
   { key: "founding_creator", name: "Founding Creator", price: "$149", period: "one-time", color: "#f59e0b", glow: "rgba(245,158,11,0.35)", badge: "🔥" },
   { key: "founding_partner", name: "Founding Partner", price: "$499", period: "one-time", color: "#ec4899", glow: "rgba(236,72,153,0.35)", badge: "👑" },
@@ -180,7 +180,7 @@ export default function LandingPage() {
             </h1>
 
             <p style={{ fontSize: 16, color: "#94a3b8", lineHeight: 1.75, marginBottom: 10, maxWidth: 500 }}>{t.hero.sub1}</p>
-            <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.6, marginBottom: 36, maxWidth: 420 }}>{t.hero.sub2}</p>
+            <p style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.6, marginBottom: 36, maxWidth: 420 }}>{t.hero.sub2}</p>
 
             <div className="hero-btns" style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 48 }}>
               <button onClick={() => smoothScroll("waitlist")}
@@ -197,7 +197,7 @@ export default function LandingPage() {
               {t.hero.proof.map(({ num, label }) => (
                 <div key={label}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>{num}</div>
-                  <div style={{ fontSize: 12, color: "#475569", marginTop: 2 }}>{label}</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -227,7 +227,7 @@ export default function LandingPage() {
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ color: "#a855f7", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 12 }}>{t.features.tag}</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,44px)", fontWeight: 900, color: "#fff", margin: "0 0 16px", letterSpacing: "-1px" }}>{t.features.h2}</h2>
-            <p style={{ fontSize: 16, color: "#64748b", maxWidth: 520, margin: "0 auto" }}>{t.features.sub}</p>
+            <p style={{ fontSize: 16, color: "#94a3b8", maxWidth: 520, margin: "0 auto" }}>{t.features.sub}</p>
           </div>
           <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
             {t.features.items.map((f, i) => (
@@ -236,7 +236,7 @@ export default function LandingPage() {
                 onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(168,85,247,0.15)")}>
                 <Image src={["/icon-debat.png", "/icon-vote.png", "/icon-prediksyon.png", "/icon-enpak.png", "/icon-kominote.png", "/icon-sekirite.png"][i]} alt={f.title} width={52} height={52} style={{ marginBottom: 16, objectFit: "contain" }} />
                 <h3 style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: "0 0 10px" }}>{f.title}</h3>
-                <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.7 }}>{f.desc}</p>
+                <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, lineHeight: 1.7 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -251,7 +251,7 @@ export default function LandingPage() {
             <p style={{ color: "#a855f7", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 20 }}>{t.vision.tag}</p>
             <h2 style={{ fontSize: "clamp(28px,4.5vw,52px)", fontWeight: 900, color: "#fff", margin: "0 auto 24px", letterSpacing: "-1.5px", lineHeight: 1.1, maxWidth: 800 }}>{t.vision.h2}</h2>
             <p style={{ fontSize: "clamp(17px,2vw,22px)", color: "#a78bfa", fontWeight: 600, margin: "0 auto 20px", maxWidth: 700, lineHeight: 1.5 }}>{t.vision.sub}</p>
-            <p style={{ fontSize: 16, color: "#64748b", maxWidth: 640, margin: "0 auto", lineHeight: 1.8 }}>{t.vision.body}</p>
+            <p style={{ fontSize: 16, color: "#94a3b8", maxWidth: 640, margin: "0 auto", lineHeight: 1.8 }}>{t.vision.body}</p>
           </div>
           <div className="vision-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 24 }}>
             {t.vision.points.map((v) => (
@@ -259,14 +259,14 @@ export default function LandingPage() {
                 <div style={{ fontSize: 32, flexShrink: 0, marginTop: 2 }}>{v.icon}</div>
                 <div>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>{v.title}</h3>
-                  <p style={{ fontSize: 14, color: "#64748b", margin: 0, lineHeight: 1.7 }}>{v.desc}</p>
+                  <p style={{ fontSize: 14, color: "#94a3b8", margin: 0, lineHeight: 1.7 }}>{v.desc}</p>
                 </div>
               </div>
             ))}
           </div>
           <div style={{ textAlign: "center", marginTop: 56 }}>
             <p style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 8 }}>{t.vision.quote}</p>
-            <p style={{ fontSize: 13, color: "#475569" }}>{t.vision.quoteSub}</p>
+            <p style={{ fontSize: 13, color: "#94a3b8" }}>{t.vision.quoteSub}</p>
           </div>
 
           {/* ── Launch countdown ───────────────────────────────────────────── */}
@@ -277,7 +277,7 @@ export default function LandingPage() {
               </div>
             ) : (
               <>
-                <p style={{ fontSize: 11, color: "#64748b", fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
+                <p style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
                   🚀 Soft Launch — November 18, 2026
                 </p>
                 <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -300,7 +300,7 @@ export default function LandingPage() {
                           {String(v).padStart(2, "0")}
                         </span>
                       </div>
-                      <span style={{ fontSize: 10, color: "#475569", fontWeight: 700, letterSpacing: 2 }}>{label}</span>
+                      <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, letterSpacing: 2 }}>{label}</span>
                     </div>
                   ))}
                 </div>
@@ -329,7 +329,7 @@ export default function LandingPage() {
                   <span style={{ fontSize: 22, fontWeight: 900, color: "#fff" }}>{i + 1}</span>
                 </div>
                 <h3 style={{ fontSize: 13, fontWeight: 800, color: "#fff", margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>{s.title}</h3>
-                <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.7 }}>{s.desc}</p>
+                <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, lineHeight: 1.7 }}>{s.desc}</p>
               </div>,
               i < arr.length - 1 ? (
                 <div key={`a${i}`} className="step-arrow" style={{ display: "flex", alignItems: "center", paddingBottom: 52, flexShrink: 0 }}>
@@ -354,7 +354,7 @@ export default function LandingPage() {
                 {t.creators.h2a}{" "}
                 <span style={{ background: "linear-gradient(90deg,#ec4899,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{t.creators.h2b}</span>
               </h2>
-              <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.75, marginBottom: 36, maxWidth: 460 }}>{t.creators.body}</p>
+              <p style={{ fontSize: 15, color: "#94a3b8", lineHeight: 1.75, marginBottom: 36, maxWidth: 460 }}>{t.creators.body}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 40 }}>
                 {t.creators.perks.map((item) => (
                   <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -380,9 +380,9 @@ export default function LandingPage() {
                     <div key={stat.label} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${c}33`, borderRadius: 16, padding: "18px 20px", display: "flex", alignItems: "center", gap: 16 }}>
                       <div style={{ width: 4, borderRadius: 2, alignSelf: "stretch", background: c, flexShrink: 0 }} />
                       <div>
-                        <div style={{ fontSize: 11, color: "#475569", marginBottom: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>{stat.label}</div>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>{stat.label}</div>
                         <div style={{ fontSize: 22, fontWeight: 900, color: c, letterSpacing: "-0.5px" }}>{stat.value}</div>
-                        <div style={{ fontSize: 11, color: "#475569", marginTop: 2 }}>{stat.sub}</div>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{stat.sub}</div>
                       </div>
                     </div>
                   );
@@ -439,13 +439,13 @@ export default function LandingPage() {
             {/* Music note */}
             <div style={{ marginTop: 32, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 14, padding: "20px 24px", display: "flex", alignItems: "flex-start", gap: 14 }}>
               <span style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>🎵</span>
-              <p style={{ margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.75 }}>
+              <p style={{ margin: 0, fontSize: 13, color: "#94a3b8", lineHeight: 1.75 }}>
                 {t.founder.musicPre}{" "}
                 <em style={{ color: "#94a3b8", fontStyle: "italic" }}>Ayibobo</em>{" "}
                 {t.founder.musicBy} <span style={{ color: "#94a3b8", fontWeight: 600 }}>Freedom</span> {t.founder.musicFrom}{" "}
                 <em style={{ color: "#94a3b8", fontStyle: "italic" }}>1804</em>.
                 <br />
-                <span style={{ color: "#475569" }}>{t.founder.musicEmotion}</span>
+                <span style={{ color: "#94a3b8" }}>{t.founder.musicEmotion}</span>
               </p>
             </div>
 
@@ -459,7 +459,7 @@ export default function LandingPage() {
               />
               <div>
                 <p style={{ margin: 0, fontWeight: 800, color: "#e2e8f0", fontSize: 15 }}>Guy Emmanuel Pavilus</p>
-                <p style={{ margin: "2px 0 0", fontSize: 13, color: "#64748b" }}>{t.founder.founderTitle}</p>
+                <p style={{ margin: "2px 0 0", fontSize: 13, color: "#94a3b8" }}>{t.founder.founderTitle}</p>
                 <a
                   href="https://linkedin.com/in/gpavilus"
                   target="_blank"
@@ -482,7 +482,7 @@ export default function LandingPage() {
           <div style={{ textAlign: "center", marginBottom: 16 }}>
             <p style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>{t.supporters.tag}</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 900, color: "#fff", margin: "0 0 16px", letterSpacing: "-1.2px" }}>{t.supporters.h2}</h2>
-            <p style={{ fontSize: 16, color: "#64748b", maxWidth: 560, margin: "0 auto 16px" }}>{t.supporters.body}</p>
+            <p style={{ fontSize: 16, color: "#94a3b8", maxWidth: 560, margin: "0 auto 16px" }}>{t.supporters.body}</p>
             <p style={{ fontSize: 13, color: "#f59e0b", fontWeight: 600 }}>{t.supporters.urgency}</p>
           </div>
 
@@ -498,7 +498,7 @@ export default function LandingPage() {
                   <h3 style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>{t.tierNames[tier.key as keyof typeof t.tierNames]}</h3>
                   <div style={{ marginBottom: 20 }}>
                     <span style={{ fontSize: 32, fontWeight: 900, color: tier.color, letterSpacing: "-1px" }}>{tier.price}</span>
-                    <span style={{ fontSize: 13, color: "#475569", marginLeft: 6 }}>{tier.period}</span>
+                    <span style={{ fontSize: 13, color: "#94a3b8", marginLeft: 6 }}>{tier.period}</span>
                   </div>
                   <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
                     {perks.map((perk) => (
@@ -530,11 +530,11 @@ export default function LandingPage() {
           <div style={{ textAlign: "center", marginBottom: 48 }}>
             <p style={{ color: "#a855f7", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>{t.waitlist.tag}</p>
             <h2 style={{ fontSize: "clamp(28px,4vw,42px)", fontWeight: 900, color: "#fff", margin: "0 0 16px", letterSpacing: "-1px" }}>{t.waitlist.h2}</h2>
-            <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.7 }}>{t.waitlist.body}</p>
+            <p style={{ fontSize: 15, color: "#94a3b8", lineHeight: 1.7 }}>{t.waitlist.body}</p>
             {selectedTier && (
               <div style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 99, padding: "6px 14px" }}>
                 <span style={{ fontSize: 12, color: "#f59e0b", fontWeight: 700 }}>👑 {selectedTierName} {t.waitlist.tierLabel}</span>
-                <button onClick={() => setSelectedTier(null)} style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 14, lineHeight: 1 }}>×</button>
+                <button onClick={() => setSelectedTier(null)} style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 14, lineHeight: 1 }}>×</button>
               </div>
             )}
           </div>
@@ -543,7 +543,7 @@ export default function LandingPage() {
             <div style={{ textAlign: "center", padding: "48px 32px", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 24 }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>🎉</div>
               <h3 style={{ fontSize: 22, fontWeight: 900, color: "#fff", margin: "0 0 12px" }}>{t.waitlist.successTitle}</h3>
-              <p style={{ fontSize: 15, color: "#64748b", lineHeight: 1.7, margin: 0 }}>{t.waitlist.successBody}</p>
+              <p style={{ fontSize: 15, color: "#94a3b8", lineHeight: 1.7, margin: 0 }}>{t.waitlist.successBody}</p>
             </div>
           ) : (
             <form onSubmit={submitWaitlist} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 24, padding: "40px 36px", display: "flex", flexDirection: "column", gap: 18 }}>
@@ -552,7 +552,7 @@ export default function LandingPage() {
                 { label: t.waitlist.emailLabel, val: wEmail, set: setWEmail, ph: t.waitlist.emailPlaceholder, type: "email" },
               ].map(({ label, val, set, ph, type }) => (
                 <div key={label}>
-                  <label style={{ fontSize: 12, color: "#64748b", fontWeight: 600, display: "block", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</label>
+                  <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, display: "block", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</label>
                   <input required type={type} value={val} onChange={e => set(e.target.value)} placeholder={ph}
                     style={{ width: "100%", padding: "13px 16px", borderRadius: 12, background: "#0a0b18", border: "1px solid rgba(168,85,247,0.2)", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
                     onFocus={e => (e.target.style.borderColor = "rgba(168,85,247,0.6)")}
@@ -561,7 +561,7 @@ export default function LandingPage() {
               ))}
 
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <label style={{ fontSize: 12, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>{t.waitlist.joiningAs}</label>
+                <label style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>{t.waitlist.joiningAs}</label>
                 {[
                   { label: t.waitlist.creatorCheck, val: wCreator, set: setWCreator },
                   { label: t.waitlist.supporterCheck, val: wSupporter, set: setWSupporter },
@@ -579,7 +579,7 @@ export default function LandingPage() {
                 style={{ padding: "15px", borderRadius: 14, background: "linear-gradient(135deg,#a855f7,#7c3aed)", color: "#fff", fontWeight: 800, fontSize: 16, border: "none", cursor: "pointer", opacity: wSubmitting || !wName || !wEmail ? 0.6 : 1, boxShadow: "0 8px 30px rgba(168,85,247,0.35)", transition: "opacity 0.2s" }}>
                 {wSubmitting ? t.waitlist.submitting : t.waitlist.submit}
               </button>
-              <p style={{ textAlign: "center", fontSize: 12, color: "#334155", margin: 0 }}>{t.waitlist.noSpam}</p>
+              <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", margin: 0 }}>{t.waitlist.noSpam}</p>
             </form>
           )}
         </div>
@@ -602,7 +602,7 @@ export default function LandingPage() {
                 </button>
                 {openFaq === i && (
                   <div style={{ padding: "0 24px 20px" }}>
-                    <p style={{ fontSize: 14, color: "#64748b", margin: 0, lineHeight: 1.75 }}>{item.a}</p>
+                    <p style={{ fontSize: 14, color: "#94a3b8", margin: 0, lineHeight: 1.75 }}>{item.a}</p>
                   </div>
                 )}
               </div>
@@ -620,11 +620,11 @@ export default function LandingPage() {
                 <Image src="/logo.png" alt="Gran Boulva" width={28} height={28} style={{ borderRadius: 6 }} />
                 <span style={{ fontWeight: 800, fontSize: 16, color: "#fff" }}>Gran Boulva</span>
               </div>
-              <p style={{ fontSize: 13, color: "#475569", lineHeight: 1.65, margin: "0 0 20px" }}>{t.footer.tagline}</p>
+              <p style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.65, margin: "0 0 20px" }}>{t.footer.tagline}</p>
               <div style={{ display: "flex", gap: 12 }}>
                 {SOCIAL.map(({ label, href, icon }) => (
                   <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                    style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", textDecoration: "none", transition: "all 0.2s" }}
+                    style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", textDecoration: "none", transition: "all 0.2s" }}
                     onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = "#a855f7"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(168,85,247,0.4)"; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = "#64748b"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.08)"; }}>
                     {icon}
@@ -635,40 +635,40 @@ export default function LandingPage() {
 
             <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.platform}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.platform}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {t.footer.platformLinks.map((label, i) => (
-                    <a key={label} href={PLATFORM_HREFS[i]} style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>{label}</a>
+                    <a key={label} href={PLATFORM_HREFS[i]} style={{ fontSize: 13, color: "#94a3b8", textDecoration: "none" }}>{label}</a>
                   ))}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.download}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.download}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <a href="https://apps.apple.com/app/gran-boulva" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>App Store (iOS).coming soon</a>
-                  <span style={{ fontSize: 13, color: "#334155" }}>{t.footer.googlePlay}</span>
+                  <a href="https://apps.apple.com/app/gran-boulva" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#94a3b8", textDecoration: "none" }}>App Store (iOS).coming soon</a>
+                  <span style={{ fontSize: 13, color: "#94a3b8" }}>{t.footer.googlePlay}</span>
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.legal}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.legal}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {t.footer.legalLinks.map((label, i) => (
-                    <Link key={label} href={(LEGAL_HREFS[lang] ?? LEGAL_HREFS.en)[i] ?? "#"} style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>{label}</Link>
+                    <Link key={label} href={(LEGAL_HREFS[lang] ?? LEGAL_HREFS.en)[i] ?? "#"} style={{ fontSize: 13, color: "#94a3b8", textDecoration: "none" }}>{label}</Link>
                   ))}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#475569", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.contact}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 16 }}>{t.footer.cols.contact}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <a href="mailto:support@granboulva.com" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>support@granboulva.com</a>
+                  <a href="mailto:support@granboulva.com" style={{ fontSize: 13, color: "#94a3b8", textDecoration: "none" }}>support@granboulva.com</a>
                 </div>
               </div>
             </div>
           </div>
 
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <span style={{ fontSize: 12, color: "#64748b" }}>© {new Date().getFullYear()} Gran Boulva. All rights reserved.</span>
-            <span style={{ fontSize: 12, color: "#64748b" }}>{t.footer.copyright}</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>© {new Date().getFullYear()} Gran Boulva. All rights reserved.</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t.footer.copyright}</span>
           </div>
         </div>
       </footer>

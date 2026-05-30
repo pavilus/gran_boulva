@@ -308,15 +308,15 @@ function DraftCard({ draft, onAction }: { draft: PredictionDraft; onAction: (id:
             </span>
           )}
           {draft.deadline_at && (
-            <span className="text-xs" style={{ color: "#64748b" }}>Limit: {fmtDate(draft.deadline_at)}</span>
+            <span className="text-xs" style={{ color: "#94a3b8" }}>Limit: {fmtDate(draft.deadline_at)}</span>
           )}
         </div>
         <div className="text-white text-sm font-semibold leading-snug mb-1">{draft.title_ht}</div>
-        <div className="text-xs" style={{ color: "#64748b" }}>
+        <div className="text-xs" style={{ color: "#94a3b8" }}>
           <span style={{ color: "#a78bfa" }}>A:</span> {draft.option_a} &nbsp;·&nbsp; <span style={{ color: "#ec4899" }}>B:</span> {draft.option_b}
         </div>
         {draft.selection_reason && (
-          <div className="mt-1 text-xs leading-snug" style={{ color: "#475569" }}>{draft.selection_reason}</div>
+          <div className="mt-1 text-xs leading-snug" style={{ color: "#94a3b8" }}>{draft.selection_reason}</div>
         )}
       </div>
       <div className="flex gap-2 shrink-0">
@@ -424,7 +424,7 @@ export default function PredictionList({
             <span className="text-sm font-semibold" style={{ color: "#818cf8" }}>
               Sijèsyon Scout — Prediksyon ({drafts.length})
             </span>
-            <span className="ml-auto" style={{ color: "#475569" }}>
+            <span className="ml-auto" style={{ color: "#94a3b8" }}>
               {draftsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </span>
           </button>
@@ -485,7 +485,7 @@ export default function PredictionList({
           <button
             onClick={() => setFilters({ title: "", category: "" })}
             className="px-3 py-2 rounded-lg text-xs font-semibold"
-            style={{ color: "#64748b", border: "1px solid #1e2040" }}
+            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
           >
             Reset
           </button>
@@ -498,13 +498,13 @@ export default function PredictionList({
           <thead>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
               {["Tit", "Opsyon A / B", "Kategorì", "Vòt", "Delè", "Aksyon"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Pa gen prediksyon</td></tr>
+              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Pa gen prediksyon</td></tr>
             )}
             {filtered.map((p) => {
               const cat = getCatName(p.category);
@@ -524,10 +524,10 @@ export default function PredictionList({
                     <div className="text-xs" style={{ color: "#ec4899" }}>B: {p.option_b}</div>
                   </td>
                   <td className="px-4 py-3">
-                    {cat !== "—" ? <CategoryChip name={cat} /> : <span style={{ color: "#475569" }}>—</span>}
+                    {cat !== "—" ? <CategoryChip name={cat} /> : <span style={{ color: "#94a3b8" }}>—</span>}
                   </td>
                   <td className="px-4 py-3 font-semibold text-white">{p.total_votes}</td>
-                  <td className="px-4 py-3" style={{ color: "#64748b", whiteSpace: "nowrap" }}>{fmtDate(p.deadline_at)}</td>
+                  <td className="px-4 py-3" style={{ color: "#94a3b8", whiteSpace: "nowrap" }}>{fmtDate(p.deadline_at)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       {/* Edit button — always visible */}

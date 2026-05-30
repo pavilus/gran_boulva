@@ -46,7 +46,7 @@ export default async function MatchupDetailPage({ params }: { params: Promise<{ 
         <Link
           href="/matchups"
           className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
-          style={{ color: "#64748b" }}
+          style={{ color: "#94a3b8" }}
         >
           <ArrowLeft size={13} /> Tounen nan Matchups
         </Link>

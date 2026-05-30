@@ -52,7 +52,7 @@ export default async function BadgesPage() {
       <div className="flex-1 p-5">
         {badgesWithLevels.length === 0 ? (
           <div style={{ background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 12, padding: 32, textAlign: "center" }}>
-            <p style={{ color: "#64748b", fontSize: 14 }}>
+            <p style={{ color: "#94a3b8", fontSize: 14 }}>
               Okenn badj jwenn. Tabèl <code style={{ color: "#a855f7" }}>badges</code> ka vid oswa dezaktive.
             </p>
           </div>

@@ -88,7 +88,7 @@ function StatPill({ icon: Icon, label, value, color }: { icon: any; label: strin
       </div>
       <div>
         <div className="text-white font-bold text-lg leading-tight">{value}</div>
-        <div style={{ color: "#64748b", fontSize: 11 }}>{label}</div>
+        <div style={{ color: "#94a3b8", fontSize: 11 }}>{label}</div>
       </div>
     </div>
   );
@@ -120,12 +120,12 @@ function VoteSplit({ options, votes }: { options: Option[]; votes: Vote[] }) {
           <div>
             <div className="font-bold text-lg" style={{ color: "#a78bfa" }}>{pctA}%</div>
             <div className="text-white font-semibold text-sm">{optA?.option_name ?? "Opsyon A"}</div>
-            <div style={{ color: "#64748b", fontSize: 12 }}>{fmt(countA)} vòt</div>
+            <div style={{ color: "#94a3b8", fontSize: 12 }}>{fmt(countA)} vòt</div>
           </div>
           <div className="text-right">
             <div className="font-bold text-lg" style={{ color: "#ec4899" }}>{pctB}%</div>
             <div className="text-white font-semibold text-sm">{optB?.option_name ?? "Opsyon B"}</div>
-            <div style={{ color: "#64748b", fontSize: 12 }}>{fmt(countB)} vòt</div>
+            <div style={{ color: "#94a3b8", fontSize: 12 }}>{fmt(countB)} vòt</div>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ function VoteTimeline({ votes, createdAt }: { votes: Vote[]; createdAt: string }
   if (data.every((d) => d.vòt === 0)) {
     return (
       <Card title="Vòt pandan tan">
-        <div className="text-center py-8" style={{ color: "#475569" }}>Pa gen done vòt yo</div>
+        <div className="text-center py-8" style={{ color: "#94a3b8" }}>Pa gen done vòt yo</div>
       </Card>
     );
   }
@@ -214,7 +214,7 @@ function LocationBreakdown({ votes }: { votes: Vote[] }) {
   if (sorted.length === 0) {
     return (
       <Card title="Lokasyon Votè yo">
-        <div className="text-center py-8" style={{ color: "#475569" }}>Pa gen done lokasyon</div>
+        <div className="text-center py-8" style={{ color: "#94a3b8" }}>Pa gen done lokasyon</div>
       </Card>
     );
   }
@@ -233,7 +233,7 @@ function LocationBreakdown({ votes }: { votes: Vote[] }) {
                 <div style={{ width: `${(count / max) * 100}%`, height: "100%", background: "linear-gradient(90deg,#7c3aed,#a855f7)" }} />
               </div>
               <div className="text-xs font-semibold text-white w-8 text-right">{count}</div>
-              <div className="text-xs w-8 text-right" style={{ color: "#475569" }}>{pct}%</div>
+              <div className="text-xs w-8 text-right" style={{ color: "#94a3b8" }}>{pct}%</div>
             </div>
           );
         })}
@@ -248,7 +248,7 @@ function TopArguments({ args, options }: { args: Arg[]; options: Option[] }) {
   return (
     <Card title={`Top Agiman (${args.length})`}>
       {args.length === 0 ? (
-        <div className="text-center py-8" style={{ color: "#475569" }}>Pa gen agiman yo</div>
+        <div className="text-center py-8" style={{ color: "#94a3b8" }}>Pa gen agiman yo</div>
       ) : (
         <div className="space-y-3">
           {args.slice(0, 8).map((a) => {
@@ -290,10 +290,10 @@ function TopArguments({ args, options }: { args: Arg[]; options: Option[] }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span style={{ color: "#64748b", fontSize: 11 }}>@{username}</span>
+                  <span style={{ color: "#94a3b8", fontSize: 11 }}>@{username}</span>
                   <span style={{ color: "#22c55e", fontSize: 11 }}>👍 {a.like_count}</span>
                   <span style={{ color: "#ef4444", fontSize: 11 }}>👎 {a.dislike_count}</span>
-                  {a.reply_count > 0 && <span style={{ color: "#64748b", fontSize: 11 }}>💬 {a.reply_count}</span>}
+                  {a.reply_count > 0 && <span style={{ color: "#94a3b8", fontSize: 11 }}>💬 {a.reply_count}</span>}
                 </div>
               </div>
             );
@@ -306,8 +306,8 @@ function TopArguments({ args, options }: { args: Arg[]; options: Option[] }) {
 
 function VoterInfluence({ votes }: { votes: Vote[] }) {
   const brackets = [
-    { label: "0–99", min: 0, max: 99, color: "#475569" },
-    { label: "100–499", min: 100, max: 499, color: "#64748b" },
+    { label: "0–99", min: 0, max: 99, color: "#94a3b8" },
+    { label: "100–499", min: 100, max: 499, color: "#94a3b8" },
     { label: "500–999", min: 500, max: 999, color: "#a78bfa" },
     { label: "1000+", min: 1000, max: Infinity, color: "#7c3aed" },
   ];
@@ -349,14 +349,14 @@ function VoterList({ votes, options }: { votes: Vote[]; options: Option[] }) {
   return (
     <Card title={`Votè yo (${votes.length})`}>
       {rows.length === 0 ? (
-        <div className="text-center py-8" style={{ color: "#475569" }}>Pa gen votè yo</div>
+        <div className="text-center py-8" style={{ color: "#94a3b8" }}>Pa gen votè yo</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: "1px solid #1e2040" }}>
                 {["Itilizatè", "Chwa", "Lokasyon", "Enfliyans", "Wòl", "Dat"].map((h) => (
-                  <th key={h} className="text-left py-2 px-2 text-xs font-semibold uppercase" style={{ color: "#475569" }}>
+                  <th key={h} className="text-left py-2 px-2 text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>
                     {h}
                   </th>
                 ))}
@@ -379,7 +379,7 @@ function VoterList({ votes, options }: { votes: Vote[]; options: Option[] }) {
                     <td className="py-2 px-2" style={{ color: "#94a3b8" }}>{user?.location ?? "—"}</td>
                     <td className="py-2 px-2 text-white">{fmt(user?.influence_score ?? 0)}</td>
                     <td className="py-2 px-2" style={{ color: "#94a3b8" }}>{user?.role ?? "—"}</td>
-                    <td className="py-2 px-2" style={{ color: "#64748b" }}>{fmtDate(v.created_at)}</td>
+                    <td className="py-2 px-2" style={{ color: "#94a3b8" }}>{fmtDate(v.created_at)}</td>
                   </tr>
                 );
               })}
@@ -460,7 +460,7 @@ function EditMatchupPanel({ matchup }: { matchup: Matchup }) {
         onClick={() => setOpen((p) => !p)}
       >
         <span className="text-sm font-semibold" style={{ color: "#D4D4D4" }}>Edite Matchup</span>
-        {open ? <ChevronUp size={16} style={{ color: "#475569" }} /> : <ChevronDown size={16} style={{ color: "#475569" }} />}
+        {open ? <ChevronUp size={16} style={{ color: "#94a3b8" }} /> : <ChevronDown size={16} style={{ color: "#94a3b8" }} />}
       </button>
 
       {open && (
@@ -564,26 +564,26 @@ export default function MatchupDetail({ matchup, votes, args }: { matchup: Match
                 style={{ background: `${statusColor}22`, color: statusColor }}>
                 {matchup.status}
               </span>
-              <span className="text-xs" style={{ color: "#64748b" }}>{catName}</span>
+              <span className="text-xs" style={{ color: "#94a3b8" }}>{catName}</span>
             </div>
             <h2 className="text-white font-bold text-xl leading-snug">{matchup.title_ht}</h2>
-            {matchup.title_en && <div style={{ color: "#64748b", fontSize: 13, marginTop: 4 }}>{matchup.title_en}</div>}
+            {matchup.title_en && <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 4 }}>{matchup.title_en}</div>}
             {matchup.description_ht && (
               <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 8, lineHeight: 1.5 }}>{matchup.description_ht}</div>
             )}
           </div>
           <div className="text-right shrink-0">
-            <div style={{ color: "#475569", fontSize: 11 }}>Kreye</div>
+            <div style={{ color: "#94a3b8", fontSize: 11 }}>Kreye</div>
             <div style={{ color: "#94a3b8", fontSize: 12 }}>{fmtDate(matchup.created_at)}</div>
             {matchup.published_at && (
               <>
-                <div style={{ color: "#475569", fontSize: 11, marginTop: 6 }}>Piblie</div>
+                <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 6 }}>Piblie</div>
                 <div style={{ color: "#94a3b8", fontSize: 12 }}>{fmtDate(matchup.published_at)}</div>
               </>
             )}
             {matchup.expires_at && (
               <>
-                <div style={{ color: "#475569", fontSize: 11, marginTop: 6 }}>Ekspire</div>
+                <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 6 }}>Ekspire</div>
                 <div style={{ color: "#94a3b8", fontSize: 12 }}>{fmtDate(matchup.expires_at)}</div>
               </>
             )}

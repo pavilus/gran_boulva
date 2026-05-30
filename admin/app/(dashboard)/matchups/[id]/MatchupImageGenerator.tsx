@@ -84,7 +84,7 @@ export default function MatchupImageGenerator({
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold" style={{ color: "#D4D4D4" }}>Imaj Matchup</h2>
-          <p className="mt-1 text-xs leading-relaxed" style={{ color: "#64748b" }}>
+          <p className="mt-1 text-xs leading-relaxed" style={{ color: "#94a3b8" }}>
             IA jenere Opsyon A & B. Upload Poster ak Share manyèlman (Canva, etc.).
           </p>
         </div>
@@ -104,7 +104,7 @@ export default function MatchupImageGenerator({
           <Loader2 size={14} className="animate-spin shrink-0" style={{ color: "#a855f7" }} />
           <div>
             <div className="text-xs font-semibold" style={{ color: "#a855f7" }}>Imaj ap jenere nan background…</div>
-            <div className="text-xs mt-0.5" style={{ color: "#64748b" }}>Rafraîchi paj la nan 2–3 minit pou wè yo.</div>
+            <div className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>Rafraîchi paj la nan 2–3 minit pou wè yo.</div>
           </div>
         </div>
       )}
@@ -157,7 +157,7 @@ export default function MatchupImageGenerator({
             ) : null
           )}
           <a href="/matchup-images" className="rounded-lg px-3 py-1.5 text-xs font-semibold"
-            style={{ color: "#475569", border: "1px solid #1e2040" }}>
+            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>
             Louvri galri
           </a>
         </div>
@@ -188,7 +188,7 @@ function SlotZone({
       <div className="mb-1 flex items-center justify-between">
         <span className="text-xs font-semibold" style={{ color: "#94a3b8" }}>{label}</span>
         {url && (
-          <a href={url} download className="text-xs" style={{ color: "#475569" }}>
+          <a href={url} download className="text-xs" style={{ color: "#94a3b8" }}>
             <Download size={11} />
           </a>
         )}
@@ -237,7 +237,7 @@ function SlotZone({
               <span className="text-xs" style={{ color: url ? "#D4D4D4" : "#64748b" }}>
                 {url ? "Chanje" : "Upload"}
               </span>
-              <span style={{ color: "#475569", fontSize: 10 }}>{hint}</span>
+              <span style={{ color: "#94a3b8", fontSize: 10 }}>{hint}</span>
             </>
           )}
         </div>

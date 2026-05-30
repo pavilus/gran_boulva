@@ -28,7 +28,7 @@ export default function RecentMatchups({ matchups }: { matchups: Matchup[] }) {
       </div>
       <div className="space-y-2">
         {matchups.length === 0 && (
-          <div className="text-center py-6" style={{ color: "#475569", fontSize: 12 }}>
+          <div className="text-center py-6" style={{ color: "#94a3b8", fontSize: 12 }}>
             Pa gen matchups pou kounye a
           </div>
         )}
@@ -69,7 +69,7 @@ export default function RecentMatchups({ matchups }: { matchups: Matchup[] }) {
             </div>
             <div className="shrink-0 text-right">
               <div className="text-white text-xs font-bold">{fmt(totalVotes)}</div>
-              <div style={{ color: "#475569", fontSize: 10 }}>vòt</div>
+              <div style={{ color: "#94a3b8", fontSize: 10 }}>vòt</div>
             </div>
             <div className="shrink-0" style={{ width: 48 }}>
               <div className="rounded-full overflow-hidden" style={{ height: 4, background: "#1e2040" }}>

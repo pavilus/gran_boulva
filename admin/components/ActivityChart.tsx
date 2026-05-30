@@ -46,7 +46,7 @@ export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
       <div className="flex items-center justify-between mb-5">
         <div>
           <div className="text-white font-semibold text-sm">Aktivite sou platfòm nan</div>
-          <div style={{ color: "#475569", fontSize: 11, marginTop: 2 }}>Vòt ak Agiman</div>
+          <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>Vòt ak Agiman</div>
         </div>
         <div
           className="flex items-center gap-1 text-xs px-2 py-1 rounded-full"
@@ -97,11 +97,11 @@ export default function ActivityChart({ data }: { data: ActivityPoint[] }) {
       <div className="flex items-center gap-4 mt-3">
         <div className="flex items-center gap-1.5">
           <div className="rounded-full" style={{ width: 8, height: 8, background: "#7c3aed" }} />
-          <span style={{ color: "#64748b", fontSize: 11 }}>Vòt</span>
+          <span style={{ color: "#94a3b8", fontSize: 11 }}>Vòt</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="rounded-full" style={{ width: 8, height: 8, background: "#ec4899" }} />
-          <span style={{ color: "#64748b", fontSize: 11 }}>Agiman</span>
+          <span style={{ color: "#94a3b8", fontSize: 11 }}>Agiman</span>
         </div>
       </div>
     </div>

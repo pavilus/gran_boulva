@@ -51,7 +51,7 @@ export default function BoostTable({ boosts }: { boosts: Boost[] }) {
         <thead>
           <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
             {["Agiman", "Itilizatè", "Coins", "Ekspire", "Estati"].map((h) => (
-              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
             ))}
           </tr>
           <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -74,7 +74,7 @@ export default function BoostTable({ boosts }: { boosts: Boost[] }) {
         </thead>
         <tbody>
           {filtered.length === 0 && (
-            <tr><td colSpan={5} className="px-4 py-10 text-center" style={{ color: "#475569" }}>Pa gen boost yo</td></tr>
+            <tr><td colSpan={5} className="px-4 py-10 text-center" style={{ color: "#94a3b8" }}>Pa gen boost yo</td></tr>
           )}
           {filtered.map((b) => {
             const expired = b.expires_at ? new Date(b.expires_at) <= new Date() : true;

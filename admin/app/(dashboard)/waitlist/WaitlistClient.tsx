@@ -52,7 +52,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
   };
 
   const cellStyle = { padding: "12px 16px", borderBottom: "1px solid #1a1b2e", fontSize: 13, color: "#D4D4D4" };
-  const headStyle = { padding: "10px 16px", color: "#475569", fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "1px solid #1e2040" };
+  const headStyle = { padding: "10px 16px", color: "#94a3b8", fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "1px solid #1e2040" };
 
   return (
     <div>
@@ -65,7 +65,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
           { label: "Founding Partners", value: entries.filter((e) => e.tier === "founding_partner").length },
         ].map((s) => (
           <div key={s.label} style={{ background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 12, padding: "14px 20px", flex: 1 }}>
-            <p style={{ color: "#64748b", fontSize: 11, marginBottom: 4 }}>{s.label}</p>
+            <p style={{ color: "#94a3b8", fontSize: 11, marginBottom: 4 }}>{s.label}</p>
             <p style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>{s.value}</p>
           </div>
         ))}
@@ -91,7 +91,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
       {/* ── Table ── */}
       <div style={{ background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 14, overflow: "hidden" }}>
         {filtered.length === 0 ? (
-          <p style={{ color: "#64748b", textAlign: "center", padding: 40, fontSize: 14 }}>
+          <p style={{ color: "#94a3b8", textAlign: "center", padding: 40, fontSize: 14 }}>
             {entries.length === 0 ? "Okenn moun poko enskri." : "Okenn rezilta pou rechèch sa."}
           </p>
         ) : (
@@ -121,7 +121,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
                         <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: "rgba(34,197,94,0.1)", color: "#22c55e" }}>Sipòtè</span>
                       )}
                       {!e.is_creator && !e.is_supporter && (
-                        <span style={{ fontSize: 10, color: "#475569" }}>—</span>
+                        <span style={{ fontSize: 10, color: "#94a3b8" }}>—</span>
                       )}
                     </div>
                   </td>
@@ -129,10 +129,10 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
                     {e.tier ? (
                       <span style={{ fontSize: 11, color: "#f59e0b" }}>{TIER_LABELS[e.tier] ?? e.tier}</span>
                     ) : (
-                      <span style={{ color: "#475569" }}>—</span>
+                      <span style={{ color: "#94a3b8" }}>—</span>
                     )}
                   </td>
-                  <td style={{ ...cellStyle, color: "#64748b" }}>{fmt(e.created_at)}</td>
+                  <td style={{ ...cellStyle, color: "#94a3b8" }}>{fmt(e.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -140,7 +140,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
         )}
       </div>
 
-      <p style={{ color: "#334155", fontSize: 11, marginTop: 10, textAlign: "right" }}>
+      <p style={{ color: "#94a3b8", fontSize: 11, marginTop: 10, textAlign: "right" }}>
         {filtered.length} / {entries.length} enskri
       </p>
     </div>

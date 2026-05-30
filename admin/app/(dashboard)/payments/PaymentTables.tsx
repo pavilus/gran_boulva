@@ -86,7 +86,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
             <thead>
               <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
                 {["Itilizatè", "Coins", "USD", "Estati", "Dat"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
                 ))}
               </tr>
               <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -113,7 +113,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
             </thead>
             <tbody>
               {filteredPurchases.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center" style={{ color: "#475569" }}>Pa gen achte yo</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center" style={{ color: "#94a3b8" }}>Pa gen achte yo</td></tr>
               )}
               {filteredPurchases.map((p) => (
                 <tr key={p.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -121,7 +121,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
                   <td className="px-4 py-3 font-semibold" style={{ color: "#fcd34d" }}>{(p.coin_amount ?? 0).toLocaleString()}</td>
                   <td className="px-4 py-3 font-semibold text-white">${((p.usd_cents ?? 0) / 100).toFixed(2)}</td>
                   <td className="px-4 py-3"><Badge label={p.status} color={STATUS_COLORS[p.status] ?? "#94a3b8"} /></td>
-                  <td className="px-4 py-3" style={{ color: "#64748b" }}>{fmtDate(p.created_at)}</td>
+                  <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{fmtDate(p.created_at)}</td>
                 </tr>
               ))}
             </tbody>
@@ -137,7 +137,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
             <thead>
               <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
                 {["Itilizatè", "Montan", "Frè", "Tip", "Estati", "Dat"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
                 ))}
               </tr>
               <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -161,7 +161,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
             </thead>
             <tbody>
               {filteredCoins.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center" style={{ color: "#475569" }}>Pa gen tranzaksyon yo</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center" style={{ color: "#94a3b8" }}>Pa gen tranzaksyon yo</td></tr>
               )}
               {filteredCoins.map((c) => (
                 <tr key={c.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -170,7 +170,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
                   <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{c.fee ?? 0}</td>
                   <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{c.transaction_type ?? "—"}</td>
                   <td className="px-4 py-3"><Badge label={c.status} color={STATUS_COLORS[c.status] ?? "#94a3b8"} /></td>
-                  <td className="px-4 py-3" style={{ color: "#64748b" }}>{fmtDate(c.created_at)}</td>
+                  <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{fmtDate(c.created_at)}</td>
                 </tr>
               ))}
             </tbody>

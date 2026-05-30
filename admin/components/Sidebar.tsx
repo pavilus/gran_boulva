@@ -128,7 +128,7 @@ export default function Sidebar() {
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center justify-center rounded-lg transition-colors hover:bg-white/5 shrink-0"
-          style={{ width: 24, height: 24, color: "#475569", marginLeft: collapsed ? "auto" : undefined }}
+          style={{ width: 24, height: 24, color: "#94a3b8", marginLeft: collapsed ? "auto" : undefined }}
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
@@ -194,7 +194,7 @@ export default function Sidebar() {
           onClick={handleLogout}
           title="Dekonekte"
           className="shrink-0 p-1.5 rounded-lg transition-colors hover:bg-red-500/10"
-          style={{ color: "#64748b" }}
+          style={{ color: "#94a3b8" }}
         >
           <LogOut size={14} />
         </button>

@@ -191,27 +191,27 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
             <div className="flex flex-col gap-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label style={{ color: "#64748b", fontSize: 11, marginBottom: 3, display: "block" }}>Non (HT)</label>
+                  <label style={{ color: "#94a3b8", fontSize: 11, marginBottom: 3, display: "block" }}>Non (HT)</label>
                   <input value={form.name_ht} onChange={setF("name_ht")} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ color: "#64748b", fontSize: 11, marginBottom: 3, display: "block" }}>Name (EN)</label>
+                  <label style={{ color: "#94a3b8", fontSize: 11, marginBottom: 3, display: "block" }}>Name (EN)</label>
                   <input value={form.name_en} onChange={setF("name_en")} style={inputStyle} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label style={{ color: "#64748b", fontSize: 11, marginBottom: 3, display: "block" }}>Deskripsyon (HT)</label>
+                  <label style={{ color: "#94a3b8", fontSize: 11, marginBottom: 3, display: "block" }}>Deskripsyon (HT)</label>
                   <input value={form.description_ht} onChange={setF("description_ht")} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ color: "#64748b", fontSize: 11, marginBottom: 3, display: "block" }}>Description (EN)</label>
+                  <label style={{ color: "#94a3b8", fontSize: 11, marginBottom: 3, display: "block" }}>Description (EN)</label>
                   <input value={form.description_en} onChange={setF("description_en")} style={inputStyle} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div>
-                  <label style={{ color: "#64748b", fontSize: 11, marginBottom: 3, display: "block" }}>Koulè</label>
+                  <label style={{ color: "#94a3b8", fontSize: 11, marginBottom: 3, display: "block" }}>Koulè</label>
                   <div className="flex items-center gap-2">
                     <input type="color" value={form.color_hex} onChange={setF("color_hex")}
                       style={{ width: 36, height: 28, border: "none", background: "none", cursor: "pointer", padding: 0 }} />
@@ -231,7 +231,7 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
             <>
               <div className="flex items-center gap-2 flex-wrap">
                 <span style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{badge.name_ht}</span>
-                <span style={{ color: "#64748b", fontSize: 13 }}>/ {badge.name_en}</span>
+                <span style={{ color: "#94a3b8", fontSize: 13 }}>/ {badge.name_en}</span>
                 <span style={{
                   fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
                   background: badge.is_active ? "rgba(34,197,94,0.12)" : "rgba(100,116,139,0.12)",
@@ -242,10 +242,10 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
               </div>
               <p style={{ color: "#94a3b8", fontSize: 12, marginTop: 3 }}>{badge.description_ht}</p>
               <div className="flex items-center gap-3 mt-2">
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>
                   Kle: <code style={{ color: "#a855f7" }}>{badge.key}</code>
                 </span>
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>
                   {badge.user_count} itilizatè gen badj sa
                 </span>
                 <span
@@ -292,12 +292,12 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
       {/* ── Levels ── */}
       {expanded && (
         <div style={{ borderTop: "1px solid #1e2040", padding: "12px 20px 16px" }}>
-          <p style={{ color: "#64748b", fontSize: 11, fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <p style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Nivo ak sèy XP
           </p>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ color: "#475569", fontSize: 11 }}>
+              <tr style={{ color: "#94a3b8", fontSize: 11 }}>
                 <th className="text-left pb-2 pr-3">Nivo</th>
                 <th className="text-left pb-2 pr-3">XP requis</th>
                 <th className="text-left pb-2 pr-3">Tit (HT)</th>
@@ -380,7 +380,7 @@ export default function BadgesClient({ badges }: { badges: Badge[] }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
-        <p style={{ color: "#64748b", fontSize: 13 }}>
+        <p style={{ color: "#94a3b8", fontSize: 13 }}>
           {badges.length} badj • Klike sou &ldquo;Edite&rdquo; pou chanje non, deskripsyon oswa koulè. Klike sou &ldquo;nivo&rdquo; pou wè ak edite sèy XP.
         </p>
       </div>

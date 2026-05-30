@@ -100,7 +100,7 @@ export default function CategoriesClient({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div style={{ color: "#475569", fontSize: 13 }}>{filteredCats.length} / {cats.length} kategorì</div>
+        <div style={{ color: "#94a3b8", fontSize: 13 }}>{filteredCats.length} / {cats.length} kategorì</div>
         {!adding && (
           <button
             onClick={() => setAdding(true)}
@@ -117,7 +117,7 @@ export default function CategoriesClient({
           <thead>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
               {["Ikòn", "Non (Kreyòl)", "Non (English)", "Matchup yo", "Aksyon"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
             </tr>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -138,7 +138,7 @@ export default function CategoriesClient({
               <th className="px-4 pb-3">
                 <button onClick={() => setFilters({ icon: "", nameHt: "", nameEn: "", matchups: "" })}
                   className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                  style={{ color: "#64748b", border: "1px solid #1e2040" }}>Reset</button>
+                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Reset</button>
               </th>
             </tr>
           </thead>

@@ -110,7 +110,7 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
           <thead>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
               {["Itilizatè", "Agiman", "Matchup", "👍 / 👎", "Rapò", "Dat", "Aksyon"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
             </tr>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -135,13 +135,13 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
               <th className="px-4 pb-3">
                 <button onClick={() => setFilters({ user: "", argument: "", matchup: "", reactions: "", date: "" })}
                   className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                  style={{ color: "#64748b", border: "1px solid #1e2040" }}>Reset</button>
+                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Reset</button>
               </th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Pa gen agiman</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Pa gen agiman</td></tr>
             )}
             {filtered.map((a) => (
               <tr key={a.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -175,7 +175,7 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
                 <td className="px-4 py-3" style={{ color: "#94a3b8", maxWidth: 200 }}>
                   <div className="truncate text-xs">{getMatchup(a)}</div>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>
+                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94a3b8" }}>
                   <span style={{ color: "#22c55e" }}>{a.like_count}</span> / <span style={{ color: "#ef4444" }}>{a.dislike_count}</span>
                 </td>
                 <td className="px-4 py-3" style={{ color: "#f59e0b", maxWidth: 190 }}>
@@ -188,7 +188,7 @@ export default function ModerationList({ args: initial }: { args: Argument[] }) 
                     </>
                   ) : "—"}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>{fmtDate(a.created_at)}</td>
+                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94a3b8" }}>{fmtDate(a.created_at)}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-1">
                     {a.status === "active" && (

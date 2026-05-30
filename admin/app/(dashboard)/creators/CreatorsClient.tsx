@@ -207,7 +207,7 @@ export default function CreatorsClient({
       {activeTab === "payouts" && (
         <div className="space-y-2">
           {payouts.length === 0 && (
-            <div className="text-center py-10" style={{ color: "#475569" }}>
+            <div className="text-center py-10" style={{ color: "#94a3b8" }}>
               <CheckCircle size={32} className="mx-auto mb-2 opacity-30" />
               <p className="text-sm">Pa gen peman an atant</p>
             </div>
@@ -236,7 +236,7 @@ export default function CreatorsClient({
                       </span>
                     )}
                   </div>
-                  <div style={{ color: "#64748b", fontSize: 11, marginTop: 2 }}>
+                  <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>
                     {p.coins_amount} coins
                     {p.payout_phone && <> · 📱 {p.payout_phone}</>}
                     {" · "}{fmtDate(p.requested_at)}
@@ -270,14 +270,14 @@ export default function CreatorsClient({
               {/* Phone copy hint if present */}
               {p.payout_phone && (
                 <div className="px-4 pb-3 flex items-center gap-2">
-                  <span style={{ color: "#475569", fontSize: 11 }}>Telefòn pou voye:</span>
+                  <span style={{ color: "#94a3b8", fontSize: 11 }}>Telefòn pou voye:</span>
                   <code style={{ color: "#a78bfa", fontSize: 12, background: "rgba(167,139,250,0.08)", padding: "2px 8px", borderRadius: 4 }}>
                     {p.payout_phone}
                   </code>
                   <button
                     onClick={() => navigator.clipboard.writeText(p.payout_phone!)}
                     className="text-xs px-2 py-0.5 rounded"
-                    style={{ color: "#64748b", background: "#0a0b18", border: "1px solid #1e2040" }}>
+                    style={{ color: "#94a3b8", background: "#0a0b18", border: "1px solid #1e2040" }}>
                     Kopye
                   </button>
                 </div>
@@ -291,7 +291,7 @@ export default function CreatorsClient({
       {activeTab !== "payouts" && (
         <div className="space-y-3">
           {filtered.length === 0 && (
-            <div className="text-center py-14" style={{ color: "#475569" }}>
+            <div className="text-center py-14" style={{ color: "#94a3b8" }}>
               <Award size={36} className="mx-auto mb-2 opacity-30" />
               <p className="text-sm">Pa gen kreyatè nan kategori sa</p>
             </div>
@@ -335,7 +335,7 @@ export default function CreatorsClient({
                         </span>
                       )}
                     </div>
-                    <div style={{ color: "#475569", fontSize: 11, marginTop: 2 }}>
+                    <div style={{ color: "#94a3b8", fontSize: 11, marginTop: 2 }}>
                       Skò {c.creator_score}/100 · {c.user?.followers_count ?? 0} abòne · {c.total_earned_coins} monè touche
                     </div>
                   </div>
@@ -376,7 +376,7 @@ export default function CreatorsClient({
                       ].map(({ label, v }) => (
                         <div key={label} className="text-center p-2 rounded-lg" style={{ background: "#0a0b18" }}>
                           <div style={{ color: "#D4D4D4", fontWeight: "bold", fontSize: 14 }}>{v}</div>
-                          <div style={{ color: "#64748b", fontSize: 10 }}>{label}</div>
+                          <div style={{ color: "#94a3b8", fontSize: 10 }}>{label}</div>
                         </div>
                       ))}
                     </div>
@@ -420,7 +420,7 @@ export default function CreatorsClient({
                       </button>
                     </div>
 
-                    <div style={{ color: "#334155", fontSize: 10 }}>
+                    <div style={{ color: "#94a3b8", fontSize: 10 }}>
                       Dènye aktyalizasyon skò: {fmtDate(c.score_updated_at)} · Nivo chanje: {fmtDate(c.tier_updated_at)}
                     </div>
                   </div>

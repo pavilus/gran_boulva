@@ -143,7 +143,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
             <thead>
               <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
                 {["Tip", "Tit", "Kò", "Dat"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
                 ))}
               </tr>
               <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -165,7 +165,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
             </thead>
             <tbody>
               {filteredRows.length === 0 && (
-                <tr><td colSpan={4} className="px-4 py-10 text-center" style={{ color: "#475569" }}>Pa gen notifikasyon yo</td></tr>
+                <tr><td colSpan={4} className="px-4 py-10 text-center" style={{ color: "#94a3b8" }}>Pa gen notifikasyon yo</td></tr>
               )}
               {filteredRows.slice(0, 30).map((n) => (
                 <tr key={n.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -179,7 +179,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
                   <td className="px-4 py-3" style={{ color: "#94a3b8", maxWidth: 300 }}>
                     <div className="truncate">{n.body ?? "—"}</div>
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>{fmtDate(n.created_at)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94a3b8" }}>{fmtDate(n.created_at)}</td>
                 </tr>
               ))}
             </tbody>

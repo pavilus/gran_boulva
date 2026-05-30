@@ -17,7 +17,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
     <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#e2e8f0", fontFamily: "system-ui, sans-serif" }}>
       {/* Header */}
       <div style={{ background: "#0e0f1e", borderBottom: "1px solid #1e2040", padding: "16px 24px", display: "flex", alignItems: "center" }}>
-        <span style={{ color: "#64748b", fontSize: 13 }}>granboulva.com</span>
+        <span style={{ color: "#94a3b8", fontSize: 13 }}>granboulva.com</span>
       </div>
 
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px 80px" }}>
@@ -25,7 +25,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
         <div style={{ marginBottom: 40 }}>
           <h1 style={{ fontSize: 32, fontWeight: 800, color: "#D4D4D4", margin: "0 0 8px" }}>{title}</h1>
           {subtitle && <p style={{ color: "#94a3b8", fontSize: 15, margin: "0 0 12px" }}>{subtitle}</p>}
-          <p style={{ color: "#475569", fontSize: 13, margin: 0 }}>Dènye mizajou / Last updated: {effectiveDate}</p>
+          <p style={{ color: "#94a3b8", fontSize: 13, margin: 0 }}>Dènye mizajou / Last updated: {effectiveDate}</p>
         </div>
 
         {/* Sections */}
@@ -59,7 +59,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
             { label: "Cookies", href: "/cookies" },
             { label: "Disclaimer", href: "/disclaimer" },
           ].map((link) => (
-            <Link key={link.href} href={link.href} style={{ color: "#475569", fontSize: 13, textDecoration: "none" }}>
+            <Link key={link.href} href={link.href} style={{ color: "#94a3b8", fontSize: 13, textDecoration: "none" }}>
               {link.label}
             </Link>
           ))}

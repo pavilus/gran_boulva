@@ -12,7 +12,7 @@ function StatBox({ label, value, icon: Icon, color }: { label: string; value: st
       </div>
       <div>
         <div className="text-white font-bold text-xl">{value}</div>
-        <div style={{ color: "#64748b", fontSize: 12 }}>{label}</div>
+        <div style={{ color: "#94a3b8", fontSize: 12 }}>{label}</div>
       </div>
     </div>
   );
@@ -75,12 +75,12 @@ export default async function AnalyticsPage() {
           <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
             <div className="text-white font-semibold mb-1">Nouvo itilizatè (30j)</div>
             <div className="text-3xl font-bold" style={{ color: "#a78bfa" }}>{fmt(newUsers?.length ?? 0)}</div>
-            <div style={{ color: "#475569", fontSize: 12, marginTop: 4 }}>Enskripsyon nouvèl</div>
+            <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 4 }}>Enskripsyon nouvèl</div>
           </div>
           <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
             <div className="text-white font-semibold mb-1">Vòt (30j)</div>
             <div className="text-3xl font-bold" style={{ color: "#67e8f9" }}>{fmt(newVotes?.length ?? 0)}</div>
-            <div style={{ color: "#475569", fontSize: 12, marginTop: 4 }}>Vòt ranmasé</div>
+            <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 4 }}>Vòt ranmasé</div>
           </div>
         </div>
 

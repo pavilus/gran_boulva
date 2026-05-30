@@ -125,7 +125,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
           <h2 className="text-white font-bold text-xl" style={{ fontFamily: "Poppins, sans-serif" }}>
             Kosmetik
           </h2>
-          <p style={{ color: "#64748b", fontSize: 13 }}>{items.length} item total</p>
+          <p style={{ color: "#94a3b8", fontSize: 13 }}>{items.length} item total</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
@@ -170,7 +170,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
                 <th
                   key={h}
                   className="px-4 py-3 text-left text-xs font-semibold"
-                  style={{ color: "#64748b" }}
+                  style={{ color: "#94a3b8" }}
                 >
                   {h}
                 </th>
@@ -180,7 +180,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
           <tbody>
             {filteredItems.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center" style={{ color: "#475569" }}>
+                <td colSpan={5} className="px-4 py-8 text-center" style={{ color: "#94a3b8" }}>
                   Pa gen item.
                 </td>
               </tr>
@@ -195,7 +195,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
                 >
                   <td className="px-4 py-3">
                     <div className="text-white font-medium">{item.name_ht}</div>
-                    <div style={{ color: "#475569", fontSize: 11 }}>{item.name_en}</div>
+                    <div style={{ color: "#94a3b8", fontSize: 11 }}>{item.name_en}</div>
                   </td>
                   <td className="px-4 py-3" style={{ color: "#94a3b8" }}>
                     {item.cosmetic_categories?.name_ht ?? "—"}
@@ -338,7 +338,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
               <button
                 onClick={() => setShowCreate(false)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-medium"
-                style={{ background: "#10122a", color: "#64748b", border: "1px solid #1e2040" }}
+                style={{ background: "#10122a", color: "#94a3b8", border: "1px solid #1e2040" }}
               >
                 Anile
               </button>
@@ -372,7 +372,7 @@ const inputStyle: React.CSSProperties = {
 function _Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-medium mb-1" style={{ color: "#64748b" }}>
+      <label className="block text-xs font-medium mb-1" style={{ color: "#94a3b8" }}>
         {label}
       </label>
       {children}

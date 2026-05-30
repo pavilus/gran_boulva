@@ -90,7 +90,7 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
           <thead>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
               {["Tip", "Kontni Rapòte", "Rezon", "Dat", "Estati", "Aksyon"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
             </tr>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -114,13 +114,13 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
               <th className="px-4 pb-3">
                 <button onClick={() => setFilters({ type: "", reason: "", date: "", status: "" })}
                   className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                  style={{ color: "#64748b", border: "1px solid #1e2040" }}>Reset</button>
+                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Reset</button>
               </th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Okenn rapò nan kategori sa</td></tr>
+              <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Okenn rapò nan kategori sa</td></tr>
             )}
             {filtered.map((r) => (
               <tr key={r.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -134,18 +134,18 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
                   {r.argument ? (
                     <>
                       <div className="line-clamp-2" style={{ color: "#d1d5db" }}>{r.argument.body ?? "—"}</div>
-                      <div className="truncate text-[11px]" style={{ color: "#64748b" }}>
+                      <div className="truncate text-[11px]" style={{ color: "#94a3b8" }}>
                         @{firstRelated(r.argument.user)?.username ?? "—"} · {firstRelated(r.argument.matchup)?.title_ht ?? "Matchup enkoni"}
                       </div>
                     </>
                   ) : (
-                    <span style={{ color: "#64748b" }}>{r.reported_id ?? "—"}</span>
+                    <span style={{ color: "#94a3b8" }}>{r.reported_id ?? "—"}</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-white" style={{ maxWidth: 360 }}>
                   <div className="truncate">{r.reason}</div>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>{fmtDate(r.created_at)}</td>
+                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94a3b8" }}>{fmtDate(r.created_at)}</td>
                 <td className="px-4 py-3">
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
                     style={{ background: `${STATUS_COLORS[r.status] ?? "#94a3b8"}22`, color: STATUS_COLORS[r.status] ?? "#94a3b8" }}>
@@ -162,7 +162,7 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
                       </button>
                       <button onClick={() => act(r.id, "dismiss")} disabled={!!loading}
                         title="Rejte" className="p-1.5 rounded-lg"
-                        style={{ color: "#64748b", background: "rgba(100,116,139,0.1)" }}>
+                        style={{ color: "#94a3b8", background: "rgba(100,116,139,0.1)" }}>
                         <XCircle size={14} />
                       </button>
                     </div>

@@ -73,7 +73,7 @@ export default function ScoutPanel({ drafts: initialDrafts }: { drafts: ScoutDra
           </div>
           <div>
             <div className="text-white font-semibold text-sm">AI Boulva Scout</div>
-            <div style={{ color: "#475569", fontSize: 10 }}>Sijèsyon ki pi bon yo</div>
+            <div style={{ color: "#94a3b8", fontSize: 10 }}>Sijèsyon ki pi bon yo</div>
           </div>
         </div>
         <button
@@ -99,7 +99,7 @@ export default function ScoutPanel({ drafts: initialDrafts }: { drafts: ScoutDra
       {/* List */}
       <div className="space-y-2 flex-1">
         {drafts.length === 0 && (
-          <div className="text-center py-6" style={{ color: "#475569", fontSize: 12 }}>
+          <div className="text-center py-6" style={{ color: "#94a3b8", fontSize: 12 }}>
             Pa gen sijèsyon — klike Run Scout
           </div>
         )}
@@ -117,7 +117,7 @@ export default function ScoutPanel({ drafts: initialDrafts }: { drafts: ScoutDra
                   {d.title_ht}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span style={{ color: "#475569", fontSize: 10 }}>
+                  <span style={{ color: "#94a3b8", fontSize: 10 }}>
                   {(Array.isArray(d.category) ? d.category[0]?.name_ht : d.category?.name_ht) ?? "—"}
                 </span>
                   <span className="text-xs font-bold" style={{ color: riskColor[risk] ?? "#94a3b8" }}>●</span>

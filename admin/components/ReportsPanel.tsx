@@ -33,7 +33,7 @@ export default function ReportsPanel({ reports }: { reports: Report[] }) {
 
       <div className="space-y-2">
         {reports.length === 0 && (
-          <div className="text-center py-6" style={{ color: "#475569", fontSize: 12 }}>
+          <div className="text-center py-6" style={{ color: "#94a3b8", fontSize: 12 }}>
             Pa gen rapò pou kounye a
           </div>
         )}

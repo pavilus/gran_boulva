@@ -27,7 +27,7 @@ export default async function TeamPage() {
       <div className="flex-1 p-5">
         <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
           {(admins ?? []).length === 0 && (
-            <div className="col-span-full text-center py-16" style={{ color: "#475569" }}>Pa gen manm ekip yo</div>
+            <div className="col-span-full text-center py-16" style={{ color: "#94a3b8" }}>Pa gen manm ekip yo</div>
           )}
           {(admins ?? []).map((u) => (
             <div key={u.id} className="rounded-xl p-5 flex items-center gap-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
@@ -39,8 +39,8 @@ export default async function TeamPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-white font-semibold truncate">{u.full_name || u.username}</div>
-                <div style={{ color: "#64748b", fontSize: 12 }}>@{u.username}</div>
-                <div style={{ color: "#475569", fontSize: 11 }}>{u.email}</div>
+                <div style={{ color: "#94a3b8", fontSize: 12 }}>@{u.username}</div>
+                <div style={{ color: "#94a3b8", fontSize: 11 }}>{u.email}</div>
                 <div className="flex items-center gap-2 mt-2">
                   <span
                     className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
@@ -48,7 +48,7 @@ export default async function TeamPage() {
                   >
                     {u.role}
                   </span>
-                  <span style={{ color: "#334155", fontSize: 11 }}>manm depi {fmtDate(u.created_at)}</span>
+                  <span style={{ color: "#94a3b8", fontSize: 11 }}>manm depi {fmtDate(u.created_at)}</span>
                 </div>
               </div>
             </div>

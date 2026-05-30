@@ -75,7 +75,7 @@ export default function LoginForm() {
             type="button"
             onClick={() => setShowPw(!showPw)}
             className="absolute right-3 top-1/2 -translate-y-1/2"
-            style={{ color: "#475569" }}
+            style={{ color: "#94a3b8" }}
           >
             {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
           </button>

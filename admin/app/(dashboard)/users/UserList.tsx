@@ -75,7 +75,7 @@ export default function UserList({ users: initial }: { users: User[] }) {
           className="px-3 py-2 rounded-lg text-sm text-white outline-none flex-1 max-w-sm"
           style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
         />
-        <div style={{ color: "#475569", fontSize: 13 }}>{filtered.length} itilizatè</div>
+        <div style={{ color: "#94a3b8", fontSize: 13 }}>{filtered.length} itilizatè</div>
       </div>
 
       <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
@@ -83,7 +83,7 @@ export default function UserList({ users: initial }: { users: User[] }) {
           <thead>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
               {["Itilizatè", "Email", "Wòl", "Enfliyans", "Vòt", "Manm depi", "Aksyon"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+                <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
             </tr>
             <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -108,13 +108,13 @@ export default function UserList({ users: initial }: { users: User[] }) {
               <th className="px-4 pb-3">
                 <button onClick={() => setFilters({ user: "", email: "", role: "", influence: "", votes: "", date: "" })}
                   className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                  style={{ color: "#64748b", border: "1px solid #1e2040" }}>Reset</button>
+                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Reset</button>
               </th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Pa gen itilizatè</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Pa gen itilizatè</td></tr>
             )}
             {filtered.map((u) => (
               <tr key={u.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
@@ -128,7 +128,7 @@ export default function UserList({ users: initial }: { users: User[] }) {
                     </div>
                     <div>
                       <div className="text-white font-medium">{u.full_name || u.username}</div>
-                      <div style={{ color: "#475569", fontSize: 11 }}>@{u.username}</div>
+                      <div style={{ color: "#94a3b8", fontSize: 11 }}>@{u.username}</div>
                     </div>
                   </div>
                 </td>
@@ -141,7 +141,7 @@ export default function UserList({ users: initial }: { users: User[] }) {
                 </td>
                 <td className="px-4 py-3 font-semibold" style={{ color: "#a78bfa" }}>{u.influence_score}</td>
                 <td className="px-4 py-3 text-white">{u.participation_count}</td>
-                <td className="px-4 py-3" style={{ color: "#64748b" }}>{fmtDate(u.created_at)}</td>
+                <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{fmtDate(u.created_at)}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
                     {u.role !== "moderator" && u.role !== "admin" && u.role !== "suspended" && (

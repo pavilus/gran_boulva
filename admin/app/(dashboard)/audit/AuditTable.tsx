@@ -45,7 +45,7 @@ export default function AuditTable({ logs }: { logs: Log[] }) {
         <thead>
           <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
             {["Dat", "Admin", "Aksyon", "Sib", "Nòt"].map((h) => (
-              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#475569" }}>{h}</th>
+              <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
             ))}
           </tr>
           <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
@@ -68,13 +68,13 @@ export default function AuditTable({ logs }: { logs: Log[] }) {
         </thead>
         <tbody>
           {filtered.length === 0 && (
-            <tr><td colSpan={5} className="px-4 py-12 text-center" style={{ color: "#475569" }}>Pa gen jounal yo</td></tr>
+            <tr><td colSpan={5} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Pa gen jounal yo</td></tr>
           )}
           {filtered.map((log) => {
             const actionColor = ACTION_COLORS[log.action] ?? "#94a3b8";
             return (
               <tr key={log.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
-                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#64748b" }}>{fmtDate(log.created_at)}</td>
+                <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94a3b8" }}>{fmtDate(log.created_at)}</td>
                 <td className="px-4 py-3" style={{ color: "#a78bfa" }}>@{log.admin?.username ?? "—"}</td>
                 <td className="px-4 py-3">
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold uppercase" style={{ background: `${actionColor}22`, color: actionColor }}>
@@ -82,10 +82,10 @@ export default function AuditTable({ logs }: { logs: Log[] }) {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-white">
-                  {log.content_type && <span style={{ color: "#475569" }}>{log.content_type}: </span>}
+                  {log.content_type && <span style={{ color: "#94a3b8" }}>{log.content_type}: </span>}
                   {log.target?.username ? `@${log.target.username}` : log.content_id?.slice(0, 12)}
                 </td>
-                <td className="px-4 py-3" style={{ color: "#475569" }}>{log.notes ?? "—"}</td>
+                <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{log.notes ?? "—"}</td>
               </tr>
             );
           })}

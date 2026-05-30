@@ -62,7 +62,7 @@ function ScoreBar({ value, color, label, Icon }: { value: number | null; color: 
   return (
     <div className="flex items-center gap-2">
       <Icon size={10} color={color} className="shrink-0" />
-      <span style={{ color: "#475569", fontSize: 10, minWidth: 62 }}>{label}</span>
+      <span style={{ color: "#94a3b8", fontSize: 10, minWidth: 62 }}>{label}</span>
       <div className="flex-1 rounded-full overflow-hidden" style={{ height: 3, background: "#1e2040" }}>
         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
       </div>
@@ -93,7 +93,7 @@ function Field({ label, value, onChange, multiline = false }: { label: string; v
   };
   return (
     <div>
-      <div className="text-xs mb-1" style={{ color: "#64748b" }}>{label}</div>
+      <div className="text-xs mb-1" style={{ color: "#94a3b8" }}>{label}</div>
       {multiline ? <textarea {...shared} rows={3} style={{ ...shared.style, resize: "none" }} /> : <input {...shared} />}
     </div>
   );
@@ -194,19 +194,19 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
             >
               {isPrediction ? "Prediksyon" : "Matchup"}
             </span>
-            <span style={{ color: "#475569", fontSize: 11 }}>{catName}</span>
+            <span style={{ color: "#94a3b8", fontSize: 11 }}>{catName}</span>
             <span className="text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: `${riskColor[risk]}1a`, color: riskColor[risk], fontSize: 10 }}>
               {risk}
             </span>
             {draft.source_platform && (
-              <span style={{ color: "#334155", fontSize: 10 }}>
+              <span style={{ color: "#94a3b8", fontSize: 10 }}>
                 <Globe size={9} className="inline mr-0.5" />{draft.source_platform}
               </span>
             )}
-            <span style={{ color: "#334155", fontSize: 10 }}>{draft.option_a} vs {draft.option_b}</span>
+            <span style={{ color: "#94a3b8", fontSize: 10 }}>{draft.option_a} vs {draft.option_b}</span>
           </div>
           {draft.selection_reason && (
-            <div className="mt-0.5 text-xs leading-tight line-clamp-1" style={{ color: "#334155" }}>
+            <div className="mt-0.5 text-xs leading-tight line-clamp-1" style={{ color: "#94a3b8" }}>
               <Lightbulb size={9} className="inline mr-1" />{draft.selection_reason}
             </div>
           )}
@@ -228,7 +228,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
               {draft.status === "approved" ? "Apwouve" : "Rejte"}
             </span>
           )}
-          <div style={{ color: "#475569" }}>{expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</div>
+          <div style={{ color: "#94a3b8" }}>{expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</div>
         </div>
       </div>
 
@@ -268,7 +268,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                 <Field label="Deskripsyon (Kreyòl)" value={draft.description_ht ?? ""} onChange={(v) => set("description_ht", v)} multiline />
                 <div className="space-y-3">
                   <div>
-                    <div className="text-xs mb-1" style={{ color: "#64748b" }}>Kategorì</div>
+                    <div className="text-xs mb-1" style={{ color: "#94a3b8" }}>Kategorì</div>
                     <select
                       value={draft.category_id ?? ""}
                       onChange={(e) => {
@@ -285,7 +285,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                   </div>
                   {isPrediction && (
                     <div>
-                      <div className="text-xs mb-1" style={{ color: "#64748b" }}>Dat limit rezilta</div>
+                      <div className="text-xs mb-1" style={{ color: "#94a3b8" }}>Dat limit rezilta</div>
                       <DatePicker
                         value={draft.deadline_at ? draft.deadline_at.slice(0, 10) : ""}
                         onChange={(val) => set("deadline_at", val ? `${val}T00:00:00Z` : null)}
@@ -340,13 +340,13 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
               <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
                 {/* Left: scores */}
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold mb-2" style={{ color: "#64748b" }}>Nòt yo</div>
+                  <div className="text-xs font-semibold mb-2" style={{ color: "#94a3b8" }}>Nòt yo</div>
                   {SCORES.map(({ key, label, icon: Icon, color }) => (
                     <ScoreBar key={key} value={(draft as any)[key]} color={color} label={label} Icon={Icon} />
                   ))}
                   <div className="flex items-center justify-between pt-2" style={{ borderTop: "1px solid #1e2040" }}>
-                    <span className="text-xs" style={{ color: "#64748b" }}>Nòt total</span>
-                    <span className="font-bold text-white">{draft.combined_score?.toFixed(1) ?? "—"}<span style={{ color: "#475569", fontSize: 11, fontWeight: 400 }}>/10</span></span>
+                    <span className="text-xs" style={{ color: "#94a3b8" }}>Nòt total</span>
+                    <span className="font-bold text-white">{draft.combined_score?.toFixed(1) ?? "—"}<span style={{ color: "#94a3b8", fontSize: 11, fontWeight: 400 }}>/10</span></span>
                   </div>
                 </div>
 
@@ -357,7 +357,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                     <div>
                       <div className="flex items-center gap-1.5 mb-2">
                         <Globe size={11} color="#67e8f9" />
-                        <span className="text-xs font-semibold" style={{ color: "#64748b" }}>Sous prensipal</span>
+                        <span className="text-xs font-semibold" style={{ color: "#94a3b8" }}>Sous prensipal</span>
                       </div>
                       <Chip label={draft.source_platform} color="#67e8f9" bg="rgba(6,182,212,0.1)" />
                     </div>
@@ -368,7 +368,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                     <div>
                       <div className="flex items-center gap-1.5 mb-2">
                         <Tag size={11} color="#fcd34d" />
-                        <span className="text-xs font-semibold" style={{ color: "#64748b" }}>Mo kle</span>
+                        <span className="text-xs font-semibold" style={{ color: "#94a3b8" }}>Mo kle</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {keywords.map((k) => <Chip key={k} label={`#${k}`} color="#fcd34d" bg="rgba(245,158,11,0.1)" />)}
@@ -381,7 +381,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                     <div>
                       <div className="flex items-center gap-1.5 mb-2">
                         <Users size={11} color="#f9a8d4" />
-                        <span className="text-xs font-semibold" style={{ color: "#64748b" }}>Antite detekte</span>
+                        <span className="text-xs font-semibold" style={{ color: "#94a3b8" }}>Antite detekte</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {entities.map((e) => <Chip key={e} label={e} color="#f9a8d4" bg="rgba(236,72,153,0.1)" />)}
@@ -394,7 +394,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                     <div>
                       <div className="flex items-center gap-1.5 mb-2">
                         <ExternalLink size={11} color="#6ee7b7" />
-                        <span className="text-xs font-semibold" style={{ color: "#64748b" }}>Sous ({sources.length})</span>
+                        <span className="text-xs font-semibold" style={{ color: "#94a3b8" }}>Sous ({sources.length})</span>
                       </div>
                       <div className="space-y-1.5">
                         {sources.slice(0, 5).map((url, i) => {
@@ -472,7 +472,7 @@ export default function ScoutList({
   const tabs = [
     { key: "pending" as const, label: "K ap tann", count: allDrafts.pending.length, color: "#f59e0b" },
     { key: "approved" as const, label: "Apwouve", count: allDrafts.approved.length, color: "#10b981" },
-    { key: "rejected" as const, label: "Rejte", count: allDrafts.rejected.length, color: "#475569" },
+    { key: "rejected" as const, label: "Rejte", count: allDrafts.rejected.length, color: "#94a3b8" },
   ];
 
   const currentList = allDrafts[activeTab];
@@ -531,7 +531,7 @@ export default function ScoutList({
           <Loader2 size={14} className="animate-spin shrink-0" style={{ color: "#a855f7" }} />
           <div>
             <div className="text-sm font-semibold" style={{ color: "#a855f7" }}>Scout k ap kouri nan background…</div>
-            <div className="text-xs mt-0.5" style={{ color: "#64748b" }}>Retounen nan 2–3 minit epi klike <strong style={{ color: "#94a3b8" }}>Refresh</strong> pou wè nouvo drafts yo.</div>
+            <div className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>Retounen nan 2–3 minit epi klike <strong style={{ color: "#94a3b8" }}>Refresh</strong> pou wè nouvo drafts yo.</div>
           </div>
           <button onClick={() => router.refresh()} className="ml-auto px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: "rgba(168,85,247,0.15)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)" }}>
             Refresh
@@ -582,7 +582,7 @@ export default function ScoutList({
           <button
             onClick={() => setFilters({ title: "", type: "", category: "", risk: "", score: "", platform: "" })}
             className="px-3 py-2 rounded-lg text-xs font-semibold"
-            style={{ color: "#64748b", border: "1px solid #1e2040" }}
+            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
           >
             Reset
           </button>
@@ -593,7 +593,7 @@ export default function ScoutList({
         {shown.length === 0 && (
           <div className="rounded-xl p-10 text-center" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
             <Bot size={32} color="#1e2040" className="mx-auto mb-3" />
-            <div style={{ color: "#475569", fontSize: 13 }}>
+            <div style={{ color: "#94a3b8", fontSize: 13 }}>
               {activeTab === "pending" ? "Pa gen sijèsyon k ap tann — klike Run Scout" : `Pa gen brouyon ${activeTab === "approved" ? "apwouve" : "rejte"} yo`}
             </div>
           </div>

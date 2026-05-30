@@ -217,7 +217,7 @@ export default function ChecklistClient() {
           <p style={{ color: "#94a3b8", fontFamily: "sans-serif", marginTop: 8, lineHeight: 1.6 }}>
             Repons ou yo te voye bay ekip Gran Boulva a. Nou apresye kontribisyon ou anpil!
           </p>
-          <p style={{ color: "#64748b", fontFamily: "sans-serif", marginTop: 12, fontSize: 13 }}>
+          <p style={{ color: "#94a3b8", fontFamily: "sans-serif", marginTop: 12, fontSize: 13 }}>
             Ou te konplete <strong style={{ color: "#a855f7" }}>{doneCount}/{TOTAL}</strong> seksyon.
           </p>
         </div>
@@ -265,7 +265,7 @@ export default function ChecklistClient() {
           <h3 style={{ color: "#94a3b8", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 12px" }}>Enfòmasyon Testè</h3>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <label style={{ color: "#64748b", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 4 }}>Non ou *</label>
+              <label style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 4 }}>Non ou *</label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -274,7 +274,7 @@ export default function ChecklistClient() {
               />
             </div>
             <div>
-              <label style={{ color: "#64748b", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 4 }}>Aparèy</label>
+              <label style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 4 }}>Aparèy</label>
               <input
                 value={device}
                 onChange={(e) => setDevice(e.target.value)}
@@ -311,7 +311,7 @@ export default function ChecklistClient() {
                 }}>
                   {done}/{total}
                 </span>
-                <span style={{ color: "#475569", fontSize: 16, marginLeft: 4 }}>{isOpen ? "▲" : "▼"}</span>
+                <span style={{ color: "#94a3b8", fontSize: 16, marginLeft: 4 }}>{isOpen ? "▲" : "▼"}</span>
               </button>
 
               {isOpen && (
@@ -349,7 +349,7 @@ export default function ChecklistClient() {
                           {item.text}
                         </div>
                         {item.note && (
-                          <div style={{ color: "#475569", fontSize: 11.5, marginTop: 3, lineHeight: 1.4 }}>
+                          <div style={{ color: "#94a3b8", fontSize: 11.5, marginTop: 3, lineHeight: 1.4 }}>
                             💡 {item.note}
                           </div>
                         )}
@@ -367,7 +367,7 @@ export default function ChecklistClient() {
           <h3 style={{ color: "#94a3b8", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 16px" }}>📝 Kòmantè & Resiyo</h3>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ color: "#64748b", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 6 }}>
+            <label style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 6 }}>
               Sou echèl 1–10, ki nòt ou ba aplikasyon an?
             </label>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -390,7 +390,7 @@ export default function ChecklistClient() {
           </div>
 
           <div>
-            <label style={{ color: "#64748b", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 6 }}>
+            <label style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, display: "block", marginBottom: 6 }}>
               Kòmantè, erè jwenn, oswa sijesyon
             </label>
             <textarea

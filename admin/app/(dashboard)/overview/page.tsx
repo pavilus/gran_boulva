@@ -145,7 +145,7 @@ export default async function DashboardPage() {
             <div key={s.label} className="flex items-center">
               <Link href={s.href} className="px-6 block" style={{ textDecoration: "none" }}>
                 <div className="text-white font-bold text-base">{s.value}</div>
-                <div style={{ color: "#475569", fontSize: 11 }}>{s.label}</div>
+                <div style={{ color: "#94a3b8", fontSize: 11 }}>{s.label}</div>
                 {s.change && (
                   <span className="text-xs font-semibold" style={{ color: "#10b981" }}>
                     {s.change}

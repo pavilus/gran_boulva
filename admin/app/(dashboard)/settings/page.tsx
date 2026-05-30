@@ -170,7 +170,7 @@ function Field({
         style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
       />
       {hint && (
-        <div className="mt-1" style={{ color: "#64748b", fontSize: 11 }}>
+        <div className="mt-1" style={{ color: "#94a3b8", fontSize: 11 }}>
           {hint}
         </div>
       )}
@@ -753,7 +753,7 @@ export default function SettingsPage() {
                 <div className="text-sm font-semibold" style={{ color: payout.moncashEnabled ? "#22c55e" : "#64748b" }}>
                   MonCash Otomatik {payout.moncashEnabled ? "AKTIVE" : "DEZAKTIVE"}
                 </div>
-                <div className="text-xs" style={{ color: "#475569" }}>
+                <div className="text-xs" style={{ color: "#94a3b8" }}>
                   Kle API yo dwe ajoute nan Supabase Secrets: MONCASH_CLIENT_ID, MONCASH_CLIENT_SECRET
                 </div>
               </div>
@@ -761,7 +761,7 @@ export default function SettingsPage() {
           </div>
 
           {/* USD preview */}
-          <div className="mt-3 text-xs" style={{ color: "#475569" }}>
+          <div className="mt-3 text-xs" style={{ color: "#94a3b8" }}>
             Egzanp: {payout.minPayoutCoins} coins (minimòm) ≈{" "}
             <strong style={{ color: "#a78bfa" }}>
               ${(payout.minPayoutCoins * payout.coinToUsdRate).toFixed(2)} USD
@@ -782,14 +782,14 @@ export default function SettingsPage() {
                 <p className="text-sm font-semibold" style={{ color: stripeConfigured ? "#10b981" : "#f59e0b", margin: 0 }}>
                   {stripeConfigured ? `Stripe configured — ${stripeHint}` : "Stripe not configured — payments disabled"}
                 </p>
-                <p className="text-xs" style={{ color: "#475569", margin: "2px 0 0" }}>
+                <p className="text-xs" style={{ color: "#94a3b8", margin: "2px 0 0" }}>
                   {stripeConfigured ? "Enter a new key below to rotate it." : "Get your secret key from dashboard.stripe.com/apikeys"}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#64748b" }}>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#94a3b8" }}>
                 Secret Key (sk_test_… or sk_live_…)
               </label>
               <div className="flex gap-3">
@@ -818,7 +818,7 @@ export default function SettingsPage() {
               )}
             </div>
 
-            <p className="text-xs" style={{ color: "#334155" }}>
+            <p className="text-xs" style={{ color: "#94a3b8" }}>
               The key is stored encrypted in your database. It is never exposed to the browser.
               Use sk_test_ for testing, sk_live_ for production.
             </p>
@@ -830,14 +830,14 @@ export default function SettingsPage() {
                 <p className="text-sm font-semibold" style={{ color: webhookConfigured ? "#10b981" : "#f59e0b", margin: 0 }}>
                   {webhookConfigured ? `Webhook secret configured — ${webhookHint}` : "Webhook secret not configured — payments won't be recorded"}
                 </p>
-                <p className="text-xs" style={{ color: "#475569", margin: "2px 0 0" }}>
+                <p className="text-xs" style={{ color: "#94a3b8", margin: "2px 0 0" }}>
                   {webhookConfigured ? "Enter a new secret below to rotate it." : "Get the signing secret from Stripe Dashboard → Developers → Webhooks"}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#64748b" }}>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#94a3b8" }}>
                 Webhook Signing Secret (whsec_…)
               </label>
               <div className="flex gap-3">

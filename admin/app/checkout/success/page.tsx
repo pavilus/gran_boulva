@@ -283,7 +283,7 @@ function PartnerForm({ sessionId, onSuccess }: { sessionId: string; onSuccess: (
             style={{ padding: "16px", borderRadius: 14, background: `linear-gradient(135deg,#ec4899,${PURPLE})`, color: "#fff", fontWeight: 800, fontSize: 16, border: "none", cursor: submitting || !interests.length ? "not-allowed" : "pointer", opacity: submitting || !interests.length ? 0.6 : 1, boxShadow: "0 8px 30px rgba(236,72,153,0.35)", transition: "opacity 0.2s" }}>
             {submitting ? "Submitting…" : "Submit Partner Interest Form →"}
           </button>
-          <p style={{ textAlign: "center", fontSize: 12, color: "#334155", margin: "-16px 0 0" }}>
+          <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", margin: "-16px 0 0" }}>
             Your information is kept strictly confidential and will only be used to evaluate partnership opportunities.
           </p>
         </form>
@@ -349,7 +349,7 @@ export default function CheckoutSuccess() {
   return (
     <Suspense fallback={
       <div style={{ minHeight: "100vh", background: "#07080f", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: "#64748b", fontFamily: "'Poppins', sans-serif", fontSize: 14 }}>Loading…</div>
+        <div style={{ color: "#94a3b8", fontFamily: "'Poppins', sans-serif", fontSize: 14 }}>Loading…</div>
       </div>
     }>
       <CheckoutSuccessInner />
