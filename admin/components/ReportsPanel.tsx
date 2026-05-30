@@ -26,7 +26,7 @@ export default function ReportsPanel({ reports }: { reports: Report[] }) {
           >
             <Flag size={13} color="#ef4444" />
           </div>
-          <div className="text-white font-semibold text-sm">Rapò ki bèswen atansyon</div>
+          <div className="text-white font-semibold text-sm">Rapò ki bezwen atansyon</div>
         </div>
         <Link href="/reports" style={{ color: "#a78bfa", fontSize: 11, textDecoration: "none" }}>Wè tout →</Link>
       </div>
