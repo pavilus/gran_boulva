@@ -58,7 +58,7 @@ function fmtDate(d?: string | null) {
 
 // ─── Shared form fields ───────────────────────────────────────────────────────
 function inputStyle(extra?: React.CSSProperties): React.CSSProperties {
-  return { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4", borderRadius: 10, padding: "8px 12px", fontSize: 13, width: "100%", outline: "none", ...extra };
+  return { background: "#0a0b18", border: "1px solid #2e3060", color: "#D4D4D4", borderRadius: 10, padding: "8px 12px", fontSize: 13, width: "100%", outline: "none", ...extra };
 }
 
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -89,7 +89,7 @@ function ResolveModal({ p, onClose, onResolved }: { p: Prediction; onClose: () =
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50" style={{ background: "rgba(0,0,0,0.7)" }}>
-      <div className="rounded-2xl p-6 w-full max-w-md" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+      <div className="rounded-2xl p-6 w-full max-w-md" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
         <div className="text-white font-bold text-lg mb-2">Rezoud Prediksyon</div>
         <div style={{ color: "#94a3b8", fontSize: 14, marginBottom: 20 }}>{p.title_ht}</div>
         <div className="space-y-3 mb-6">
@@ -98,7 +98,7 @@ function ResolveModal({ p, onClose, onResolved }: { p: Prediction; onClose: () =
               className="w-full px-4 py-3 rounded-xl text-left font-semibold transition-all"
               style={{
                 background: winner === opt ? "rgba(124,58,237,0.25)" : "#0a0b18",
-                border: winner === opt ? "1px solid #7c3aed" : "1px solid #1e2040",
+                border: winner === opt ? "1px solid #7c3aed" : "1px solid #2e3060",
                 color: winner === opt ? "#a78bfa" : "#D4D4D4",
               }}>
               {opt === "A" ? p.option_a : p.option_b}
@@ -107,7 +107,7 @@ function ResolveModal({ p, onClose, onResolved }: { p: Prediction; onClose: () =
         </div>
         <div className="flex gap-3">
           <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl text-sm"
-            style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>Anile</button>
+            style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>Anile</button>
           <button onClick={confirm} disabled={!winner || loading}
             className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: winner ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#1e2040" }}>
@@ -150,7 +150,7 @@ function EditModal({ p, categories, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.75)" }}>
-      <div className="rounded-2xl p-6 w-full max-w-lg space-y-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040", maxHeight: "90vh", overflowY: "auto" }}>
+      <div className="rounded-2xl p-6 w-full max-w-lg space-y-4" style={{ background: "#0e0f1e", border: "1px solid #2e3060", maxHeight: "90vh", overflowY: "auto" }}>
         <div className="text-white font-bold text-lg">Modifye Prediksyon</div>
 
         <FormField label="Tit (Kreyòl)">
@@ -188,7 +188,7 @@ function EditModal({ p, categories, onClose, onSaved }: {
 
         <div className="flex gap-3 pt-2">
           <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl text-sm"
-            style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>Anile</button>
+            style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>Anile</button>
           <button onClick={save} disabled={loading}
             className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: "linear-gradient(90deg,#7c3aed,#a855f7)" }}>
@@ -226,7 +226,7 @@ function CreateModal({ categories, onClose, onCreated }: {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: "rgba(0,0,0,0.75)" }}>
-      <div className="rounded-2xl p-6 w-full max-w-lg space-y-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040", maxHeight: "90vh", overflowY: "auto" }}>
+      <div className="rounded-2xl p-6 w-full max-w-lg space-y-4" style={{ background: "#0e0f1e", border: "1px solid #2e3060", maxHeight: "90vh", overflowY: "auto" }}>
         <div className="text-white font-bold text-lg">Kreye Prediksyon</div>
 
         <FormField label="Tit (Kreyòl) *">
@@ -264,7 +264,7 @@ function CreateModal({ categories, onClose, onCreated }: {
 
         <div className="flex gap-3 pt-2">
           <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl text-sm"
-            style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>Anile</button>
+            style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>Anile</button>
           <button onClick={save} disabled={loading || !form.title_ht || !form.option_a || !form.option_b}
             className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold text-white"
             style={{ background: (form.title_ht && form.option_a && form.option_b) ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#1e2040" }}>
@@ -468,13 +468,13 @@ export default function PredictionList({
           onChange={(e) => setFilters((p) => ({ ...p, title: e.target.value }))}
           placeholder="Filtre pa tit…"
           className="px-3 py-2 rounded-lg text-xs text-white outline-none flex-1 min-w-[180px]"
-          style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+          style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
         />
         <select
           value={filters.category}
           onChange={(e) => setFilters((p) => ({ ...p, category: e.target.value }))}
           className="px-3 py-2 rounded-lg text-xs text-white outline-none"
-          style={{ background: "#0e0f1e", border: "1px solid #1e2040", minWidth: 160 }}
+          style={{ background: "#0e0f1e", border: "1px solid #2e3060", minWidth: 160 }}
         >
           <option value="">Tout kategorì</option>
           {allCatNames.map((n) => (
@@ -485,7 +485,7 @@ export default function PredictionList({
           <button
             onClick={() => setFilters({ title: "", category: "" })}
             className="px-3 py-2 rounded-lg text-xs font-semibold"
-            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+            style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
           >
             Reset
           </button>
@@ -493,10 +493,10 @@ export default function PredictionList({
       </div>
 
       {/* ── Table ───────────────────────────────────────────────────── */}
-      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
               {["Tit", "Opsyon A / B", "Kategorì", "Vòt", "Delè", "Aksyon"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
@@ -510,7 +510,7 @@ export default function PredictionList({
               const cat = getCatName(p.category);
               const color = catColor(cat !== "—" ? cat : "default");
               return (
-                <tr key={p.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+                <tr key={p.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                   <td className="px-4 py-3 text-white" style={{ maxWidth: 260 }}>
                     <div className="font-medium leading-tight">{p.title_ht}</div>
                     {p.winning_option && (

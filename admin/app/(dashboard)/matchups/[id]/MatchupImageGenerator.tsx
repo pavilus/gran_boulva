@@ -79,7 +79,7 @@ export default function MatchupImageGenerator({
   }
 
   return (
-    <section className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+    <section className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
       {/* Header */}
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -149,7 +149,7 @@ export default function MatchupImageGenerator({
                 href={images[s]}
                 download
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
-                style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
               >
                 <Download size={12} />
                 {{ option_a: "Opsyon A", option_b: "Opsyon B", poster: "Poster", share: "Share" }[s]}
@@ -157,7 +157,7 @@ export default function MatchupImageGenerator({
             ) : null
           )}
           <a href="/matchup-images" className="rounded-lg px-3 py-1.5 text-xs font-semibold"
-            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>
+            style={{ color: "#94a3b8", border: "1px solid #2e3060" }}>
             Louvri galri
           </a>
         </div>

@@ -139,7 +139,7 @@ export default async function DashboardPage() {
         {/* Footer stats bar */}
         <div
           className="rounded-xl px-6 py-4 flex items-center"
-          style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+          style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
         >
           {BOTTOM_STATS.map((s, i) => (
             <div key={s.label} className="flex items-center">

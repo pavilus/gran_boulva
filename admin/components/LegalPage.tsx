@@ -16,7 +16,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#e2e8f0", fontFamily: "system-ui, sans-serif" }}>
       {/* Header */}
-      <div style={{ background: "#0e0f1e", borderBottom: "1px solid #1e2040", padding: "16px 24px", display: "flex", alignItems: "center" }}>
+      <div style={{ background: "#0e0f1e", borderBottom: "1px solid #2e3060", padding: "16px 24px", display: "flex", alignItems: "center" }}>
         <span style={{ color: "#94a3b8", fontSize: 13 }}>granboulva.com</span>
       </div>
 
@@ -32,7 +32,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
         <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
           {sections.map((section, i) => (
             <div key={i}>
-              <h2 style={{ fontSize: 17, fontWeight: 700, color: "#c4b5fd", margin: "0 0 12px", paddingBottom: 8, borderBottom: "1px solid #1e2040" }}>
+              <h2 style={{ fontSize: 17, fontWeight: 700, color: "#c4b5fd", margin: "0 0 12px", paddingBottom: 8, borderBottom: "1px solid #2e3060" }}>
                 {i + 1}. {section.title}
               </h2>
               {Array.isArray(section.content) ? (
@@ -49,7 +49,7 @@ export default function LegalPage({ title, subtitle, effectiveDate, sections }: 
         </div>
 
         {/* Footer */}
-        <div style={{ marginTop: 64, paddingTop: 24, borderTop: "1px solid #1e2040", display: "flex", flexWrap: "wrap", gap: 16 }}>
+        <div style={{ marginTop: 64, paddingTop: 24, borderTop: "1px solid #2e3060", display: "flex", flexWrap: "wrap", gap: 16 }}>
           {[
             { label: "Privacy Policy", href: "/privacy" },
             { label: "Règleman Konfidansyalite (Kreyòl)", href: "/vi-prive" },

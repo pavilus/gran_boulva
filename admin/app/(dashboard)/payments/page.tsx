@@ -31,11 +31,11 @@ export default async function PaymentsPage() {
       <Topbar title="Pèman & Referans" />
       <div className="flex-1 p-5 space-y-5">
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
             <div style={{ color: "#6ee7b7", fontSize: 12 }}>Revni Total (USD)</div>
             <div className="text-3xl font-bold text-white mt-1">${(totalRev / 100).toFixed(2)}</div>
           </div>
-          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
             <div style={{ color: "#fcd34d", fontSize: 12 }}>Coins Achte</div>
             <div className="text-3xl font-bold text-white mt-1">{totalCoins.toLocaleString()}</div>
           </div>

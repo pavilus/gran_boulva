@@ -261,7 +261,7 @@ export default function ChecklistClient() {
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "24px 16px 48px" }}>
 
         {/* Tester info */}
-        <div style={{ background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 14, padding: 20, marginBottom: 24 }}>
+        <div style={{ background: "#0e0f1e", border: "1px solid #2e3060", borderRadius: 14, padding: 20, marginBottom: 24 }}>
           <h3 style={{ color: "#94a3b8", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 12px" }}>Enfòmasyon Testè</h3>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
@@ -270,7 +270,7 @@ export default function ChecklistClient() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="ex: Marie Joseph"
-                style={{ width: "100%", background: "#080916", border: "1px solid #1e2040", borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", background: "#080916", border: "1px solid #2e3060", borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
               />
             </div>
             <div>
@@ -279,7 +279,7 @@ export default function ChecklistClient() {
                 value={device}
                 onChange={(e) => setDevice(e.target.value)}
                 placeholder="ex: iPhone 14, Samsung S23"
-                style={{ width: "100%", background: "#080916", border: "1px solid #1e2040", borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", background: "#080916", border: "1px solid #2e3060", borderRadius: 8, padding: "8px 12px", color: "#e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
               />
             </div>
           </div>
@@ -315,7 +315,7 @@ export default function ChecklistClient() {
               </button>
 
               {isOpen && (
-                <div style={{ borderTop: "1px solid #1e2040" }}>
+                <div style={{ borderTop: "1px solid #2e3060" }}>
                   {sec.items.map((item, idx) => (
                     <label
                       key={item.id}
@@ -363,7 +363,7 @@ export default function ChecklistClient() {
         })}
 
         {/* Feedback */}
-        <div style={{ background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 14, padding: 20, marginTop: 8 }}>
+        <div style={{ background: "#0e0f1e", border: "1px solid #2e3060", borderRadius: 14, padding: 20, marginTop: 8 }}>
           <h3 style={{ color: "#94a3b8", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", margin: "0 0 16px" }}>📝 Kòmantè & Resiyo</h3>
 
           <div style={{ marginBottom: 14 }}>
@@ -399,7 +399,7 @@ export default function ChecklistClient() {
               placeholder="Ekri nenpòt bagay ou panse ki enpòtan: erè ou jwenn, fonksyon ki difisil, sa ou renmen, sa ou ta vle amelyore..."
               rows={5}
               style={{
-                width: "100%", background: "#080916", border: "1px solid #1e2040", borderRadius: 8,
+                width: "100%", background: "#080916", border: "1px solid #2e3060", borderRadius: 8,
                 padding: "10px 12px", color: "#e2e8f0", fontSize: 13, outline: "none",
                 resize: "vertical", boxSizing: "border-box", lineHeight: 1.6,
                 fontFamily: "inherit",

@@ -94,7 +94,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
     setLoading(null);
   };
 
-  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4" };
+  const inputStyle = { background: "#0a0b18", border: "1px solid #2e3060", color: "#D4D4D4" };
 
   return (
     <div className="space-y-4">
@@ -108,7 +108,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
             style={{
               background: activeTab === t ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#0e0f1e",
               color: activeTab === t ? "white" : "#64748b",
-              border: activeTab === t ? "none" : "1px solid #1e2040",
+              border: activeTab === t ? "none" : "1px solid #2e3060",
             }}
           >
             {TAB_LABELS[t]}
@@ -142,7 +142,7 @@ export default function VerificationList({ requests: initial }: { requests: Requ
             <div
               key={req.id}
               className="rounded-xl overflow-hidden"
-              style={{ border: "1px solid #1e2040", background: "#0e0f1e" }}
+              style={{ border: "1px solid #2e3060", background: "#0e0f1e" }}
             >
               {/* Card header */}
               <div className="flex items-center gap-3 px-4 py-3">

@@ -110,12 +110,12 @@ export default function Sidebar() {
   return (
     <aside
       className="relative flex flex-col h-screen transition-all duration-300 shrink-0"
-      style={{ width: collapsed ? 60 : 220, background: "#0a0b18", borderRight: "1px solid #1e2040" }}
+      style={{ width: collapsed ? 60 : 220, background: "#0a0b18", borderRight: "1px solid #2e3060" }}
     >
       {/* Logo + collapse toggle */}
       <div
         className="flex items-center gap-2 px-4 py-5 shrink-0"
-        style={{ borderBottom: "1px solid #1e2040", minHeight: 64 }}
+        style={{ borderBottom: "1px solid #2e3060", minHeight: 64 }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="Gran Boulva" style={{ width: 32, height: 32, objectFit: "contain", borderRadius: 6, flexShrink: 0 }} />
@@ -161,7 +161,7 @@ export default function Sidebar() {
       {/* User + Logout */}
       <div
         className="flex items-center gap-3 px-4 py-4 shrink-0"
-        style={{ borderTop: "1px solid #1e2040" }}
+        style={{ borderTop: "1px solid #2e3060" }}
       >
         <div
           style={{

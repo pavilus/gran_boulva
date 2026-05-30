@@ -30,7 +30,7 @@ export default async function TeamPage() {
             <div className="col-span-full text-center py-16" style={{ color: "#94a3b8" }}>Pa gen manm ekip yo</div>
           )}
           {(admins ?? []).map((u) => (
-            <div key={u.id} className="rounded-xl p-5 flex items-center gap-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+            <div key={u.id} className="rounded-xl p-5 flex items-center gap-4" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
               <div
                 className="flex items-center justify-center rounded-full shrink-0 text-white font-bold text-lg"
                 style={{ width: 48, height: 48, background: "linear-gradient(135deg,#7c3aed,#ec4899)" }}

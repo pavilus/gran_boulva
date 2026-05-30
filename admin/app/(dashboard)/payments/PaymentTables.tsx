@@ -81,15 +81,15 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
       {/* Coin Purchases (Stripe) */}
       <div>
         <div className="text-white font-semibold mb-3">Achte Coins (Stripe)</div>
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
                 {["Itilizatè", "Coins", "USD", "Estati", "Dat"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
                 ))}
               </tr>
-              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
                 {[
                   ["user", "Filtre itilizatè"],
                   ["", ""],
@@ -104,7 +104,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
                         onChange={(e) => setPurchaseFilters((prev) => ({ ...prev, [key]: e.target.value }))}
                         placeholder={placeholder}
                         className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                        style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+                        style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
                       />
                     ) : null}
                   </th>
@@ -116,7 +116,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
                 <tr><td colSpan={5} className="px-4 py-8 text-center" style={{ color: "#94a3b8" }}>Pa gen achte yo</td></tr>
               )}
               {filteredPurchases.map((p) => (
-                <tr key={p.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+                <tr key={p.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                   <td className="px-4 py-3" style={{ color: "#a78bfa" }}>@{usernameFrom(p.user ?? null) ?? p.user_id?.slice(0, 8)}</td>
                   <td className="px-4 py-3 font-semibold" style={{ color: "#fcd34d" }}>{(p.coin_amount ?? 0).toLocaleString()}</td>
                   <td className="px-4 py-3 font-semibold text-white">${((p.usd_cents ?? 0) / 100).toFixed(2)}</td>
@@ -132,15 +132,15 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
       {/* Coin Transactions */}
       <div>
         <div className="text-white font-semibold mb-3">Tranzaksyon Coins</div>
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
                 {["Itilizatè", "Montan", "Frè", "Tip", "Estati", "Dat"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
                 ))}
               </tr>
-              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
                 {[
                   ["user", "Filtre itilizatè"],
                   ["amount", "Filtre montan"],
@@ -154,7 +154,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
                       onChange={(e) => setCoinFilters((prev) => ({ ...prev, [key]: e.target.value }))}
                       placeholder={placeholder}
                       className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                      style={{ background: "#0e0f1e", border: "1px solid #2e3060" }} />
                   </th>
                 ))}
               </tr>
@@ -164,7 +164,7 @@ export default function PaymentTables({ purchases, coins }: { purchases: Purchas
                 <tr><td colSpan={6} className="px-4 py-8 text-center" style={{ color: "#94a3b8" }}>Pa gen tranzaksyon yo</td></tr>
               )}
               {filteredCoins.map((c) => (
-                <tr key={c.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+                <tr key={c.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                   <td className="px-4 py-3" style={{ color: "#a78bfa" }}>@{usernameFrom(c.user ?? null) ?? c.user_id?.slice(0, 8)}</td>
                   <td className="px-4 py-3 font-semibold" style={{ color: "#fcd34d" }}>{c.amount}</td>
                   <td className="px-4 py-3" style={{ color: "#94a3b8" }}>{c.fee ?? 0}</td>

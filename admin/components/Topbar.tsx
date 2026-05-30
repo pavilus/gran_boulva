@@ -38,7 +38,7 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
   return (
     <div
       className="flex items-center justify-between px-6 shrink-0"
-      style={{ height: 64, borderBottom: "1px solid #1e2040", background: "#07080f" }}
+      style={{ height: 64, borderBottom: "1px solid #2e3060", background: "#07080f" }}
     >
       {/* Left — page title + alert badge */}
       <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
         {/* Current week chip */}
         <div
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
-          style={{ background: "#0e0f1e", border: "1px solid #1e2040", color: "#94a3b8" }}
+          style={{ background: "#0e0f1e", border: "1px solid #2e3060", color: "#94a3b8" }}
         >
           <Calendar size={13} />
           <span>{weekRange}</span>
@@ -72,7 +72,7 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
         <Link href="/notifications">
           <div
             className="relative flex items-center justify-center rounded-lg cursor-pointer hover:border-purple-500/50 transition-colors"
-            style={{ width: 34, height: 34, background: "#0e0f1e", border: "1px solid #1e2040", color: "#94a3b8" }}
+            style={{ width: 34, height: 34, background: "#0e0f1e", border: "1px solid #2e3060", color: "#94a3b8" }}
           >
             <Bell size={15} />
             {unread > 0 && (

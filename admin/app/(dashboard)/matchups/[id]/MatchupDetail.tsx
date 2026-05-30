@@ -57,7 +57,7 @@ function fmtDate(d: string) {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+    <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
       <div className="text-white font-semibold text-sm mb-4">{title}</div>
       {children}
     </div>
@@ -82,7 +82,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 function StatPill({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: "#0a0b18", border: "1px solid #1e2040" }}>
+    <div className="flex items-center gap-3 rounded-xl px-4 py-3" style={{ background: "#0a0b18", border: "1px solid #2e3060" }}>
       <div className="flex items-center justify-center rounded-lg shrink-0" style={{ width: 36, height: 36, background: `${color}22` }}>
         <Icon size={16} color={color} />
       </div>
@@ -257,7 +257,7 @@ function TopArguments({ args, options }: { args: Arg[]; options: Option[] }) {
             const statusColor = a.status === "active" ? "#22c55e" : a.status === "flagged" ? "#f59e0b" : "#ef4444";
             const username = (a.user as any)?.username ?? "—";
             return (
-              <div key={a.id} className="rounded-lg p-3" style={{ background: "#0a0b18", border: "1px solid #1e2040" }}>
+              <div key={a.id} className="rounded-lg p-3" style={{ background: "#0a0b18", border: "1px solid #2e3060" }}>
                 <div className="flex items-start gap-2 mb-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -354,7 +354,7 @@ function VoterList({ votes, options }: { votes: Vote[]; options: Option[] }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ borderBottom: "1px solid #1e2040" }}>
+              <tr style={{ borderBottom: "1px solid #2e3060" }}>
                 {["Itilizatè", "Chwa", "Lokasyon", "Enfliyans", "Wòl", "Dat"].map((h) => (
                   <th key={h} className="text-left py-2 px-2 text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>
                     {h}
@@ -394,7 +394,7 @@ function VoterList({ votes, options }: { votes: Vote[]; options: Option[] }) {
 // ─── Edit Panel ───────────────────────────────────────────────────────────────
 
 const inputStyle: React.CSSProperties = {
-  width: "100%", background: "#080916", border: "1px solid #1e2040",
+  width: "100%", background: "#080916", border: "1px solid #2e3060",
   borderRadius: 8, color: "#D4D4D4", fontSize: 13, padding: "8px 12px", outline: "none",
 };
 
@@ -453,7 +453,7 @@ function EditMatchupPanel({ matchup }: { matchup: Matchup }) {
   }
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+    <div className="rounded-xl overflow-hidden" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
       {/* Toggle header */}
       <button
         className="w-full flex items-center justify-between px-5 py-4 text-left"
@@ -464,7 +464,7 @@ function EditMatchupPanel({ matchup }: { matchup: Matchup }) {
       </button>
 
       {open && (
-        <div className="px-5 pb-5 space-y-4" style={{ borderTop: "1px solid #1e2040" }}>
+        <div className="px-5 pb-5 space-y-4" style={{ borderTop: "1px solid #2e3060" }}>
           <div className="pt-4 grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
             {/* Title HT */}
             <div className="col-span-2">
@@ -556,7 +556,7 @@ export default function MatchupDetail({ matchup, votes, args }: { matchup: Match
       <EditMatchupPanel matchup={matchup} />
 
       {/* Header card */}
-      <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+      <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">

@@ -40,7 +40,7 @@ async function callApi(body: object) {
 
 const inputStyle = {
   background: "#0a0b18",
-  border: "1px solid #1e2040",
+  border: "1px solid #2e3060",
   color: "#D4D4D4",
   borderRadius: 8,
   padding: "4px 10px",
@@ -249,7 +249,7 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
                   {badge.user_count} itilizatè gen badj sa
                 </span>
                 <span
-                  style={{ width: 12, height: 12, borderRadius: "50%", background: color, display: "inline-block", border: "2px solid #1e2040" }}
+                  style={{ width: 12, height: 12, borderRadius: "50%", background: color, display: "inline-block", border: "2px solid #2e3060" }}
                 />
               </div>
             </>
@@ -280,7 +280,7 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
               </button>
               <button onClick={() => setExpanded((e) => !e)}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                style={{ background: "#12131f", color: "#94a3b8", border: "1px solid #1e2040" }}>
+                style={{ background: "#12131f", color: "#94a3b8", border: "1px solid #2e3060" }}>
                 {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                 {badge.levels.length} nivo
               </button>
@@ -291,7 +291,7 @@ function BadgeRow({ badge: initial }: { badge: Badge }) {
 
       {/* ── Levels ── */}
       {expanded && (
-        <div style={{ borderTop: "1px solid #1e2040", padding: "12px 20px 16px" }}>
+        <div style={{ borderTop: "1px solid #2e3060", padding: "12px 20px 16px" }}>
           <p style={{ color: "#94a3b8", fontSize: 11, fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Nivo ak sèy XP
           </p>

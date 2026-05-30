@@ -46,15 +46,15 @@ export default function BoostTable({ boosts }: { boosts: Boost[] }) {
   });
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
       <table className="w-full text-sm">
         <thead>
-          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
             {["Agiman", "Itilizatè", "Coins", "Ekspire", "Estati"].map((h) => (
               <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
             ))}
           </tr>
-          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
             {[
               ["argument", "Filtre agiman"],
               ["user", "Filtre itilizatè"],
@@ -67,7 +67,7 @@ export default function BoostTable({ boosts }: { boosts: Boost[] }) {
                   onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
                   placeholder={placeholder}
                   className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                  style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                  style={{ background: "#0e0f1e", border: "1px solid #2e3060" }} />
               </th>
             ))}
           </tr>
@@ -81,7 +81,7 @@ export default function BoostTable({ boosts }: { boosts: Boost[] }) {
             const argBody = b.argument?.body ?? "—";
             const username = b.argument?.user?.username ?? "—";
             return (
-              <tr key={b.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+              <tr key={b.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                 <td className="px-4 py-3 text-white" style={{ maxWidth: 300 }}>
                   <div className="truncate" style={{ color: "#d1d5db" }}>{argBody.slice(0, 80)}{argBody.length > 80 ? "…" : ""}</div>
                 </td>

@@ -34,7 +34,7 @@ export default function LoginForm() {
   const inputStyle: React.CSSProperties = {
     width: "100%",
     background: "#0e0f1e",
-    border: "1px solid #1e2040",
+    border: "1px solid #2e3060",
     borderRadius: 10,
     padding: "11px 14px",
     color: "white",
@@ -46,7 +46,7 @@ export default function LoginForm() {
     <form
       onSubmit={handleSubmit}
       className="rounded-2xl p-6 space-y-4"
-      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+      style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
     >
       <div>
         <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 6 }}>Adrès Email</div>

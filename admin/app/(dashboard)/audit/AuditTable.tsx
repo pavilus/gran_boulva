@@ -40,15 +40,15 @@ export default function AuditTable({ logs }: { logs: Log[] }) {
   });
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
       <table className="w-full text-sm">
         <thead>
-          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
             {["Dat", "Admin", "Aksyon", "Sib", "Nòt"].map((h) => (
               <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
             ))}
           </tr>
-          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+          <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
             {[
               ["date", "Filtre dat"],
               ["admin", "Filtre admin"],
@@ -61,7 +61,7 @@ export default function AuditTable({ logs }: { logs: Log[] }) {
                   onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
                   placeholder={placeholder}
                   className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                  style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                  style={{ background: "#0e0f1e", border: "1px solid #2e3060" }} />
               </th>
             ))}
           </tr>
@@ -73,7 +73,7 @@ export default function AuditTable({ logs }: { logs: Log[] }) {
           {filtered.map((log) => {
             const actionColor = ACTION_COLORS[log.action] ?? "#94a3b8";
             return (
-              <tr key={log.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+              <tr key={log.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                 <td className="px-4 py-3 whitespace-nowrap" style={{ color: "#94a3b8" }}>{fmtDate(log.created_at)}</td>
                 <td className="px-4 py-3" style={{ color: "#a78bfa" }}>@{log.admin?.username ?? "—"}</td>
                 <td className="px-4 py-3">

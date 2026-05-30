@@ -49,7 +49,7 @@ export default function RevenueChart({
   const positive   = revenueChange >= 0;
 
   return (
-    <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+    <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
       <div className="flex items-center justify-between mb-3">
         <div>
           <div className="text-white font-semibold text-sm">Revni sou 7 jòu yo</div>

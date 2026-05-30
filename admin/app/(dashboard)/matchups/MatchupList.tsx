@@ -35,7 +35,7 @@ const VOTE_RANGES = [
 
 const selectStyle: React.CSSProperties = {
   background: "#0e0f1e",
-  border: "1px solid #1e2040",
+  border: "1px solid #2e3060",
   color: "#94a3b8",
   borderRadius: 6,
   padding: "5px 8px",
@@ -74,7 +74,7 @@ async function doAction(id: string, action: string) {
 }
 
 const inputStyle: React.CSSProperties = {
-  background: "#0e0f1e", border: "1px solid #1e2040", color: "#e2e8f0",
+  background: "#0e0f1e", border: "1px solid #2e3060", color: "#e2e8f0",
   borderRadius: 8, padding: "8px 12px", fontSize: 13, width: "100%", outline: "none",
 };
 
@@ -122,7 +122,7 @@ function CreateModal({ categories, onClose, onCreate }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)" }} onClick={onClose}>
-      <div className="rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4" style={{ background: "#0a0b18", border: "1px solid #1e2040" }} onClick={e => e.stopPropagation()}>
+      <div className="rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4" style={{ background: "#0a0b18", border: "1px solid #2e3060" }} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-base font-semibold text-white">Kreye Matchup</h2>
           <button onClick={onClose}><X size={16} style={{ color: "#94a3b8" }} /></button>
@@ -163,7 +163,7 @@ function CreateModal({ categories, onClose, onCreate }: {
         {err && <p className="text-xs" style={{ color: "#ef4444" }}>{err}</p>}
 
         <div className="flex justify-end gap-2 pt-1">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm" style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Anile</button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm" style={{ color: "#94a3b8", border: "1px solid #2e3060" }}>Anile</button>
           <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5"
             style={{ background: "rgba(168,85,247,0.2)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.4)", opacity: saving ? 0.6 : 1 }}>
             <Plus size={13} />{saving ? "Ap kreye…" : "Kreye"}
@@ -261,7 +261,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Chèche matchup…"
           className="px-3 py-2 rounded-lg text-sm text-white outline-none flex-1 max-w-xs"
-          style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+          style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
         />
         <button
           onClick={() => setShowCreate(true)}
@@ -302,10 +302,10 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
       </div>
 
       {/* Table */}
-      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
               {([
                 ["title", "Tit"],
                 ["category", "Kategorì"],
@@ -328,7 +328,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
               })}
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>Aksyon</th>
             </tr>
-            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
               {/* Title — free text */}
               <th className="px-4 pb-3">
                 <div className="flex justify-center">
@@ -337,7 +337,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                     onChange={(e) => setFilter("title", e.target.value)}
                     placeholder="Filtre tit…"
                     className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none normal-case"
-                    style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+                    style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
                   />
                 </div>
               </th>
@@ -386,7 +386,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
                   <button
                     onClick={() => setFilters({ title: "", category: "", votes: "", status: "" })}
                     className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                    style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
                   >
                     Risèt
                   </button>
@@ -399,7 +399,7 @@ export default function MatchupList({ matchups: initial, categories }: { matchup
               <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Okenn matchup yo</td></tr>
             )}
             {sorted.map((m) => (
-              <tr key={m.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+              <tr key={m.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                 <td className="px-4 py-3 text-white" style={{ maxWidth: 340, minWidth: 200 }}>
                   <Link href={`/matchups/${m.id}`} className="group flex items-start gap-1.5 hover:opacity-80 transition-opacity">
                     <div className="min-w-0">

@@ -52,7 +52,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
   };
 
   const cellStyle = { padding: "12px 16px", borderBottom: "1px solid #1a1b2e", fontSize: 13, color: "#D4D4D4" };
-  const headStyle = { padding: "10px 16px", color: "#94a3b8", fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "1px solid #1e2040" };
+  const headStyle = { padding: "10px 16px", color: "#94a3b8", fontSize: 11, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.05em", borderBottom: "1px solid #2e3060" };
 
   return (
     <div>
@@ -64,7 +64,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
           { label: "Supporters", value: entries.filter((e) => e.is_supporter).length },
           { label: "Founding Partners", value: entries.filter((e) => e.tier === "founding_partner").length },
         ].map((s) => (
-          <div key={s.label} style={{ background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 12, padding: "14px 20px", flex: 1 }}>
+          <div key={s.label} style={{ background: "#0e0f1e", border: "1px solid #2e3060", borderRadius: 12, padding: "14px 20px", flex: 1 }}>
             <p style={{ color: "#94a3b8", fontSize: 11, marginBottom: 4 }}>{s.label}</p>
             <p style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>{s.value}</p>
           </div>
@@ -77,7 +77,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Chèche non oswa email…"
-          style={{ flex: 1, background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 10, padding: "8px 14px", color: "#D4D4D4", fontSize: 13, outline: "none" }}
+          style={{ flex: 1, background: "#0e0f1e", border: "1px solid #2e3060", borderRadius: 10, padding: "8px 14px", color: "#D4D4D4", fontSize: 13, outline: "none" }}
         />
         <button
           onClick={exportCSV}
@@ -89,7 +89,7 @@ export default function WaitlistClient({ entries }: { entries: Entry[] }) {
       </div>
 
       {/* ── Table ── */}
-      <div style={{ background: "#0e0f1e", border: "1px solid #1e2040", borderRadius: 14, overflow: "hidden" }}>
+      <div style={{ background: "#0e0f1e", border: "1px solid #2e3060", borderRadius: 14, overflow: "hidden" }}>
         {filtered.length === 0 ? (
           <p style={{ color: "#94a3b8", textAlign: "center", padding: 40, fontSize: 14 }}>
             {entries.length === 0 ? "Okenn moun poko enskri." : "Okenn rezilta pou rechèch sa."}

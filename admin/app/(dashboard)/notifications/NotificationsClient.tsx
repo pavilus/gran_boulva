@@ -65,7 +65,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
   return (
     <div className="space-y-5 max-w-3xl">
       {/* Send form */}
-      <div className="rounded-xl p-6" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+      <div className="rounded-xl p-6" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
         <div className="flex items-center gap-2 mb-5">
           <Bell size={16} color="#a78bfa" />
           <div className="text-white font-semibold">Voye Notifikasyon ({userCount} itilizatè)</div>
@@ -78,7 +78,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
               value={type}
               onChange={(e) => setType(e.target.value)}
               className="px-3 py-2 rounded-lg text-sm text-white outline-none w-full capitalize"
-              style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
+              style={{ background: "#0a0b18", border: "1px solid #2e3060" }}
             >
               {NOTIF_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -91,7 +91,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Tit notifikasyon an…"
               className="px-3 py-2 rounded-lg text-sm text-white outline-none w-full"
-              style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
+              style={{ background: "#0a0b18", border: "1px solid #2e3060" }}
             />
           </div>
 
@@ -103,7 +103,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
               placeholder="Kontni notifikasyon an…"
               rows={3}
               className="px-3 py-2 rounded-lg text-sm text-white outline-none w-full resize-none"
-              style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
+              style={{ background: "#0a0b18", border: "1px solid #2e3060" }}
             />
           </div>
 
@@ -138,15 +138,15 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
       {/* History */}
       <div>
         <div className="text-white font-semibold mb-3">Dènye Notifikasyon yo</div>
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
                 {["Tip", "Tit", "Kò", "Dat"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
                 ))}
               </tr>
-              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+              <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
                 {[
                   ["type", "Filtre tip"],
                   ["title", "Filtre tit"],
@@ -158,7 +158,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
                       onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
                       placeholder={placeholder}
                       className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                      style={{ background: "#0e0f1e", border: "1px solid #2e3060" }} />
                   </th>
                 ))}
               </tr>
@@ -168,7 +168,7 @@ export default function NotificationsClient({ recent, userCount }: { recent: Not
                 <tr><td colSpan={4} className="px-4 py-10 text-center" style={{ color: "#94a3b8" }}>Pa gen notifikasyon yo</td></tr>
               )}
               {filteredRows.slice(0, 30).map((n) => (
-                <tr key={n.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+                <tr key={n.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                   <td className="px-4 py-3">
                     <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
                       style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa" }}>

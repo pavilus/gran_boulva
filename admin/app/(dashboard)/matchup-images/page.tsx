@@ -55,7 +55,7 @@ export default async function MatchupImagesPage() {
             <article
               key={imageSet.id}
               className="overflow-hidden rounded-xl"
-              style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+              style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
             >
               {/* Preview: poster if available, otherwise side-by-side option images */}
               {imageSet.poster_image_url ? (
@@ -115,21 +115,21 @@ export default async function MatchupImagesPage() {
                   <a
                     href={dlUrl(imageSet.option_a_image_url, `${slug}-option-a.png`)}
                     className="rounded-lg px-2 py-1 text-xs font-semibold"
-                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                    style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
                   >
                     ↓ Opsyon A
                   </a>
                   <a
                     href={dlUrl(imageSet.option_b_image_url, `${slug}-option-b.png`)}
                     className="rounded-lg px-2 py-1 text-xs font-semibold"
-                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                    style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
                   >
                     ↓ Opsyon B
                   </a>
                   <Link
                     href={`/matchups/${imageSet.matchup_id}`}
                     className="rounded-lg px-2 py-1 text-xs font-semibold"
-                    style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                    style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
                   >
                     Matchup →
                   </Link>
@@ -142,7 +142,7 @@ export default async function MatchupImagesPage() {
         {imageSets.length === 0 && (
           <div
             className="rounded-xl p-8 text-sm"
-            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+            style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
           >
             Pa gen imaj jenerasyon ankò.
           </div>

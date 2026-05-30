@@ -85,15 +85,15 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
         ))}
       </div>
 
-      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
               {["Tip", "Kontni Rapòte", "Rezon", "Dat", "Estati", "Aksyon"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
             </tr>
-            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
               {[
                 ["type", "Filtre tip"],
                 ["content", ""],
@@ -107,14 +107,14 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
                       onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
                       placeholder={placeholder}
                       className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                      style={{ background: "#0e0f1e", border: "1px solid #2e3060" }} />
                   )}
                 </th>
               ))}
               <th className="px-4 pb-3">
                 <button onClick={() => setFilters({ type: "", reason: "", date: "", status: "" })}
                   className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Reset</button>
+                  style={{ color: "#94a3b8", border: "1px solid #2e3060" }}>Reset</button>
               </th>
             </tr>
           </thead>
@@ -123,7 +123,7 @@ export default function ReportList({ reports: initial }: { reports: Report[] }) 
               <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}>Okenn rapò nan kategori sa</td></tr>
             )}
             {filtered.map((r) => (
-              <tr key={r.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+              <tr key={r.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                 <td className="px-4 py-3">
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
                     style={{ background: "rgba(124,58,237,0.15)", color: "#a78bfa" }}>

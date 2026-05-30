@@ -20,7 +20,7 @@ export default function RecentMatchups({ matchups }: { matchups: Matchup[] }) {
   return (
     <div
       className="rounded-xl p-5"
-      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+      style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="text-white font-semibold text-sm">Matchups dènye yo</div>

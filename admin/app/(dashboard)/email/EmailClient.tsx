@@ -52,8 +52,8 @@ const DEFAULT_SIGNATURE = `<table cellpadding="0" cellspacing="0" border="0" sty
 
 // ── Shared input styles ────────────────────────────────────────────────────────
 const inputCls = "w-full px-3 py-2 rounded-lg text-sm text-white outline-none";
-const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040" };
-const cardStyle = { background: "#0e0f1e", border: "1px solid #1e2040" };
+const inputStyle = { background: "#0a0b18", border: "1px solid #2e3060" };
+const cardStyle = { background: "#0e0f1e", border: "1px solid #2e3060" };
 const labelCls = "text-xs font-semibold mb-1 block";
 
 // ── Template editor panel (create or edit) ────────────────────────────────────
@@ -149,12 +149,12 @@ function TemplateEditor({
         <button
           onClick={() => setPreviewOpen((p) => !p)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold"
-          style={{ border: "1px solid #1e2040", color: "#94a3b8" }}
+          style={{ border: "1px solid #2e3060", color: "#94a3b8" }}
         >
           {previewOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           {previewOpen ? "Hide preview" : "Show preview"}
         </button>
-        <button onClick={onCancel} className="px-4 py-2 rounded-lg text-xs font-semibold" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
+        <button onClick={onCancel} className="px-4 py-2 rounded-lg text-xs font-semibold" style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>
           Cancel
         </button>
         <button onClick={save} disabled={saving} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50" style={{ background: "#7c3aed", color: "white" }}>
@@ -163,7 +163,7 @@ function TemplateEditor({
       </div>
 
       {previewOpen && (
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040", height: 420 }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060", height: 420 }}>
           <iframe title="preview" srcDoc={previewHtml} className="w-full h-full" />
         </div>
       )}
@@ -315,7 +315,7 @@ export default function EmailClient({
         {([["compose", "Compose"], ["inbox", "Inbox"], ["templates", "Templates & Signature"]] as const).map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
             className="px-3 py-2 rounded-lg text-xs font-semibold"
-            style={{ background: tab === key ? "rgba(124,58,237,0.18)" : "#0e0f1e", color: tab === key ? "#a78bfa" : "#64748b", border: "1px solid #1e2040" }}>
+            style={{ background: tab === key ? "rgba(124,58,237,0.18)" : "#0e0f1e", color: tab === key ? "#a78bfa" : "#64748b", border: "1px solid #2e3060" }}>
             {label}
           </button>
         ))}
@@ -343,7 +343,7 @@ export default function EmailClient({
                 <span className="text-xs self-center" style={{ color: "#94a3b8" }}>Load:</span>
                 {templateRows.map((t) => (
                   <button key={t.id} onClick={() => { setTemplateName(t.name); setSubject(t.subject); setBody(t.body_text ?? ""); setSignature(t.signature_html ?? sigHtml); }}
-                    className="px-2 py-1 rounded text-xs" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
+                    className="px-2 py-1 rounded text-xs" style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>
                     {t.name}
                   </button>
                 ))}
@@ -351,18 +351,18 @@ export default function EmailClient({
             )}
 
             <div className="flex gap-2 flex-wrap">
-              <button onClick={sendTest} disabled={!to || testing} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
+              <button onClick={sendTest} disabled={!to || testing} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50" style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>
                 <Send size={14} /> {testing ? "Testing…" : "Test SMTP"}
               </button>
               <button onClick={send} disabled={!to || !subject || !body || sending} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50" style={{ background: "#7c3aed", color: "white" }}>
                 <Send size={14} /> {sending ? "Sending…" : "Send"}
               </button>
-              <button onClick={saveTemplate} disabled={!subject || saving} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
+              <button onClick={saveTemplate} disabled={!subject || saving} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50" style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>
                 <Save size={14} /> {saving ? "Saving…" : "Save Template"}
               </button>
             </div>
           </div>
-          <div className="rounded-xl overflow-hidden" style={{ background: "white", border: "1px solid #1e2040" }}>
+          <div className="rounded-xl overflow-hidden" style={{ background: "white", border: "1px solid #2e3060" }}>
             <iframe title="Email preview" srcDoc={previewHtml} className="w-full h-full min-h-[480px]" />
           </div>
         </div>
@@ -370,7 +370,7 @@ export default function EmailClient({
 
       {/* ── Inbox ───────────────────────────────────────────────────────── */}
       {tab === "inbox" && (
-        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+        <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
           <table className="w-full text-sm">
             <thead style={{ background: "#0a0b18" }}>
               <tr>{["Dir", "Status", "From", "To", "Subject", "Date"].map((h) => (
@@ -382,7 +382,7 @@ export default function EmailClient({
                 <tr><td colSpan={6} className="px-4 py-12 text-center" style={{ color: "#94a3b8" }}><Inbox size={20} className="inline mr-2" />No emails yet</td></tr>
               )}
               {rows.map((m) => (
-                <tr key={m.id} style={{ borderTop: "1px solid #1e2040", background: "#0e0f1e" }}>
+                <tr key={m.id} style={{ borderTop: "1px solid #2e3060", background: "#0e0f1e" }}>
                   <td className="px-4 py-3" style={{ color: m.direction === "inbound" ? "#34d399" : "#a78bfa" }}>{m.direction}</td>
                   <td className="px-4 py-3" style={{ color: m.status === "failed" ? "#f87171" : "#94a3b8" }}>{m.status}</td>
                   <td className="px-4 py-3 text-white">{m.from_email ?? "—"}</td>
@@ -408,7 +408,7 @@ export default function EmailClient({
                 <p className="text-xs mt-0.5" style={{ color: "#94a3b8" }}>Used in Compose and as fallback when a template has no signature.</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => setSigPreview((p) => !p)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ border: "1px solid #1e2040", color: "#94a3b8" }}>
+                <button onClick={() => setSigPreview((p) => !p)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ border: "1px solid #2e3060", color: "#94a3b8" }}>
                   {sigPreview ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                   {sigPreview ? "Hide" : "Preview"}
                 </button>
@@ -481,7 +481,7 @@ export default function EmailClient({
                     <button
                       onClick={() => { setSubject(t.subject); setBody(t.body_text ?? ""); setSignature(t.signature_html ?? sigHtml); setTemplateName(t.name); setTab("compose"); }}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                      style={{ border: "1px solid #1e2040", color: "#94a3b8" }}
+                      style={{ border: "1px solid #2e3060", color: "#94a3b8" }}
                       title="Load into Compose"
                     >
                       <Send size={12} /> Use
@@ -490,7 +490,7 @@ export default function EmailClient({
                     <button
                       onClick={() => setEditingId(t.id)}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                      style={{ border: "1px solid #1e2040", color: "#94a3b8" }}
+                      style={{ border: "1px solid #2e3060", color: "#94a3b8" }}
                     >
                       <Pencil size={12} /> Edit
                     </button>

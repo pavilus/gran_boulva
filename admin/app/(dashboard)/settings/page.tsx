@@ -131,11 +131,11 @@ function Section({
   return (
     <div
       className="rounded-xl p-6"
-      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+      style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
     >
       <div
         className="mb-5 pb-3 font-semibold text-white"
-        style={{ borderBottom: "1px solid #1e2040" }}
+        style={{ borderBottom: "1px solid #2e3060" }}
       >
         {title}
       </div>
@@ -167,7 +167,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg px-3 py-2 text-sm text-white outline-none"
-        style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
+        style={{ background: "#0a0b18", border: "1px solid #2e3060" }}
       />
       {hint && (
         <div className="mt-1" style={{ color: "#94a3b8", fontSize: 11 }}>
@@ -194,7 +194,7 @@ function IconButton({
       title={label}
       onClick={onClick}
       className="flex h-9 w-9 items-center justify-center rounded-lg text-white transition-colors"
-      style={{ background: "#15172a", border: "1px solid #1e2040" }}
+      style={{ background: "#15172a", border: "1px solid #2e3060" }}
     >
       {children}
     </button>
@@ -525,7 +525,7 @@ export default function SettingsPage() {
               <div
                 key={index}
                 className="grid gap-3 rounded-lg p-3 md:grid-cols-[1fr_1fr_1fr_1fr_auto_auto]"
-                style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
+                style={{ background: "#0a0b18", border: "1px solid #2e3060" }}
               >
                 <Field
                   label="Coins"
@@ -583,7 +583,7 @@ export default function SettingsPage() {
               }))
             }
             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: "#15172a", border: "1px solid #1e2040" }}
+            style={{ background: "#15172a", border: "1px solid #2e3060" }}
           >
             <Plus size={15} />
             Ajoute pake
@@ -596,7 +596,7 @@ export default function SettingsPage() {
               <div
                 key={index}
                 className="grid gap-3 rounded-lg p-3 md:grid-cols-[1fr_1fr_1fr_2fr_auto]"
-                style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
+                style={{ background: "#0a0b18", border: "1px solid #2e3060" }}
               >
                 <Field
                   label="Non"
@@ -645,7 +645,7 @@ export default function SettingsPage() {
               }))
             }
             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: "#15172a", border: "1px solid #1e2040" }}
+            style={{ background: "#15172a", border: "1px solid #2e3060" }}
           >
             <Plus size={15} />
             Ajoute boost
@@ -656,7 +656,7 @@ export default function SettingsPage() {
         <Section title="Peman Kreyatè">
           {/* Info banner */}
           <div className="mb-4 rounded-lg px-4 py-3 text-xs"
-            style={{ background: "#0a0b18", border: "1px solid #1e2040", color: "#94a3b8" }}>
+            style={{ background: "#0a0b18", border: "1px solid #2e3060", color: "#94a3b8" }}>
             <strong style={{ color: "#a78bfa" }}>Kijan sa travay:</strong>{" "}
             Defini to konvèsyon coins → USD ak minimòm pou reklame. Lè <em>Mòd Otomatik</em> aktive
             ak MonCash konfigire, sistem nan voye lajan otomatikman. Nan mòd <em>Manuel</em>, admin
@@ -696,7 +696,7 @@ export default function SettingsPage() {
                     style={{
                       background: payout.payoutMode === mode ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#0a0b18",
                       color: payout.payoutMode === mode ? "white" : "#64748b",
-                      border: payout.payoutMode === mode ? "none" : "1px solid #1e2040",
+                      border: payout.payoutMode === mode ? "none" : "1px solid #2e3060",
                     }}
                   >
                     {mode === "manual" ? "✋ Manuel" : "⚡ MonCash Otomatik"}
@@ -799,7 +799,7 @@ export default function SettingsPage() {
                   onChange={e => setStripeKey(e.target.value)}
                   placeholder={stripeConfigured ? "Enter new key to rotate…" : "sk_test_…"}
                   className="flex-1 rounded-xl px-4 py-2 text-sm"
-                  style={{ background: "#0a0b18", border: "1px solid #1e2040", color: "#e2e8f0", outline: "none" }}
+                  style={{ background: "#0a0b18", border: "1px solid #2e3060", color: "#e2e8f0", outline: "none" }}
                   onFocus={e => (e.target.style.borderColor = "rgba(168,85,247,0.5)")}
                   onBlur={e  => (e.target.style.borderColor = "#1e2040")}
                 />
@@ -847,7 +847,7 @@ export default function SettingsPage() {
                   onChange={e => setWebhookSecret(e.target.value)}
                   placeholder={webhookConfigured ? "Enter new secret to rotate…" : "whsec_…"}
                   className="flex-1 rounded-xl px-4 py-2 text-sm"
-                  style={{ background: "#0a0b18", border: "1px solid #1e2040", color: "#e2e8f0", outline: "none" }}
+                  style={{ background: "#0a0b18", border: "1px solid #2e3060", color: "#e2e8f0", outline: "none" }}
                   onFocus={e => (e.target.style.borderColor = "rgba(168,85,247,0.5)")}
                   onBlur={e  => (e.target.style.borderColor = "#1e2040")}
                 />

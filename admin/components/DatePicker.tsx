@@ -12,7 +12,7 @@ const CSS = `
 .dp-wrap .dp-input {
   width: 100%;
   background: #0e0f1e;
-  border: 1px solid #1e2040;
+  border: 1px solid #2e3060;
   color: #e2e8f0;
   border-radius: 12px;
   padding: 8px 12px 8px 34px;
@@ -33,7 +33,7 @@ const CSS = `
 }
 .dp-dark .react-datepicker {
   background: #0e0f1e;
-  border: 1px solid #1e2040;
+  border: 1px solid #2e3060;
   border-radius: 14px;
   font-family: inherit;
   font-size: 13px;
@@ -44,7 +44,7 @@ const CSS = `
 .dp-dark .react-datepicker__triangle { display: none; }
 .dp-dark .react-datepicker__header {
   background: #13152a;
-  border-bottom: 1px solid #1e2040;
+  border-bottom: 1px solid #2e3060;
   padding: 12px 0 8px;
   border-radius: 14px 14px 0 0;
 }

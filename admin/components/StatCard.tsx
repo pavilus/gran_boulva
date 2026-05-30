@@ -31,7 +31,7 @@ export default function StatCard({
       className="flex flex-col gap-3 p-4 rounded-xl"
       style={{
         background: "#0e0f1e",
-        border: "1px solid #1e2040",
+        border: "1px solid #2e3060",
         cursor: href ? "pointer" : "default",
         transition: "border-color 0.15s",
         height: "100%",

@@ -60,7 +60,7 @@ export default function ScoutPanel({ drafts: initialDrafts }: { drafts: ScoutDra
   return (
     <div
       className="rounded-xl p-5 flex flex-col"
-      style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+      style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -110,7 +110,7 @@ export default function ScoutPanel({ drafts: initialDrafts }: { drafts: ScoutDra
             <div
               key={d.id}
               className="flex items-center gap-3 p-3 rounded-lg"
-              style={{ background: "#13152a", border: "1px solid #1e2040" }}
+              style={{ background: "#13152a", border: "1px solid #2e3060" }}
             >
               <div className="flex-1 min-w-0">
                 <div className="text-white text-xs font-medium leading-tight truncate">

@@ -168,7 +168,7 @@ export default function CreatorsClient({
     setLoading(null);
   };
 
-  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4" };
+  const inputStyle = { background: "#0a0b18", border: "1px solid #2e3060", color: "#D4D4D4" };
 
   return (
     <div className="space-y-4">
@@ -189,7 +189,7 @@ export default function CreatorsClient({
             style={{
               background: activeTab === t ? "linear-gradient(90deg,#7c3aed,#a855f7)" : "#0e0f1e",
               color: activeTab === t ? "white" : "#64748b",
-              border: activeTab === t ? "none" : "1px solid #1e2040",
+              border: activeTab === t ? "none" : "1px solid #2e3060",
             }}
           >
             {TAB_LABELS[t]}
@@ -214,7 +214,7 @@ export default function CreatorsClient({
           )}
           {payouts.map((p) => (
             <div key={p.id} className="rounded-xl overflow-hidden"
-              style={{ border: "1px solid #1e2040", background: "#0e0f1e" }}>
+              style={{ border: "1px solid #2e3060", background: "#0e0f1e" }}>
               {/* Main row */}
               <div className="flex items-center gap-3 px-4 py-3">
                 <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#7c3aed,#ec4899)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -277,7 +277,7 @@ export default function CreatorsClient({
                   <button
                     onClick={() => navigator.clipboard.writeText(p.payout_phone!)}
                     className="text-xs px-2 py-0.5 rounded"
-                    style={{ color: "#94a3b8", background: "#0a0b18", border: "1px solid #1e2040" }}>
+                    style={{ color: "#94a3b8", background: "#0a0b18", border: "1px solid #2e3060" }}>
                     Kopye
                   </button>
                 </div>
@@ -303,7 +303,7 @@ export default function CreatorsClient({
 
             return (
               <div key={c.user_id} className="rounded-xl overflow-hidden"
-                style={{ border: "1px solid #1e2040", background: "#0e0f1e" }}>
+                style={{ border: "1px solid #2e3060", background: "#0e0f1e" }}>
                 {/* Row header */}
                 <div className="flex items-center gap-3 px-4 py-3">
                   {/* Avatar */}
@@ -437,7 +437,7 @@ export default function CreatorsClient({
 // ─── Shared stat card ─────────────────────────────────────────────────────────
 function _StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string | number; color: string }) {
   return (
-    <div className="rounded-xl p-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+    <div className="rounded-xl p-4" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
       <div className="flex items-center gap-2 mb-1" style={{ color }}>
         {icon}
         <span className="text-xs font-semibold">{label}</span>

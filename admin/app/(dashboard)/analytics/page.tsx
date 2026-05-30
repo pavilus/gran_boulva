@@ -6,7 +6,7 @@ import { Users, Vote, MessageSquare, TrendingUp } from "lucide-react";
 
 function StatBox({ label, value, icon: Icon, color }: { label: string; value: string; icon: any; color: string }) {
   return (
-    <div className="rounded-xl p-5 flex items-center gap-4" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+    <div className="rounded-xl p-5 flex items-center gap-4" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
       <div className="flex items-center justify-center rounded-xl shrink-0" style={{ width: 44, height: 44, background: `${color}22` }}>
         <Icon size={20} color={color} />
       </div>
@@ -72,12 +72,12 @@ export default async function AnalyticsPage() {
 
         {/* 30-day summary cards */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
             <div className="text-white font-semibold mb-1">Nouvo itilizatè (30j)</div>
             <div className="text-3xl font-bold" style={{ color: "#a78bfa" }}>{fmt(newUsers?.length ?? 0)}</div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 4 }}>Enskripsyon nouvèl</div>
           </div>
-          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+          <div className="rounded-xl p-5" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
             <div className="text-white font-semibold mb-1">Vòt (30j)</div>
             <div className="text-3xl font-bold" style={{ color: "#67e8f9" }}>{fmt(newVotes?.length ?? 0)}</div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 4 }}>Vòt ranmasé</div>

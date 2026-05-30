@@ -89,7 +89,7 @@ function Field({ label, value, onChange, multiline = false }: { label: string; v
     value,
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value),
     className: "w-full text-xs text-white rounded-lg px-3 py-2",
-    style: { background: "#13152a", border: "1px solid #1e2040", outline: "none" } as React.CSSProperties,
+    style: { background: "#13152a", border: "1px solid #2e3060", outline: "none" } as React.CSSProperties,
   };
   return (
     <div>
@@ -176,7 +176,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
   const entities = draft.detected_entities?.filter(Boolean) ?? [];
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+    <div className="rounded-xl overflow-hidden" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
       {/* Header */}
       <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpanded((p) => !p)}>
         <div
@@ -234,7 +234,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
 
       {/* Expanded */}
       {expanded && (
-        <div style={{ borderTop: "1px solid #1e2040" }}>
+        <div style={{ borderTop: "1px solid #2e3060" }}>
           {/* Tabs */}
           <div className="flex gap-1 px-4 pt-3">
             {(["edit", "intel"] as const).map((t) => (
@@ -277,7 +277,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                         setSaved(false);
                       }}
                       className="w-full text-xs text-white rounded-lg px-3 py-2"
-                      style={{ background: "#13152a", border: "1px solid #1e2040", outline: "none" }}
+                      style={{ background: "#13152a", border: "1px solid #2e3060", outline: "none" }}
                     >
                       <option value="">— Chwazi —</option>
                       {categories.map((c) => <option key={c.id} value={c.id}>{c.name_ht}</option>)}
@@ -304,7 +304,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                   onClick={cancelEdits}
                   disabled={!isDirty || saving}
                   className="text-xs px-4 py-2 rounded-lg font-medium disabled:opacity-40"
-                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+                  style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
                 >
                   Anile
                 </button>
@@ -344,7 +344,7 @@ function DraftRow({ draft: initial, categories, onAction }: { draft: Draft; cate
                   {SCORES.map(({ key, label, icon: Icon, color }) => (
                     <ScoreBar key={key} value={(draft as any)[key]} color={color} label={label} Icon={Icon} />
                   ))}
-                  <div className="flex items-center justify-between pt-2" style={{ borderTop: "1px solid #1e2040" }}>
+                  <div className="flex items-center justify-between pt-2" style={{ borderTop: "1px solid #2e3060" }}>
                     <span className="text-xs" style={{ color: "#94a3b8" }}>Nòt total</span>
                     <span className="font-bold text-white">{draft.combined_score?.toFixed(1) ?? "—"}<span style={{ color: "#94a3b8", fontSize: 11, fontWeight: 400 }}>/10</span></span>
                   </div>
@@ -551,7 +551,7 @@ export default function ScoutList({
           onChange={(e) => setFilters((prev) => ({ ...prev, title: e.target.value }))}
           placeholder="Filtre tit / opsyon…"
           className="px-3 py-2 rounded-lg text-xs text-white outline-none flex-1 min-w-[180px]"
-          style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}
+          style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}
         />
         {(["type","category","risk","score","platform"] as const).map((key) => {
           const opts: { value: string; label: string }[] =
@@ -571,7 +571,7 @@ export default function ScoutList({
               value={filters[key]}
               onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
               className="px-3 py-2 rounded-lg text-xs text-white outline-none"
-              style={{ background: "#0e0f1e", border: "1px solid #1e2040", minWidth: 130 }}
+              style={{ background: "#0e0f1e", border: "1px solid #2e3060", minWidth: 130 }}
             >
               <option value="">{placeholder}</option>
               {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -582,7 +582,7 @@ export default function ScoutList({
           <button
             onClick={() => setFilters({ title: "", type: "", category: "", risk: "", score: "", platform: "" })}
             className="px-3 py-2 rounded-lg text-xs font-semibold"
-            style={{ color: "#94a3b8", border: "1px solid #1e2040" }}
+            style={{ color: "#94a3b8", border: "1px solid #2e3060" }}
           >
             Reset
           </button>
@@ -591,7 +591,7 @@ export default function ScoutList({
 
       <div className="space-y-3">
         {shown.length === 0 && (
-          <div className="rounded-xl p-10 text-center" style={{ background: "#0e0f1e", border: "1px solid #1e2040" }}>
+          <div className="rounded-xl p-10 text-center" style={{ background: "#0e0f1e", border: "1px solid #2e3060" }}>
             <Bot size={32} color="#1e2040" className="mx-auto mb-3" />
             <div style={{ color: "#94a3b8", fontSize: 13 }}>
               {activeTab === "pending" ? "Pa gen sijèsyon k ap tann — klike Run Scout" : `Pa gen brouyon ${activeTab === "approved" ? "apwouve" : "rejte"} yo`}

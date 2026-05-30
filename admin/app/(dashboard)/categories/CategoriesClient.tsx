@@ -22,10 +22,10 @@ function EditRow({
   const [form, setForm] = useState(cat);
   const set = (k: keyof Category) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
-  const inputStyle = { background: "#0a0b18", border: "1px solid #1e2040", color: "#D4D4D4" };
+  const inputStyle = { background: "#0a0b18", border: "1px solid #2e3060", color: "#D4D4D4" };
 
   return (
-    <tr style={{ background: "#120d2a", borderBottom: "1px solid #1e2040" }}>
+    <tr style={{ background: "#120d2a", borderBottom: "1px solid #2e3060" }}>
       <td className="px-4 py-2">
         <input value={form.icon ?? ""} onChange={set("icon")} placeholder="🏷️"
           className="w-16 px-2 py-1 rounded-lg text-sm outline-none text-center" style={inputStyle} />
@@ -112,15 +112,15 @@ export default function CategoriesClient({
         )}
       </div>
 
-      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #1e2040" }}>
+      <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2e3060" }}>
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
               {["Ikòn", "Non (Kreyòl)", "Non (English)", "Matchup yo", "Aksyon"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase" style={{ color: "#94a3b8" }}>{h}</th>
               ))}
             </tr>
-            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ background: "#0a0b18", borderBottom: "1px solid #2e3060" }}>
               {[
                 ["icon", "Filtre ikòn"],
                 ["nameHt", "Filtre Kreyòl"],
@@ -132,13 +132,13 @@ export default function CategoriesClient({
                     onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
                     placeholder={placeholder}
                     className="w-full px-2 py-1.5 rounded-md text-xs text-white outline-none"
-                    style={{ background: "#0e0f1e", border: "1px solid #1e2040" }} />
+                    style={{ background: "#0e0f1e", border: "1px solid #2e3060" }} />
                 </th>
               ))}
               <th className="px-4 pb-3">
                 <button onClick={() => setFilters({ icon: "", nameHt: "", nameEn: "", matchups: "" })}
                   className="px-2 py-1.5 rounded-md text-xs font-semibold"
-                  style={{ color: "#94a3b8", border: "1px solid #1e2040" }}>Reset</button>
+                  style={{ color: "#94a3b8", border: "1px solid #2e3060" }}>Reset</button>
               </th>
             </tr>
           </thead>
@@ -154,7 +154,7 @@ export default function CategoriesClient({
                   onSave={(f) => save(f, c.id)}
                   onCancel={() => setEditing(null)} />
               ) : (
-                <tr key={c.id} style={{ borderBottom: "1px solid #1e2040", background: "#0e0f1e" }}>
+                <tr key={c.id} style={{ borderBottom: "1px solid #2e3060", background: "#0e0f1e" }}>
                   <td className="px-4 py-3">
                     {c.icon?.endsWith('.png') ? (
                       <img src={c.icon} alt={c.name_ht} className="w-8 h-8 object-contain" />

@@ -161,11 +161,11 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
       {/* Table */}
       <div
         className="rounded-2xl overflow-hidden"
-        style={{ border: "1px solid #1e2040", background: "#0a0b18" }}
+        style={{ border: "1px solid #2e3060", background: "#0a0b18" }}
       >
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ borderBottom: "1px solid #1e2040" }}>
+            <tr style={{ borderBottom: "1px solid #2e3060" }}>
               {["Non (HT)", "Kategori", "Pri (Monè)", "Rarète", "Aktif"].map((h) => (
                 <th
                   key={h}
@@ -189,7 +189,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
                 <tr
                   key={item.id}
                   style={{
-                    borderBottom: i < filteredItems.length - 1 ? "1px solid #1e2040" : "none",
+                    borderBottom: i < filteredItems.length - 1 ? "1px solid #2e3060" : "none",
                     opacity: item.is_active ? 1 : 0.45,
                   }}
                 >
@@ -244,7 +244,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
         >
           <div
             className="w-full max-w-md rounded-2xl p-6"
-            style={{ background: "#0a0b18", border: "1px solid #1e2040" }}
+            style={{ background: "#0a0b18", border: "1px solid #2e3060" }}
           >
             <h3 className="text-white font-bold text-lg mb-4" style={{ fontFamily: "Poppins" }}>
               Kreye Nouvo Item
@@ -338,7 +338,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
               <button
                 onClick={() => setShowCreate(false)}
                 className="flex-1 py-2.5 rounded-xl text-sm font-medium"
-                style={{ background: "#10122a", color: "#94a3b8", border: "1px solid #1e2040" }}
+                style={{ background: "#10122a", color: "#94a3b8", border: "1px solid #2e3060" }}
               >
                 Anile
               </button>
@@ -361,7 +361,7 @@ export default function CosmeticsClient({ items: initialItems, categories }: Pro
 const inputStyle: React.CSSProperties = {
   width: "100%",
   background: "#10122a",
-  border: "1px solid #1e2040",
+  border: "1px solid #2e3060",
   borderRadius: 10,
   color: "#e2e8f0",
   padding: "8px 12px",
