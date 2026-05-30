@@ -40,6 +40,11 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
     try {
       final profile = await UserService().getProfileByUsername(widget.username);
       if (profile != null) {
+        // Canonicalize URL if we resolved via a username_history redirect.
+        if (profile.username.toLowerCase() != widget.username.toLowerCase() && mounted) {
+          context.replace('/user/${profile.username}');
+          return;
+        }
         final currentUser = await UserService().getProfile();
         final isOwnProfile = currentUser?.id == profile.id;
         final results = await Future.wait([

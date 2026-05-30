@@ -85,13 +85,13 @@ class _MediaFeedScreenState extends State<MediaFeedScreen> {
   }
 
   Widget _buildEmpty() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('🎙️', style: TextStyle(fontSize: 48)),
-          const SizedBox(height: 12),
-          const Text(
+          Text('🎙️', style: TextStyle(fontSize: 48)),
+          SizedBox(height: 12),
+          Text(
             'Poko gen agiman vwa oswa videyo',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -100,7 +100,7 @@ class _MediaFeedScreenState extends State<MediaFeedScreen> {
               fontFamily: 'Poppins',
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             'Vote sou yon matchup epi anregistre premye agiman an!',
             textAlign: TextAlign.center,

@@ -73,8 +73,22 @@ class UserService {
         .select()
         .ilike('username', username)
         .maybeSingle();
-    if (data == null) return null;
-    return UserModel.fromJson(data);
+    if (data != null) return UserModel.fromJson(data);
+
+    // Username not found — check if it was renamed and redirect to current username.
+    final history = await supabase
+        .from('username_history')
+        .select('user_id')
+        .ilike('old_username', username)
+        .maybeSingle();
+    if (history == null) return null;
+
+    final redirected = await supabase
+        .from('users')
+        .select()
+        .eq('id', history['user_id'] as String)
+        .maybeSingle();
+    return redirected != null ? UserModel.fromJson(redirected) : null;
   }
 
   Future<void> createProfile({

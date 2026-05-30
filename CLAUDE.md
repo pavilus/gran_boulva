@@ -405,7 +405,9 @@ Current applied migrations (in order):
 20260525000100_badge_rls_policies                         — SELECT policies on user_badges/badge_events/badges/badge_levels (fixes counter showing 0)
 ```
 
-**Next migration timestamp to use: `20260525000200_...`**
+20260527001100_username_history                           — username_history table + trigger for stable profile URLs
+
+**Next migration timestamp to use: `20260527001200_...`**
 
 ---
 
