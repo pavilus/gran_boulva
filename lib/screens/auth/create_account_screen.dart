@@ -226,7 +226,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           'username': username,
           'language': _language,
           'gender': _gender,
-          'date_of_birth': _birthDateCtrl.text.trim(),
+          if (_birthDateCtrl.text.trim().isNotEmpty) 'date_of_birth': _birthDateCtrl.text.trim(),
           if (country.isNotEmpty) 'country': country,
           if (phone.isNotEmpty) 'phone_number': phone,
           if (referralCode.isNotEmpty) 'referral_code': referralCode,
@@ -498,7 +498,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  _label(_copy.birthDate, required: true),
+                  _label(_copy.birthDate),
                   const SizedBox(height: 8),
                   _AuthInputField(
                     hint: _copy.birthDateHint,
@@ -506,12 +506,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     prefixIcon: Icons.calendar_month_outlined,
                     readOnly: true,
                     onTap: _pickBirthDate,
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return _copy.birthDateRequired;
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 20),
 
