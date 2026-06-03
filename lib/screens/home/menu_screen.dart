@@ -365,7 +365,7 @@ class _MenuScreenState extends State<MenuScreen> {
           imagePath: 'assets/images/file.png',
           color: AppColors.error,
           title: 'Sovgad',
-          subtitle: 'Matchups ak pòs ou sove yo',
+          subtitle: 'Deba ak pòs ou sove yo',
           onTap: () => context.push('/saved'),
         ),
       ];
@@ -378,13 +378,14 @@ class _MenuScreenState extends State<MenuScreen> {
           subtitle: 'Tande ak gade agiman vwa ak videyo',
           onTap: () => context.push('/media-feed'),
         ),
-        _MenuItemData(
-          imagePath: 'assets/images/predict.png',
-          color: AppColors.purple,
-          title: 'Prediksyon',
-          subtitle: 'Fè pwopozisyon ou, wè si ou gen rezon',
-          onTap: () => context.push('/predictions'),
-        ),
+        // Prediksyon hidden for now — re-enable when ready
+        // _MenuItemData(
+        //   imagePath: 'assets/images/predict.png',
+        //   color: AppColors.purple,
+        //   title: 'Prediksyon',
+        //   subtitle: 'Fè pwopozisyon ou, wè si ou gen rezon',
+        //   onTap: () => context.push('/predictions'),
+        // ),
         _MenuItemData(
           imagePath: 'assets/images/community.png',
           color: const Color(0xFF3B82F6),

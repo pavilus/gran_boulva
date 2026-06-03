@@ -17,7 +17,7 @@ const LEGAL_HREFS: Record<string, string[]> = {
   en: ["/privacy", "/terms", "/aup", "/dmca", "/cookies"],
   fr: ["/privacy", "/terms", "/aup", "/dmca", "/cookies"],
 };
-const PLATFORM_HREFS = ["#features", "#vision", "#creators", "#supporters"];
+const PLATFORM_HREFS = ["#features", "#vision", "#creators", "/supporters"];
 const SOCIAL = [
   { label: "X / Twitter", href: "https://twitter.com/granboulva", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg> },
   { label: "Instagram", href: "https://instagram.com/granboulva", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg> },
@@ -187,10 +187,10 @@ export default function LandingPage() {
                 style={{ display: "inline-flex", alignItems: "center", background: "linear-gradient(135deg,#a855f7,#7c3aed)", color: "#fff", padding: "14px 28px", borderRadius: 14, fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", boxShadow: "0 8px 30px rgba(168,85,247,0.4)" }}>
                 {t.hero.cta1}
               </button>
-              <button onClick={() => smoothScroll("supporters")}
-                style={{ display: "inline-flex", alignItems: "center", background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.4)", color: "#f59e0b", padding: "14px 28px", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+              <Link href="/supporters"
+                style={{ display: "inline-flex", alignItems: "center", background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.4)", color: "#f59e0b", padding: "14px 28px", borderRadius: 14, fontWeight: 700, fontSize: 15, textDecoration: "none" }}>
                 {t.hero.cta2}
-              </button>
+              </Link>
             </div>
 
             <div className="social-proof" style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
@@ -475,52 +475,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FOUNDING SUPPORTER TIERS ─────────────────────────────────────── */}
-      <section id="supporters" style={{ padding: "120px 32px", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "30%", left: "50%", transform: "translateX(-50%)", width: 900, height: 500, background: "radial-gradient(ellipse,rgba(245,158,11,0.08) 0%,transparent 65%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 1 }}>
-          <div style={{ textAlign: "center", marginBottom: 16 }}>
-            <p style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>{t.supporters.tag}</p>
-            <h2 style={{ fontSize: "clamp(28px,4vw,48px)", fontWeight: 900, color: "#fff", margin: "0 0 16px", letterSpacing: "-1.2px" }}>{t.supporters.h2}</h2>
-            <p style={{ fontSize: 16, color: "#94a3b8", maxWidth: 560, margin: "0 auto 16px" }}>{t.supporters.body}</p>
-            <p style={{ fontSize: 13, color: "#f59e0b", fontWeight: 600 }}>{t.supporters.urgency}</p>
-          </div>
-
-          <div className="tiers-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginTop: 56 }}>
-            {TIERS.map((tier, i) => {
-              const perks = t.supporters.tierPerks[i] ?? [];
-              return (
-                <div key={tier.key} style={{ background: tier.popular ? `linear-gradient(180deg,${tier.color}18 0%,rgba(7,8,15,0.8) 100%)` : "rgba(255,255,255,0.03)", border: `1px solid ${tier.popular ? tier.color + "66" : tier.color + "33"}`, borderRadius: 20, padding: "28px 22px", position: "relative", display: "flex", flexDirection: "column" }}>
-                  {tier.popular && (
-                    <div style={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", background: tier.color, color: "#fff", fontSize: 10, fontWeight: 800, padding: "4px 14px", borderRadius: 99, whiteSpace: "nowrap", letterSpacing: 0.5 }}>MOST POPULAR</div>
-                  )}
-                  <div style={{ fontSize: 32, marginBottom: 12 }}>{tier.badge}</div>
-                  <h3 style={{ fontSize: 15, fontWeight: 800, color: "#fff", margin: "0 0 4px" }}>{t.tierNames[tier.key as keyof typeof t.tierNames]}</h3>
-                  <div style={{ marginBottom: 20 }}>
-                    <span style={{ fontSize: 32, fontWeight: 900, color: tier.color, letterSpacing: "-1px" }}>{tier.price}</span>
-                    <span style={{ fontSize: 13, color: "#94a3b8", marginLeft: 6 }}>{tier.period}</span>
-                  </div>
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-                    {perks.map((perk) => (
-                      <div key={perk} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                        <span style={{ color: tier.color, fontSize: 13, marginTop: 1, flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{perk}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => startCheckout(tier.key)}
-                    disabled={checkoutLoading !== null}
-                    style={{ width: "100%", padding: "12px", borderRadius: 12, fontWeight: 700, fontSize: 13, cursor: checkoutLoading !== null ? "wait" : "pointer", border: `1px solid ${tier.color}`, background: tier.popular ? tier.color : "transparent", color: tier.popular ? "#fff" : tier.color, transition: "all 0.2s", opacity: checkoutLoading !== null && checkoutLoading !== tier.key ? 0.5 : 1 }}
-                    onMouseEnter={e => { if (!tier.popular && checkoutLoading === null) { (e.currentTarget as HTMLButtonElement).style.background = tier.color; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; } }}
-                    onMouseLeave={e => { if (!tier.popular) { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = tier.color; } }}>
-                    {checkoutLoading === tier.key ? "⏳ Loading…" : t.supporters.tierCta}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-          <p style={{ textAlign: "center", fontSize: 12, color: "#1e3a5f", marginTop: 24 }}>{t.supporters.disclaimer}</p>
+      {/* ── FOUNDING SUPPORTER CTA ───────────────────────────────────────── */}
+      <section id="supporters" style={{ padding: "80px 32px", borderTop: "1px solid rgba(245,158,11,0.12)" }}>
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 16 }}>{t.supporters.tag}</p>
+          <h2 style={{ fontSize: "clamp(24px,3.5vw,40px)", fontWeight: 900, color: "#fff", margin: "0 0 16px", letterSpacing: "-1px" }}>{t.supporters.h2}</h2>
+          <p style={{ fontSize: 15, color: "#94a3b8", maxWidth: 480, margin: "0 auto 12px", lineHeight: 1.7 }}>{t.supporters.body}</p>
+          <p style={{ fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 32 }}>{t.supporters.urgency}</p>
+          <Link href="/supporters"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg,#f59e0b,#d97706)", color: "#fff", padding: "14px 36px", borderRadius: 14, fontWeight: 700, fontSize: 15, textDecoration: "none", boxShadow: "0 8px 30px rgba(245,158,11,0.35)" }}>
+            {t.hero.cta2} →
+          </Link>
         </div>
       </section>
 

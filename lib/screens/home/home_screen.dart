@@ -219,14 +219,9 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverToBoxAdapter(child: _buildSearchBar()),
               SliverToBoxAdapter(child: _buildCategoryChips()),
               SliverToBoxAdapter(child: _buildHeroBanner()),
-              SliverToBoxAdapter(
-                child: _homeTab == 0
-                    ? _buildTopVoicesSection()
-                    : _buildTopPredictorsSection(),
-              ),
-              SliverToBoxAdapter(child: _buildHomeTabBar()),
-              if (_homeTab == 0)
-                SliverPadding(
+              SliverToBoxAdapter(child: _buildTopVoicesSection()),
+              // Tab bar hidden — Prediksyon tab removed for now
+              SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   sliver: _loading
                       ? const SliverToBoxAdapter(
@@ -267,34 +262,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 childCount: _matchups.length,
                               ),
                             ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                  sliver: _predictionsLoading
-                      ? const SliverToBoxAdapter(
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40),
-                              child: CircularProgressIndicator(
-                                  color: AppColors.purple),
-                            ),
-                          ),
-                        )
-                      : _filteredPredictions.isEmpty
-                          ? SliverToBoxAdapter(
-                              child: _buildPredictionsEmptyState())
-                          : SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, i) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: _buildPredictionCard(
-                                      _filteredPredictions[i]),
-                                ),
-                                childCount: _filteredPredictions.length,
-                              ),
-                            ),
                 ),
+              // ignore: dead_code — Prediksyon tab hidden for now; re-enable by restoring tab bar
             ],
           ),
         ),
@@ -461,9 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontFamily: 'Poppins',
                 ),
                 decoration: InputDecoration(
-                  hintText: _homeTab == 0
-                      ? 'Chèche matchups, kategori,...'
-                      : 'Chèche prediksyon...',
+                  hintText: 'Chèche deba, kategori,...',
                   hintStyle: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 14,
@@ -493,8 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: CategoryTabs(
-        activeCategory:
-            _homeTab == 0 ? _activeCategoryLabel : _activePredCategoryLabel,
+        activeCategory: _activeCategoryLabel,
         onSelect: _onCategoryLabelTap,
         categories: _categories,
       ),
