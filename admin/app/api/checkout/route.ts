@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       ],
       metadata: { tier: tier as string },
       success_url: `${origin}/checkout/success?tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${origin}/#supporters`,
+      cancel_url:  `${origin}/supporters`,
       allow_promotion_codes: true,
     });
 

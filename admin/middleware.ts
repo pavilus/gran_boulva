@@ -43,6 +43,8 @@ export async function middleware(request: NextRequest) {
     "/disclaimer",
     "/matchup",
     "/checklist",
+    "/supporters",
+    "/checkout/success",
     "/api/waitlist",
     "/api/partner-application",
     "/api/checkout",
