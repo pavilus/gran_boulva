@@ -51,6 +51,7 @@ export async function middleware(request: NextRequest) {
     "/api/checklist-submit",
     "/api/stripe/webhook",
     "/api/webhooks/stripe",
+    "/delete-account",
   ];
   const isPublic = pathname === "/" || publicRoutes.some((r) => pathname.startsWith(r));
 
