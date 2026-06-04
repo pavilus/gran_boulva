@@ -52,6 +52,7 @@ export async function middleware(request: NextRequest) {
     "/api/stripe/webhook",
     "/api/webhooks/stripe",
     "/delete-account",
+    "/csae-policy",
   ];
   const isPublic = pathname === "/" || publicRoutes.some((r) => pathname.startsWith(r));
 
