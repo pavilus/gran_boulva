@@ -112,8 +112,8 @@ class _BoostSelectionScreenState extends State<BoostSelectionScreen> {
         );
         if (!mounted) return;
         AppHaptics.tap(AppHaptic.success);
-        setState(
-            () => _coinBalance = _coinBalance > cost ? _coinBalance - cost : 0);
+        // Reload balance from server after confirmed deduction (no optimistic update).
+        _loadBalance();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Boost aktive pou $cost coins!',

@@ -86,11 +86,31 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
 
-    if (!supabaseUrl || !anonKey || !serviceRoleKey || !stripeSecretKey) {
+    if (!supabaseUrl || !anonKey || !serviceRoleKey) {
       return Response.json(
-        { error: "Missing Supabase or Stripe function secrets" },
+        { error: "Missing Supabase function secrets" },
+        { status: 500, headers: corsHeaders },
+      );
+    }
+
+    // Create admin client early so we can fall back to the DB-stored Stripe key
+    // if the STRIPE_SECRET_KEY env secret hasn't been set in Supabase Dashboard.
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+
+    let stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+    if (!stripeSecretKey) {
+      const { data: stripeSettings } = await admin
+        .from("app_settings")
+        .select("value")
+        .eq("key", "stripe_keys")
+        .maybeSingle();
+      stripeSecretKey = stripeSettings?.value?.secretKey ?? "";
+    }
+
+    if (!stripeSecretKey) {
+      return Response.json(
+        { error: "Stripe not configured — add key in Admin → Settings → Stripe" },
         { status: 500, headers: corsHeaders },
       );
     }
@@ -121,8 +141,6 @@ serve(async (req) => {
         { status: 400, headers: corsHeaders },
       );
     }
-
-    const admin = createClient(supabaseUrl, serviceRoleKey);
     const validPack = await getValidCoinPack(admin, coinAmount, usdCents);
     if (!validPack) {
       return Response.json(

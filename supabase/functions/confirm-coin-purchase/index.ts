@@ -39,11 +39,29 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
 
-    if (!supabaseUrl || !anonKey || !serviceRoleKey || !stripeSecretKey) {
+    if (!supabaseUrl || !anonKey || !serviceRoleKey) {
       return Response.json(
-        { error: "Missing Supabase or Stripe function secrets" },
+        { error: "Missing Supabase function secrets" },
+        { status: 500, headers: corsHeaders },
+      );
+    }
+
+    // Fall back to DB-stored key if STRIPE_SECRET_KEY env secret is not set.
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+    let stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+    if (!stripeSecretKey) {
+      const { data: stripeSettings } = await admin
+        .from("app_settings")
+        .select("value")
+        .eq("key", "stripe_keys")
+        .maybeSingle();
+      stripeSecretKey = stripeSettings?.value?.secretKey ?? "";
+    }
+
+    if (!stripeSecretKey) {
+      return Response.json(
+        { error: "Stripe not configured — add key in Admin → Settings → Stripe" },
         { status: 500, headers: corsHeaders },
       );
     }
@@ -104,8 +122,6 @@ serve(async (req) => {
       );
     }
 
-    // Service role client for coin_purchases / coin_transactions
-    const admin = createClient(supabaseUrl, serviceRoleKey);
     const { data: existing } = await admin
       .from("coin_purchases")
       .select("status")

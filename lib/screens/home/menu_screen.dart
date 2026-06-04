@@ -506,7 +506,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 fontSize: 14)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Anile',
                 style: TextStyle(
                     color: AppColors.textMuted, fontFamily: 'Poppins')),

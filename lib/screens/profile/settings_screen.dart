@@ -1,10 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../config/app_colors.dart';
+import '../../services/supabase_service.dart';
 import '../../widgets/common/app_back_button.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
+  Future<void> _deleteAccount(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text(
+          'Efase kont ou?',
+          style: TextStyle(
+              color: AppColors.error,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w700),
+        ),
+        content: const Text(
+          'Aksyon sa a pèmanan. Tout done ou, pòs ou, ak èstori ou pral efase epi ou p ap ka rekipere yo.',
+          style: TextStyle(
+              color: AppColors.textSecondary, fontFamily: 'Poppins', fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Anile',
+                style: TextStyle(color: AppColors.textMuted, fontFamily: 'Poppins')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Efase kont mwen',
+                style: TextStyle(
+                    color: AppColors.error,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await AuthService().deleteAccount();
+      if (context.mounted) context.go('/login');
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erè: ${e.toString()}',
+              style: const TextStyle(fontFamily: 'Poppins')),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +154,42 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 22),
+          const Text(
+            'Zòn danjere',
+            style: TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.1,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 12),
+          _SettingsGroup(
+            children: [
+              _SettingsTile(
+                icon: Icons.open_in_new_rounded,
+                color: AppColors.error,
+                title: 'Mande efasman done ou',
+                subtitle: 'Soumèt yon demann efasman sou entènèt',
+                onTap: () => launchUrl(
+                  Uri.parse('https://granboulva.com/delete-account'),
+                  mode: LaunchMode.externalApplication,
+                ),
+                showDivider: true,
+              ),
+              _SettingsTile(
+                icon: Icons.delete_forever_rounded,
+                color: AppColors.error,
+                title: 'Efase kont mwen',
+                subtitle: 'Siprime tout done ou pou toujou',
+                onTap: () => _deleteAccount(context),
+                showDivider: false,
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
         ],
       ),
     );

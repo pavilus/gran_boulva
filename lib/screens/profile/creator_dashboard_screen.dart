@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:gran_boulva/models/models.dart';
 import 'package:gran_boulva/services/supabase_service.dart';
 import 'package:gran_boulva/config/app_colors.dart';
@@ -27,6 +28,7 @@ class CreatorDashboardScreen extends StatefulWidget {
 class _CreatorDashboardScreenState extends State<CreatorDashboardScreen> {
   final _service = CreatorService();
   CreatorDashboardModel? _dashboard;
+  CreatorProfileModel? _creatorProfile;
   List<CreatorRevenueEventModel> _events = [];
   bool _loading = true;
   bool _refreshing = false;
@@ -40,13 +42,36 @@ class _CreatorDashboardScreenState extends State<CreatorDashboardScreen> {
   Future<void> _load() async {
     final d = await _service.getDashboard();
     final e = await _service.getRevenueEvents(limit: 20);
+    final p = await _service.getMyProfile();
     if (mounted) {
       setState(() {
         _dashboard = d;
         _events = e;
+        _creatorProfile = p;
         _loading = false;
       });
+      _checkConsentIfNeeded();
     }
+  }
+
+  void _checkConsentIfNeeded() {
+    final profile = _creatorProfile;
+    if (profile == null || profile.creatorTier < 1) return;
+    if (profile.hasAcceptedTerms) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => _CreatorAgreementModal(
+          onAccepted: () async {
+            await _service.acceptCreatorTerms();
+            final updated = await _service.getMyProfile();
+            if (mounted) setState(() => _creatorProfile = updated);
+          },
+        ),
+      );
+    });
   }
 
   Future<void> _refresh() async {
@@ -989,6 +1014,178 @@ class _PayoutDialogState extends State<_PayoutDialog> {
         );
       }
     }
+  }
+}
+
+// ─── Creator Agreement consent modal ────────────────────────
+class _CreatorAgreementModal extends StatefulWidget {
+  final Future<void> Function() onAccepted;
+  const _CreatorAgreementModal({required this.onAccepted});
+
+  @override
+  State<_CreatorAgreementModal> createState() =>
+      _CreatorAgreementModalState();
+}
+
+class _CreatorAgreementModalState extends State<_CreatorAgreementModal> {
+  bool _checked = false;
+  bool _submitting = false;
+
+  Future<void> _confirm() async {
+    setState(() => _submitting = true);
+    try {
+      await widget.onAccepted();
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Erè — eseye ankò'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: const Color(0xFF0e0f1e),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Row(
+        children: [
+          Text('🌱', style: TextStyle(fontSize: 22)),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Akò Kreyatè',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17),
+            ),
+          ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Ou fèk tounen yon Kreyatè Gran Boulva. Anvan ou ka komanse touche revni, ou dwe aksepte Akò Kreyatè a.',
+              style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
+            ),
+            const SizedBox(height: 14),
+            const _TermPoint(
+              icon: Icons.attach_money_rounded,
+              text: 'Ou resevwa 60–80% revni sou kontni ou, depan sou nivo ou.',
+            ),
+            const _TermPoint(
+              icon: Icons.copyright_rounded,
+              text: 'Ou kenbe pwopriyete kontni ou, men ou bay Gran Boulva lisans pou afiche li.',
+            ),
+            const _TermPoint(
+              icon: Icons.gavel_rounded,
+              text: 'Ou responsab pou rapòte taks sou revni ou ranmase.',
+            ),
+            const _TermPoint(
+              icon: Icons.rule_rounded,
+              text: 'Vyolasyon règ ka anile estatit Kreyatè ou ak revni an atant.',
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () => launchUrl(
+                Uri.parse('https://granboulva.com/creator-agreement'),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: const Text(
+                'Li Akò Konplè →',
+                style: TextStyle(
+                  color: AppColors.purpleLight,
+                  fontSize: 13,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.purpleLight,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () => setState(() => _checked = !_checked),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: Checkbox(
+                      value: _checked,
+                      onChanged: (v) => setState(() => _checked = v ?? false),
+                      activeColor: AppColors.purpleLight,
+                      side: const BorderSide(color: Colors.white38),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'M li epi m aksepte Akò Kreyatè Gran Boulva a.\nI have read and accept the Creator Agreement.',
+                      style: TextStyle(color: Colors.white60, fontSize: 12, height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: (_checked && !_submitting) ? _confirm : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                _checked ? AppColors.purpleLight : Colors.grey.shade800,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          child: _submitting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white))
+              : const Text('Konfime',
+                  style: TextStyle(color: Colors.white, fontSize: 14)),
+        ),
+      ],
+    );
+  }
+}
+
+class _TermPoint extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _TermPoint({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 15, color: AppColors.purpleLight),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text,
+                style: const TextStyle(
+                    color: Colors.white60, fontSize: 12, height: 1.4)),
+          ),
+        ],
+      ),
+    );
   }
 }
 

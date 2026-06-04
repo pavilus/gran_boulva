@@ -44,6 +44,11 @@ class AuthService {
   Future<void> resetPassword(String email) =>
       supabase.auth.resetPasswordForEmail(email);
 
+  Future<void> deleteAccount() async {
+    await supabase.rpc('delete_my_account');
+    await supabase.auth.signOut();
+  }
+
   User? get currentUser => supabase.auth.currentUser;
   Session? get currentSession => supabase.auth.currentSession;
 }
@@ -794,6 +799,22 @@ class ArgumentService {
     });
   }
 
+  Future<void> blockUser(String targetUserId) async {
+    final me = await UserService().getProfile();
+    if (me == null) return;
+    await supabase.from('blocked_users').upsert({
+      'blocker_id': me.id,
+      'blocked_id': targetUserId,
+    }, onConflict: 'blocker_id,blocked_id');
+    // File a report so the developer is notified of the block
+    await supabase.from('reports').insert({
+      'reporter_user_id': me.id,
+      'reported_type': 'user',
+      'reported_id': targetUserId,
+      'reason': 'blocked_by_user',
+    });
+  }
+
   /// Returns the most-recent arguments that have audio/video attachments,
   /// across all matchups (public — no voter-gate).
   Future<List<Map<String, dynamic>>> getMediaFeed({int limit = 50}) async {
@@ -1532,6 +1553,10 @@ class BadgeService {
           AppSoundService.play(AppSound.badgeUnlock);
           BadgeUnlockEvents.show(result);
         }
+        // Badge XP changes the creator score's badge component (30% weight).
+        // Fire-and-forget — does not block the badge event from completing.
+        // ignore: unawaited_futures
+        CreatorService().refreshTier();
         return result;
       }
     } catch (_) {
@@ -2151,6 +2176,12 @@ class CreatorService {
     );
     if (result == null) return null;
     return CreatorDashboardModel.fromJson(Map<String, dynamic>.from(result));
+  }
+
+  /// Records that the signed-in creator has accepted the Creator Agreement.
+  /// Stamps terms_accepted_at in creator_profiles. Idempotent.
+  Future<void> acceptCreatorTerms() async {
+    await supabase.rpc('accept_creator_terms');
   }
 
   /// Recalculates the score and auto-upgrades tier if eligible.

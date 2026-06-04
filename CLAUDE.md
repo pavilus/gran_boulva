@@ -405,9 +405,15 @@ Current applied migrations (in order):
 20260525000100_badge_rls_policies                         — SELECT policies on user_badges/badge_events/badges/badge_levels (fixes counter showing 0)
 ```
 
+20260527000150_nullable_category_id                      — matchups/predictions.category_id DROP NOT NULL (renamed from conflicting 20260527000100)
 20260527001100_username_history                           — username_history table + trigger for stable profile URLs
+20260527001200_waitlist_amount_cents                      — waitlist.amount_cents column
+20260530000100_email_event_mappings                       — email_event_mappings table
+20260603000100_block_users_and_delete_account             — blocked_users table + delete_my_account() RPC
+20260603000200_creator_terms_consent                      — creator_profiles.terms_accepted_at + accept_creator_terms() RPC
+20260603000300_refresh_tier_on_follow                     — trigger: refresh_creator_tier() fires on follows INSERT
 
-**Next migration timestamp to use: `20260527001200_...`**
+**Next migration timestamp to use: `20260603000400_...`**
 
 ---
 
@@ -558,9 +564,38 @@ pm2 restart gran-boulva-admin
 ## Platform Config
 
 - **iOS device ID:** `00008030-001A41513A88C02E` (GPavilus)
-- **Bundle ID (Android):** `com.granboulva.gran_boulva`
+- **Bundle ID (Android):** `com.granboulva.granboulva`
+- **Android emulator:** `Pixel_7_API34` (API 34, arm64-v8a, 1080×2400) — launch with `flutter emulators --launch Pixel_7_API34`
 - **Orientation:** Portrait-only
 - **Theme:** Dark only, primary purple `#A855F7`, background `#0a0a0f`
+
+### Android Build Notes
+
+**`MainActivity` must extend `FlutterFragmentActivity`** (not `FlutterActivity`) — required by `flutter_stripe`. File: `android/app/src/main/kotlin/com/granboulva/gran_boulva/MainActivity.kt`.
+
+**Android theme must be `Theme.MaterialComponents`** — also required by `flutter_stripe`. Both `values/styles.xml` and `values-night/styles.xml` use `Theme.MaterialComponents.DayNight.NoActionBar`. Material dependency added to `android/app/build.gradle.kts`.
+
+**JDK 26 breaks debug builds** — macOS 26.5 ships JDK 26 which the Kotlin Gradle plugin cannot parse. Debug APK builds (`flutter build apk --debug`) will fail with `java.lang.IllegalArgumentException: 26.0.1`. Fix: install JDK 17 (`brew install --cask temurin@17` — requires sudo). Release builds work fine because Gradle's task cache is used.
+
+**Android release build (for Play Store or emulator install):**
+```bash
+flutter build apk --release
+# → build/app/outputs/flutter-apk/app-release.apk  (~410MB)
+
+flutter build appbundle --release
+# → build/app/outputs/bundle/release/app-release.aab  (~295MB, use this for Play Store)
+```
+
+**Install release APK on Android emulator:**
+```bash
+adb uninstall com.granboulva.gran_boulva  # if already installed
+adb install build/app/outputs/flutter-apk/app-release.apk
+adb shell am start -n com.granboulva.gran_boulva/.MainActivity
+```
+
+**`cmdline-tools` required for release AAB verification** — installed at `~/Library/Android/sdk/cmdline-tools/latest/`. Without it, `flutter build appbundle --release` throws "failed to strip debug symbols" even if the build succeeded. Already installed.
+
+**Android signing:** `android/key.properties` + `android/app/gran-boulva-release.jks`. Back up the `.jks` file — losing it means you can never update the app on Play Store.
 
 To fix Xcode "No development team" error:
 ```bash
@@ -617,20 +652,23 @@ Estimated monthly costs at early launch stage (Haiti/Caribbean team, ~50 battles
 
 ## To-Do List
 
-### 🔴 Before / During Apple Submission
-- [ ] Prepare App Store screenshots, metadata, and app description
-- [ ] Submit app to Apple App Store for review
-- [x] Apply pending DB migration: `supabase db push` → creates `partner_applications` table (`20260522001500_partner_applications.sql`) ✓
+### ✅ Submitted — June 4, 2026
+- [x] **Google Play Store** submitted — package `com.granboulva.granboulva`, version `1.0.0+3` ✓
+- [x] **Apple App Store** submitted ✓
+- [x] All legal pages live: `/delete-account`, `/csae-policy`, `/moderation-policy`, `/creator-agreement` ✓
+- [x] Consent checkbox (ToS + Privacy + Moderation Policy) on signup screen ✓
+- [x] All contact emails unified to `support@granboulva.com` ✓
 
-### 🟡 After Apple Submission (while waiting)
-- [ ] **VPS deploy** — SSH into `root@2.24.101.250` and run:
-  ```bash
-  cd /root/gran_boulva && git checkout -- admin/package-lock.json && git pull && cd admin && npm install && rm -rf .next && npm run build && pm2 restart gran-boulva-admin
-  ```
+### 🟡 While Waiting for Review
 - [ ] **Add Stripe secret key** — Admin dashboard → Settings → Stripe / Peman section
+- [ ] **VPS deploy** — ensure all new legal pages are live:
+  ```bash
+  cd /root/gran_boulva && git pull && cd admin && npm install && rm -rf .next && npm run build && pm2 restart gran-boulva-admin
+  ```
 
-### 🟢 After Apple Approval (post-launch)
-- [ ] **Web coin store** — Let users buy coins at `granboulva.com/coins` to bypass Apple's 30% fee. Includes: user login, pack grid with +10% web bonus, Stripe Checkout, confirm edge function, success page with deep link back to app, and "Buy on web" link in Flutter coin screen. Build once real purchase activity justifies it.
+### 🟢 Post-Launch
+- [x] **Creator Agreement in-app consent** — `terms_accepted_at` on `creator_profiles`, consent modal in creator dashboard, `accept_creator_terms()` RPC, `refresh_creator_tier()` called after badge events + on-follow DB trigger. Done June 4, 2026.
+- [ ] **Web coin store** — Let users buy coins at `granboulva.com/coins` to bypass Apple/Google 30% fee. Includes: user login, pack grid with +10% web bonus, Stripe Checkout, confirm edge function, success page with deep link back to app, and "Buy on web" link in Flutter coin screen. Build once real purchase activity justifies it.
 - [ ] **Agora + AWS setup** (to go live with Debate Battles):
   1. Create Agora account → new project → get App ID + App Certificate
   2. Add `AGORA_APP_ID` + `AGORA_APP_CERTIFICATE` to Supabase Edge Function secrets

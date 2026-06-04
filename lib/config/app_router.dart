@@ -50,10 +50,48 @@ import 'app_colors.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
+// Loads and caches the signed-in user's role so the router can redirect
+// non-admins away from /admin without waiting for the screen to mount.
+class _AuthState extends ChangeNotifier {
+  String? _role;
+  String? get role => _role;
+  bool _loaded = false;
+  bool get loaded => _loaded;
+
+  _AuthState() {
+    Supabase.instance.client.auth.onAuthStateChange.listen((_) => _loadRole());
+    _loadRole();
+  }
+
+  Future<void> _loadRole() async {
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) {
+      _role = null;
+      _loaded = true;
+      notifyListeners();
+      return;
+    }
+    try {
+      final data = await Supabase.instance.client
+          .from('users')
+          .select('role')
+          .eq('auth_user_id', uid)
+          .maybeSingle();
+      _role = data?['role'] as String?;
+    } catch (_) {
+      _role = null;
+    }
+    _loaded = true;
+    notifyListeners();
+  }
+}
+
 GoRouter createRouter() {
+  final authState = _AuthState();
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
+    refreshListenable: authState,
     redirect: (context, state) {
       final session = Supabase.instance.client.auth.currentSession;
       final isAuth = session != null;
@@ -76,6 +114,14 @@ GoRouter createRouter() {
       }
 
       final loc = state.matchedLocation;
+
+      // Admin route guard: once role is loaded, redirect non-admins immediately.
+      // Matches UserModel.isAdmin: role == 'admin' || role == 'moderator'.
+      if (loc.startsWith('/admin') && authState.loaded) {
+        if (!isAuth) return '/login';
+        final r = authState.role;
+        if (r != 'admin' && r != 'moderator') return '/home';
+      }
 
       final publicRoutes = [
         '/splash',

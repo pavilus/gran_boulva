@@ -164,9 +164,9 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
               icon: Icons.block_rounded,
               label: 'Bloke @${_profile?.username ?? ''}',
               color: AppColors.warning,
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                _showSnack('Fonksyon bloke a poko disponib sou aparèy sa a.');
+                await _blockUser();
               },
             ),
             const SizedBox(height: 8),
@@ -243,6 +243,59 @@ class _PublicProfileScreenState extends State<PublicProfileScreen> {
       if (mounted) {
         _showSnack('Rapò a echwe: ${e.toString()}',
             backgroundColor: AppColors.error);
+      }
+    }
+  }
+
+  Future<void> _blockUser() async {
+    final profile = _profile;
+    if (profile == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text(
+          'Bloke @${profile.username}?',
+          style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w700),
+        ),
+        content: const Text(
+          'Ou p ap wè pòs yo ankò e yo p ap ka kontakte ou. Nou pral notifye ekip modèrasyon nou an.',
+          style: TextStyle(
+              color: AppColors.textSecondary,
+              fontFamily: 'Poppins',
+              fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Anile',
+                style: TextStyle(color: AppColors.textMuted, fontFamily: 'Poppins')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Bloke',
+                style: TextStyle(
+                    color: AppColors.warning,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ArgumentService().blockUser(profile.id);
+      if (mounted) {
+        _showSnack('Itilizatè a bloke.');
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        _showSnack('Erè: ${e.toString()}', backgroundColor: AppColors.error);
       }
     }
   }

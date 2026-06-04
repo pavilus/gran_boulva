@@ -1092,6 +1092,7 @@ class CreatorProfileModel {
   final int totalPaidOutCoins;
   final DateTime? scoreUpdatedAt;
   final DateTime? tierUpdatedAt;
+  final DateTime? termsAcceptedAt;
 
   const CreatorProfileModel({
     required this.userId,
@@ -1106,7 +1107,10 @@ class CreatorProfileModel {
     required this.totalPaidOutCoins,
     this.scoreUpdatedAt,
     this.tierUpdatedAt,
+    this.termsAcceptedAt,
   });
+
+  bool get hasAcceptedTerms => termsAcceptedAt != null;
 
   factory CreatorProfileModel.fromJson(Map<String, dynamic> j) =>
       CreatorProfileModel(
@@ -1127,6 +1131,9 @@ class CreatorProfileModel {
         tierUpdatedAt: j['tier_updated_at'] == null
             ? null
             : DateTime.tryParse(j['tier_updated_at']),
+        termsAcceptedAt: j['terms_accepted_at'] == null
+            ? null
+            : DateTime.tryParse(j['terms_accepted_at']),
       );
 
   String get tierLabel {
