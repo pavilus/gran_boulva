@@ -703,7 +703,22 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () => launchUrl(
                                         Uri.parse(
-                                            'https://www.granboulva.com/privacy'),
+                                            'https://granboulva.com/privacy'),
+                                        mode: LaunchMode.externalApplication),
+                                ),
+                                TextSpan(
+                                    text: _language == 'ht' ? ' ak ' : ' and '),
+                                TextSpan(
+                                  text: _language == 'ht'
+                                      ? 'Politik Moderasyon'
+                                      : 'Moderation Policy',
+                                  style: const TextStyle(
+                                      color: AppColors.purpleLight,
+                                      fontWeight: FontWeight.w600),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () => launchUrl(
+                                        Uri.parse(
+                                            'https://granboulva.com/moderation-policy'),
                                         mode: LaunchMode.externalApplication),
                                 ),
                                 TextSpan(
