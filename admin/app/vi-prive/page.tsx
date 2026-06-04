@@ -65,14 +65,14 @@ Anrejistreman vwa ak videyo ou te soumèt kòm agiman yo efase nan sèvè estoka
             "Pòtabilite: mande done ou nan yon fòma pòtab, ki lisib pa machin.",
             "Objeksyon: objekte kèk tip trete (tankou pwofil).",
             "Restriksyon: mande nou limite trete done ou nan sèten sikonstans.",
-            "Pou egzèse nenpòt dwa, kontakte nou nan: privacy@granboulva.com. Nou pral reponn nan 30 jou.",
+            "Pou egzèse nenpòt dwa, kontakte nou nan: support@granboulva.com. Nou pral reponn nan 30 jou.",
           ],
         },
         {
           title: "Vi Prive Timoun",
           content: `Gran Boulva pa dirije bay timoun ki poko gen 13 an. Nou pa konnyans kolekte enfòmasyon pèsonèl timoun ki poko gen 13 an. Si ou nan Inyon Ewopeyen, ou dwe gen omwen 16 an, oswa gen konsantman paran verifye, pou itilize Gran Boulva.
 
-Si nou reyalize nou te kolekte enfòmasyon timoun ki poko gen laj aplikab la san vle, nou pral efase li rapidman. Kontakte nou nan privacy@granboulva.com si ou kwè nou gen done konsa.`,
+Si nou reyalize nou te kolekte enfòmasyon timoun ki poko gen laj aplikab la san vle, nou pral efase li rapidman. Kontakte nou nan support@granboulva.com si ou kwè nou gen done konsa.`,
         },
         {
           title: "Transfè Done Entènasyonal",
@@ -89,7 +89,7 @@ Pou itilizatè UE/EEE, transfè yo kouvri pa kloz kontraktyèl estanda (SCC) jan
 • Dwa pou Refize Lavant: Gran Boulva pa vann enfòmasyon pèsonèl. Ou pa bezwen refize.
 • Dwa a Non-Diskriminasyon: nou pap diskrete kont ou pou egzèse dwa CCPA ou yo.
 
-Pou soumèt yon demann, imel privacy@granboulva.com ak "CCPA Request" nan sijè a.`,
+Pou soumèt yon demann, imel support@granboulva.com ak "CCPA Request" nan sijè a.`,
         },
         {
           title: "RGPD — Itilizatè UE / EEE",
@@ -99,7 +99,7 @@ Pou soumèt yon demann, imel privacy@granboulva.com ak "CCPA Request" nan sijè 
 • Enterè lejitim: siveyans sekirite, prevansyon fwòd, ak amelyorasyon platfòm lan.
 • Konsantman: kominikasyon maketing (ou ka retire konsantman an nenpòt ki lè).
 
-Kontak Pwoteksyon Done nou an: privacy@granboulva.com. Ou gen dwa tou pou depoze yon plent bay otorite sipèvizyon lokal ou.`,
+Kontak Pwoteksyon Done nou an: support@granboulva.com. Ou gen dwa tou pou depoze yon plent bay otorite sipèvizyon lokal ou.`,
         },
         {
           title: "Sekirite",
@@ -116,7 +116,7 @@ Pa gen sistèm ki 100% sekirize. Nan ka yon vyolasyon done ki afekte dwa ou, nou
           title: "Chanjman nan Règleman Sa",
           content: `Nou ka mete ajou Règleman Konfidansyalite sa de tan an tan. Nou pral avèti ou sou chanjman enpòtan yo lè nou voye yon notifikasyon nan aplikasyon oswa pa imel omwen 14 jou anvan chanjman yo antre an vigè. Kontinye itilize Gran Boulva apre dat sa konstitye akseptasyon règleman mete ajou a.
 
-Kontak: privacy@granboulva.com`,
+Kontak: support@granboulva.com`,
         },
       ]}
     />

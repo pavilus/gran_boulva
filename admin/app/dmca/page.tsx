@@ -18,14 +18,14 @@ Gran Boulva has designated a DMCA Agent to receive notices of claimed infringeme
         {
           title: "Designated DMCA Agent / Ajan DMCA Nou",
           content: `DMCA Agent: Gran Boulva Legal Team
-Email: dmca@granboulva.com
+Email: support@granboulva.com
 Website: granboulva.com
 
 All DMCA notices must be submitted in writing to the email address above.`,
         },
         {
           title: "How to File a Takedown Notice / Kijan pou Soumèt yon Notis",
-          content: `If you believe content on Gran Boulva infringes your copyright, send a written notice to dmca@granboulva.com containing all of the following:
+          content: `If you believe content on Gran Boulva infringes your copyright, send a written notice to support@granboulva.com containing all of the following:
 
 1. Identification of the copyrighted work: A description of the copyrighted work you claim has been infringed, or if multiple works are covered by a single notification, a representative list of such works.
 
@@ -43,7 +43,7 @@ Notices that do not include all required elements may not receive a response.`,
         },
         {
           title: "Counter-Notice Procedure / Pwosedi Kontrè-Notis",
-          content: `If you believe content was removed from Gran Boulva as a result of a mistake or misidentification, you may file a counter-notice by sending a written statement to dmca@granboulva.com containing:
+          content: `If you believe content was removed from Gran Boulva as a result of a mistake or misidentification, you may file a counter-notice by sending a written statement to support@granboulva.com containing:
 
 1. Identification of the removed material and the location where it appeared before it was removed.
 
@@ -78,10 +78,10 @@ Filing a false DMCA notice to suppress legitimate speech is a serious matter. Gr
         {
           title: "Contact / Kontakte Nou",
           content: `DMCA notices and counter-notices:
-Email: dmca@granboulva.com
+Email: support@granboulva.com
 
 For all other questions:
-Email: legal@granboulva.com`,
+Email: support@granboulva.com`,
         },
       ]}
     />

@@ -53,20 +53,20 @@ Gran Boulva itilize yon kombinasyon deteksyon otomatik ak revizyon imen.`,
           title: "How to Report / Kijan Pou Rapòte",
           content: `To report a post, argument, or user:
 • Tap the three-dot (⋯) menu on any post or profile → Report → select a category.
-• Email: moderation@granboulva.com
+• Email: support@granboulva.com
 
 All reports are confidential. We will not notify the reported user of who filed the report. We will notify you of the outcome within 7 days.
 
 Pou rapòte yon pòs, agiman, oswa itilizatè:
 • Tape menu twa pwen (⋯) sou nenpòt pòs oswa pwofil → Rapòte → chwazi yon kategori.
-• Imel: moderation@granboulva.com`,
+• Imel: support@granboulva.com`,
         },
         {
           title: "Appeals / Apèl",
           content: `If you believe a moderation action was taken in error, you may appeal within 30 days of the action.
 
 To appeal:
-• Email appeals@granboulva.com with your username, the content or action in question, and your reason for appeal.
+• Email support@granboulva.com with your username, the content or action in question, and your reason for appeal.
 • Appeals are reviewed by a senior moderator not involved in the original decision within 14 days.
 • The appeal decision is final.
 
@@ -74,9 +74,9 @@ Si ou kwè yon aksyon moderasyon te fèt nan erè, ou ka fè apèl nan 30 jou ap
         },
         {
           title: "Contact / Kontak",
-          content: `Moderation team: moderation@granboulva.com
-Appeals: appeals@granboulva.com
-Child safety: safety@granboulva.com
+          content: `Moderation team: support@granboulva.com
+Appeals: support@granboulva.com
+Child safety: support@granboulva.com
 
 Gran Boulva — granboulva.com`,
         },

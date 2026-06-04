@@ -52,7 +52,7 @@ This disclaimer does not affect rights that cannot be excluded or limited under 
         {
           title: "Contact / Kontakte Nou",
           content: `For questions about this Disclaimer:
-Email: legal@granboulva.com`,
+Email: support@granboulva.com`,
         },
       ]}
     />

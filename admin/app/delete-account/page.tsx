@@ -89,7 +89,7 @@ export default function DeleteAccountPage() {
             </span>
           </p>
           <a
-            href="mailto:privacy@granboulva.com?subject=Account%20Deletion%20Request&body=Username%3A%20%5Byour%20username%5D%0AEmail%20address%20used%20to%20sign%20up%3A%20%5Byour%20email%5D%0A%0APlease%20delete%20my%20Gran%20Boulva%20account%20and%20all%20associated%20data."
+            href="mailto:support@granboulva.com?subject=Account%20Deletion%20Request&body=Username%3A%20%5Byour%20username%5D%0AEmail%20address%20used%20to%20sign%20up%3A%20%5Byour%20email%5D%0A%0APlease%20delete%20my%20Gran%20Boulva%20account%20and%20all%20associated%20data."
             style={{
               display: "inline-block",
               background: "rgba(239,68,68,0.10)",
@@ -102,7 +102,7 @@ export default function DeleteAccountPage() {
               textDecoration: "none",
             }}
           >
-            privacy@granboulva.com
+            support@granboulva.com
           </a>
           <p style={{ color: "#6b7280", fontSize: 12, margin: "12px 0 0", lineHeight: 1.6 }}>
             Include your username and the email address used to sign up.
@@ -140,8 +140,8 @@ export default function DeleteAccountPage() {
 
         <p style={{ color: "#4b5563", fontSize: 12, textAlign: "center", lineHeight: 1.6 }}>
           Questions? Contact us at{" "}
-          <a href="mailto:privacy@granboulva.com" style={{ color: "#A855F7", textDecoration: "none" }}>
-            privacy@granboulva.com
+          <a href="mailto:support@granboulva.com" style={{ color: "#A855F7", textDecoration: "none" }}>
+            support@granboulva.com
           </a>
           {" "}· <a href="/privacy" style={{ color: "#6b7280", textDecoration: "none" }}>Privacy Policy</a>
         </p>

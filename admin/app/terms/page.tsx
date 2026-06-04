@@ -124,7 +124,7 @@ YOU WAIVE YOUR RIGHT TO PARTICIPATE IN A CLASS ACTION LAWSUIT OR CLASS-WIDE ARBI
           title: "Contact / Kontakte Nou",
           content: `For questions about these Terms, contact us at:
 
-Email: legal@granboulva.com
+Email: support@granboulva.com
 Platform: granboulva.com`,
         },
       ]}

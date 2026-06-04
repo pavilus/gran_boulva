@@ -65,14 +65,14 @@ Voice and video recordings you submitted as arguments are deleted from our stora
             "Portability: request your data in a portable, machine-readable format.",
             "Objection: object to certain types of processing (e.g., profiling).",
             "Restriction: request that we restrict processing of your data in certain circumstances.",
-            "To exercise any right, contact us at: privacy@granboulva.com. We will respond within 30 days.",
+            "To exercise any right, contact us at: support@granboulva.com. We will respond within 30 days.",
           ],
         },
         {
           title: "Children's Privacy / Vi Prive Timoun",
           content: `Gran Boulva is not directed to children under the age of 13. We do not knowingly collect personal information from children under 13. If you are located in the European Union, you must be at least 16 years old, or have verifiable parental consent, to use Gran Boulva.
 
-If we become aware that we have inadvertently collected information from a child under the applicable age, we will delete it promptly. Contact us at privacy@granboulva.com if you believe we have such data.`,
+If we become aware that we have inadvertently collected information from a child under the applicable age, we will delete it promptly. Contact us at support@granboulva.com if you believe we have such data.`,
         },
         {
           title: "International Data Transfers / Transfè Done Entènasyonal",
@@ -89,7 +89,7 @@ For EU/EEA users, transfers are covered by standard contractual clauses (SCCs) a
 • Right to Opt-Out of Sale: Gran Boulva does not sell personal information. You do not need to opt out.
 • Right to Non-Discrimination: we will not discriminate against you for exercising your CCPA rights.
 
-To submit a request, email privacy@granboulva.com with "CCPA Request" in the subject line.`,
+To submit a request, email support@granboulva.com with "CCPA Request" in the subject line.`,
         },
         {
           title: "GDPR — EU / EEA Users",
@@ -99,7 +99,7 @@ To submit a request, email privacy@granboulva.com with "CCPA Request" in the sub
 • Legitimate interests: security monitoring, fraud prevention, and improving the platform.
 • Consent: marketing communications (you may withdraw consent at any time).
 
-Our Data Protection contact is: privacy@granboulva.com. You also have the right to lodge a complaint with your local supervisory authority.`,
+Our Data Protection contact is: support@granboulva.com. You also have the right to lodge a complaint with your local supervisory authority.`,
         },
         {
           title: "Security / Sekirite",
@@ -116,7 +116,7 @@ No system is 100% secure. In the event of a data breach affecting your rights, w
           title: "Changes to This Policy / Chanjman nan Règleman Sa",
           content: `We may update this Privacy Policy from time to time. We will notify you of material changes by sending an in-app notification or email at least 14 days before the changes take effect. Continued use of Gran Boulva after that date constitutes acceptance of the updated policy.
 
-Contact: privacy@granboulva.com`,
+Contact: support@granboulva.com`,
         },
       ]}
     />

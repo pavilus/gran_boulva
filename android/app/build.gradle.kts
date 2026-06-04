@@ -39,7 +39,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.granboulva.gran_boulva"
+        applicationId = "com.granboulva.granboulva"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -52,10 +52,15 @@ android {
                 signingConfigs.getByName("release")
             else
                 signingConfigs.getByName("debug")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation("com.google.android.material:material:1.12.0")
 }

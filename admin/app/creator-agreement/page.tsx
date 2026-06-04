@@ -79,7 +79,7 @@ Gran Boulva ka mete ajou Akò sa a nenpòt ki lè. Nou pral avèti ou via notifi
         },
         {
           title: "Contact / Kontak",
-          content: `For questions about this Agreement: creators@granboulva.com
+          content: `For questions about this Agreement: support@granboulva.com
 
 Gran Boulva — granboulva.com`,
         },

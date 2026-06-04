@@ -63,7 +63,7 @@ To clear local app data on your phone, go to your device's app settings and sele
           title: "Changes to This Policy / Chanjman",
           content: `We will update this Cookie Policy if we introduce new technologies or change our use of existing ones. Changes will be posted on this page with an updated effective date.
 
-Contact: privacy@granboulva.com`,
+Contact: support@granboulva.com`,
         },
       ]}
     />

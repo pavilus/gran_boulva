@@ -24,7 +24,7 @@ Any account found sharing, distributing, or facilitating such content will be im
           title: "How to Report / Kijan Pou Rapòte",
           content: [
             "In-app: tap the three-dot menu on any post or profile → Report → select the appropriate category.",
-            "By email: send a detailed report to safety@granboulva.com with the username, content description, and any screenshots.",
+            "By email: send a detailed report to support@granboulva.com with the username, content description, and any screenshots.",
             "To report CSAM directly to authorities: use the NCMEC CyberTipline at www.missingkids.org/gethelpnow/cybertipline.",
             "All reports are reviewed by our moderation team within 24 hours. Reports involving minors are escalated immediately.",
           ],
@@ -43,13 +43,13 @@ Any account found sharing, distributing, or facilitating such content will be im
           title: "Age Requirements / Kondisyon Laj",
           content: `Gran Boulva is not directed to children under the age of 13. Users must be at least 13 years old to create an account. Users in the European Union must be at least 16 years old or have verifiable parental consent.
 
-We do not knowingly allow anyone under 13 to create an account. If we discover an underage user, we will immediately delete the account and all associated data. To report a potentially underage user, contact us at safety@granboulva.com.`,
+We do not knowingly allow anyone under 13 to create an account. If we discover an underage user, we will immediately delete the account and all associated data. To report a potentially underage user, contact us at support@granboulva.com.`,
         },
         {
           title: "Contact / Kontak",
           content: `For child safety concerns, contact us at:
 
-Email: safety@granboulva.com
+Email: support@granboulva.com
 Response time: within 24 hours for all reports; immediate escalation for confirmed CSAE.
 
 To report CSAM to authorities:
