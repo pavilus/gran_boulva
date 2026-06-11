@@ -69,9 +69,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       'matchup',
       'new_matchup',
       'prediction_result',
-      'battle_challenge',
-      'battle_accepted',
-      'battle_result',
     }.contains(type);
   }
 
@@ -148,16 +145,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       context.push('/coins');
     } else if (table == 'verification_requests') {
       context.push('/verification-request');
-    } else if (table == 'debate_battles') {
-      // battle_challenge → incoming accept/decline screen
-      // battle_result    → result screen
-      final type = notification.type;
-      if (type == 'battle_result') {
-        context.push('/battle/$id/result');
-      } else {
-        context.push('/battle/$id/incoming');
-      }
     }
+    // debate_battles notifications are suppressed until battles go live
   }
 
   void _goBack() {
@@ -226,27 +215,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           asset: null,
           color: AppColors.blue,
           label: 'Matchup'
-        );
-      case 'battle_challenge':
-        return (
-          icon: Icons.sports_mma_rounded,
-          asset: null,
-          color: AppColors.orange,
-          label: '⚔️ Defi'
-        );
-      case 'battle_accepted':
-        return (
-          icon: Icons.sports_mma_rounded,
-          asset: null,
-          color: AppColors.success,
-          label: 'Aksepte'
-        );
-      case 'battle_result':
-        return (
-          icon: Icons.emoji_events_rounded,
-          asset: null,
-          color: AppColors.warning,
-          label: 'Rezilta'
         );
       case 'new_follower':
         return (
